@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane maxHeight="600.0" maxWidth="800.0" minHeight="400.0" minWidth="596.0" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.java.amongUs.MenuController">
+   <children>
+      <ImageView fitHeight="740.0" fitWidth="821.0" layoutX="-10.0" layoutY="-60.0" pickOnBounds="true" smooth="false">
+         <image>
+            <Image url="@../images/fondo.gif" />
+         </image>
+      </ImageView>
+      <Label layoutX="610.0" layoutY="557.0" opacity="0.8" text="Derechos Reservados, 2026" textFill="WHITE">
+         <font>
+            <Font name="Comic Sans MS" size="14.0" />
+         </font>
+      </Label>
+      <ImageView fitHeight="279.0" fitWidth="371.0" layoutX="203.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../images/logoAmongUs.png" />
+         </image>
+      </ImageView>
+      <Button layoutX="81.0" layoutY="466.0" mnemonicParsing="false" onAction="#onSalir" prefHeight="48.0" prefWidth="156.0" text="Salir" />
+      <Button layoutX="81.0" layoutY="407.0" mnemonicParsing="false" prefHeight="48.0" prefWidth="156.0" text="Configurar Personaje" />
+      <Button layoutX="81.0" layoutY="344.0" mnemonicParsing="false" prefHeight="48.0" prefWidth="156.0" text="Créditos" />
+      <Button layoutX="81.0" layoutY="276.0" mnemonicParsing="false" prefHeight="48.0" prefWidth="156.0" text="Ayuda" />
+      <Button layoutX="81.0" layoutY="209.0" mnemonicParsing="false" prefHeight="48.0" prefWidth="156.0" text="Iniciar Juego" />
+      <ImageView fitHeight="363.0" fitWidth="345.0" layoutX="442.0" layoutY="180.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../images/portada.png" />
+         </image>
+      </ImageView>
+   </children>
+</AnchorPane>
