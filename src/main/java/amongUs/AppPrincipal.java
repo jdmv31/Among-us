@@ -21,9 +21,7 @@ public class AppPrincipal extends GameApplication {
             javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(
                     getClass().getResource("/ui/menuPrincipal.fxml")
             );
-
-            // BORRAMOS la línea de loader.setController(...)
-
+            loader.setController(new MenuController());
             Parent root = loader.load();
             FXGL.addUINode(root);
 
@@ -32,6 +30,18 @@ public class AppPrincipal extends GameApplication {
             e.printStackTrace();
         }
     }
+
+    @Override
+    protected void initGame(){
+        try{
+            FXGL.getAudioPlayer().loopMusic(FXGL.getAssetLoader().loadMusic("musicaMenu.mp3"));
+            FXGL.getSettings().setGlobalMusicVolume(0.5);
+        }catch(Exception e){
+            System.err.println("No se pudo abrir el archivo de audio: "+e.getMessage());
+        }
+
+    }
+
 
     public static void main(String[] args) {
         launch(args);
