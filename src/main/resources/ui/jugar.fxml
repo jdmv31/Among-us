@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.text.Font?>
+
+
+<StackPane xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <AnchorPane maxHeight="600.0" maxWidth="800.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0">
+         <children>
+            <ImageView fitHeight="658.0" fitWidth="808.0" pickOnBounds="true">
+               <image>
+                  <Image url="@../images/fondo.gif" />
+               </image>
+            </ImageView>
+            <ImageView fitHeight="150.0" fitWidth="200.0" layoutX="284.0" layoutY="33.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../images/jugar.png" />
+               </image>
+            </ImageView>
+            <Button layoutX="129.0" layoutY="300.0" mnemonicParsing="false" onAction="#onUnirsePartida" text="Unirse a Partida" />
+            <Button layoutX="137.0" layoutY="367.0" mnemonicParsing="false" onAction="#onCrearPartida" text="Crear Partida" />
+            <Button layoutX="131.0" layoutY="445.0" mnemonicParsing="false" onAction="#onVolverMenu" text="Volver al Menú" />
+         </children>
+      </AnchorPane>
+      <AnchorPane fx:id="ventanaModal" maxHeight="200.0" maxWidth="300.0" prefHeight="200.0" prefWidth="300.0" visible="false">
+         <children>
+            <ImageView fitHeight="200.0" fitWidth="300.0" layoutY="-6.0" opacity="0.8" pickOnBounds="true">
+               <image>
+                  <Image url="@../images/ventanaModal.jpg" />
+               </image>
+            </ImageView>
+            <TextField layoutX="77.0" layoutY="35.0" promptText="Ej: Mango con Adobo" />
+            <TextField layoutX="76.0" layoutY="100.0" promptText="Ej: 12345" />
+            <Label layoutX="38.0" layoutY="2.0" prefHeight="25.0" prefWidth="226.0" text="Ingrese su nombre de Usuario" textFill="WHITE">
+               <font>
+                  <Font size="16.0" />
+               </font>
+            </Label>
+            <Label layoutX="39.0" layoutY="69.0" prefHeight="25.0" prefWidth="226.0" text="Ingrese el código de la lobby" textFill="WHITE">
+               <font>
+                  <Font size="16.0" />
+               </font>
+            </Label>
+            <Button layoutX="116.0" layoutY="149.0" mnemonicParsing="false" text="Confirmar" />
+         </children>
+      </AnchorPane>
+      <AnchorPane fx:id="ventanaModal1" maxHeight="200.0" maxWidth="300.0" prefHeight="200.0" prefWidth="300.0" visible="false">
+         <children>
+            <ImageView fitHeight="207.0" fitWidth="300.0" layoutY="-6.0" opacity="0.8" pickOnBounds="true">
+               <image>
+                  <Image url="@../images/ventanaModal.jpg" />
+               </image>
+            </ImageView>
+            <TextField layoutX="77.0" layoutY="35.0" promptText="Ej: Mango con Adobo" />
+            <Label layoutX="38.0" layoutY="2.0" prefHeight="25.0" prefWidth="226.0" text="Ingrese su nombre de Usuario" textAlignment="CENTER" textFill="WHITE">
+               <font>
+                  <Font size="16.0" />
+               </font>
+            </Label>
+            <Label layoutX="65.0" layoutY="69.0" prefHeight="25.0" prefWidth="173.0" text="Ingrese el mapa a jugar" textAlignment="RIGHT" textFill="WHITE">
+               <font>
+                  <Font size="16.0" />
+               </font>
+            </Label>
+            <Button layoutX="116.0" layoutY="149.0" mnemonicParsing="false" text="Confirmar" />
+            <RadioButton layoutX="108.0" layoutY="106.0" mnemonicParsing="false" />
+            <RadioButton layoutX="230.0" layoutY="106.0" mnemonicParsing="false" />
+            <ImageView fitHeight="81.0" fitWidth="78.0" layoutX="26.0" layoutY="77.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../images/mapaBiblioteca.png" />
+               </image>
+            </ImageView>
+            <ImageView fitHeight="59.0" fitWidth="69.0" layoutX="156.0" layoutY="85.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../images/mapaCancha.png" />
+               </image>
+            </ImageView>
+         </children>
+      </AnchorPane>
+   </children>
+</StackPane>
