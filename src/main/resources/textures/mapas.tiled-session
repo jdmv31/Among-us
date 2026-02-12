@@ -1,0 +1,132 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "piso.tsx",
+    "automapping.whileDrawing": false,
+    "expandedProjectPaths": [
+        "."
+    ],
+    "file.lastUsedOpenFilter": "Todos los archivos (*)",
+    "fileStates": {
+        "Cielo.tsx": {
+            "scaleInEditor": 1
+        },
+        "Mesa_Holograafica.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "Mesa_Holograafica_la_propia.tsx": {
+            "scaleInDock": 1.5,
+            "scaleInEditor": 1
+        },
+        "Mesa_Holograaficaa.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "Mesa_Holografica_mas_pequena1.tsx": {
+            "scaleInEditor": 1
+        },
+        "Mesa_Holografica_mas_pequena2.tsx": {
+            "scaleInEditor": 1
+        },
+        "Mesa_de_trabajo.tsx": {
+            "scaleInDock": 1.5,
+            "scaleInEditor": 8
+        },
+        "Mesa_de_trabajo_buena.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 8
+        },
+        "detallitos.tsx": {
+            "scaleInEditor": 1
+        },
+        "dibujito.tsx": {
+            "scaleInEditor": 1
+        },
+        "diseñito.tsx": {
+            "scaleInEditor": 1
+        },
+        "estantes.tsx": {
+            "scaleInEditor": 1
+        },
+        "estantes2.tsx": {
+            "scaleInEditor": 1
+        },
+        "futbol1.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "mesa.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "mesa1.tsx": {
+            "scaleInEditor": 1
+        },
+        "mesapociones.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "mesaposiones.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "mesaposiones3.tsx": {
+            "scaleInEditor": 1
+        },
+        "muebles.tsx": {
+            "scaleInEditor": 1
+        },
+        "muebles2.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "pisito.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "piso.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "piso2.tsx": {
+            "scaleInEditor": 1
+        },
+        "pisoo.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "planeta.tsx": {
+            "scaleInEditor": 1
+        }
+    },
+    "last.externalTilesetPath": "C:/Users/nicol/Downloads/mapas",
+    "last.imagePath": "C:/Users/nicol/Downloads",
+    "map.lastUsedFormat": "tmx",
+    "map.width": 25,
+    "openFiles": [
+        "piso.tsx"
+    ],
+    "project": "mapas.tiled-project",
+    "recentFiles": [
+        "futbol1.tsx",
+        "Mesa_Holografica_mas_pequena2.tsx",
+        "Mesa_Holograaficaa.tsx",
+        "Mesa_Holografica_mas_pequena1.tsx",
+        "Mesa_Holograafica.tsx",
+        "Mesa_Holograafica_la_propia.tsx",
+        "planeta.tsx",
+        "mesaposiones3.tsx",
+        "estantes2.tsx",
+        "estantes.tsx",
+        "muebles2.tsx",
+        "muebles.tsx"
+    ],
+    "resizeMap.removeObjects": true,
+    "tileset.lastUsedFilter": "Archivos de conjuntos de patrones Tiled (*.tsx *.xml)",
+    "tileset.lastUsedFormat": "tsx",
+    "tileset.margin": 2,
+    "tileset.spacing": 2
+}

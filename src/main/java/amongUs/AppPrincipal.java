@@ -33,13 +33,20 @@ public class AppPrincipal extends GameApplication {
 
     @Override
     protected void initGame(){
+
+        // Registrar la fabrica
+        FXGL.getGameWorld().addEntityFactory(new Fabrica());
+
         try{
+            // Cargar el mapa
+            FXGL.setLevelFromMap("mapa2.tmx");
+
             FXGL.getAudioPlayer().loopMusic(FXGL.getAssetLoader().loadMusic("musicaMenu.mp3"));
             FXGL.getSettings().setGlobalMusicVolume(0.5);
         }catch(Exception e){
-            System.err.println("No se pudo abrir el archivo de audio: "+e.getMessage());
-        }
+            System.err.println("No se pudo abrir el archivo de audio o mapa: "+e.getMessage());
 
+        }
     }
 
 
