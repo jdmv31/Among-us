@@ -10,7 +10,6 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.text.Font?>
 
-
 <StackPane xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <AnchorPane maxHeight="600.0" maxWidth="800.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0">
@@ -25,9 +24,25 @@
                   <Image url="@../images/jugar.png" />
                </image>
             </ImageView>
-            <Button layoutX="129.0" layoutY="300.0" mnemonicParsing="false" onAction="#onUnirsePartida" text="Unirse a Partida" />
-            <Button layoutX="137.0" layoutY="367.0" mnemonicParsing="false" onAction="#onCrearPartida" text="Crear Partida" />
-            <Button layoutX="131.0" layoutY="445.0" mnemonicParsing="false" onAction="#onVolverMenu" text="Volver al Menú" />
+            <ImageView fitHeight="111.0" fitWidth="78.0" layoutX="649.0" layoutY="33.0" onMouseClicked="#onVolverMenu" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../images/botonVolver.png" />
+               </image>
+            </ImageView>
+            <ImageView fitHeight="157.0" fitWidth="358.0" layoutX="63.0" layoutY="212.0" onMouseClicked="#onCrearPartida" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../images/botonCrear.png" />
+               </image>
+            </ImageView>
+            <ImageView fitHeight="142.0" fitWidth="300.0" layoutX="68.0" layoutY="359.0" onMouseClicked="#onUnirsePartida" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../images/botonUnirse.png" />
+               </image></ImageView>
+            <ImageView fitHeight="328.0" fitWidth="272.0" layoutX="448.0" layoutY="194.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../images/imagenJugar.png" />
+               </image>
+            </ImageView>
          </children>
       </AnchorPane>
       <AnchorPane fx:id="ventanaModal" maxHeight="200.0" maxWidth="300.0" prefHeight="200.0" prefWidth="300.0" visible="false">

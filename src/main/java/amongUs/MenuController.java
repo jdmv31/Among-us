@@ -8,11 +8,23 @@ import javafx.scene.Parent;
 import static com.almasb.fxgl.dsl.FXGL.*;
 import com.almasb.fxgl.audio.Sound;
 import javafx.scene.layout.Pane;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
 public class MenuController implements UIController {
-
     @FXML private Pane ventanaModal;
     @FXML private Pane ventanaModal1;
+    @FXML private ImageView imgGuia;
+    private final String [] imagenesGuia = {
+            "1.png",
+            "2.png",
+            "3.png",
+            "4.png",
+            "5.png",
+            "6.png"
+    };
+
+    private int imagenActual = 0;
 
     @Override
     public void init() {
@@ -22,6 +34,30 @@ public class MenuController implements UIController {
     @FXML
     private void onSalir() {
         FXGL.getGameController().exit();
+    }
+
+    @FXML
+    private void atrasarImagen(){
+        if (imagenActual == 0)
+            imagenActual = imagenesGuia.length - 1;
+        else
+            imagenActual--;
+        actualizarImagen();
+    }
+    @FXML
+    private void adelantarImagen(){
+        if (imagenActual == imagenesGuia.length -1)
+            imagenActual = 0;
+        else
+            imagenActual++;
+
+        actualizarImagen();
+    }
+
+    private void actualizarImagen() {
+        String nombreImagen = imagenesGuia[imagenActual];
+
+        imgGuia.setImage(FXGL.getAssetLoader().loadImage(nombreImagen));
     }
 
     private void cambiarEscena(String rutaFXML) {
@@ -44,6 +80,12 @@ public class MenuController implements UIController {
     private void botonPresionado(){
         Sound sonido = FXGL.getAssetLoader().loadSound("clickBoton.mp3");
         getAudioPlayer().playSound(sonido);
+    }
+
+    @FXML
+    private void onTutorial(){
+        botonPresionado();
+        cambiarEscena("/ui/tutorial.fxml");
     }
 
     @FXML
