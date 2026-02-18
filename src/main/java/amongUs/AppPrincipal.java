@@ -91,9 +91,6 @@ public class AppPrincipal extends GameApplication {
         try {
             FXGL.getGameScene().clearUINodes();
             FXGL.setLevelFromMap(nombreMapa);
-            //FXGL.getGameScene().setBackgroundColor(javafx.scene.paint.Color.LIGHTGRAY);
-
-            // 3. Spawneamos al personaje (Tu rectángulo rojo aparecerá en el fondo gris)
             jugador = FXGL.spawn("jugador", 100, 100);
 
             miCliente = MenuController.cliente;
