@@ -12,6 +12,7 @@ public class AppPrincipal extends GameApplication {
         settings.setWidth(800);
         settings.setHeight(600);
         settings.setTitle("Among Us - Java Edition");
+        settings.setAppIcon("icono.png");
         settings.setManualResizeEnabled(false);
     }
 

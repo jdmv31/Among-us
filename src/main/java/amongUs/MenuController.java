@@ -1,5 +1,6 @@
 package main.java.amongUs;
 
+import com.almasb.fxgl.app.GameSettings;
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.ui.UIController; // Importante para que FXGL lo reconozca
 import javafx.fxml.FXML;
