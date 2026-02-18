@@ -16,12 +16,12 @@
  <tileset firstgid="1088" source="planeta.tsx"/>
  <tileset firstgid="1137" source="tanque.tsx"/>
  <tileset firstgid="1186" source="tanque1.tsx"/>
- <tileset firstgid="1235" source="Reactor_bueno1.tsx"/>
- <tileset firstgid="1499" source="Mesa_Holografica_mas_pequena2.tsx"/>
- <tileset firstgid="2399" source="Mesa_de_camaras1.tsx"/>
- <tileset firstgid="2874" source="Mesa_de_camaras2.tsx"/>
+ <tileset firstgid="1235" source="reactor.tsx"/>
+ <tileset firstgid="1499" source="mesa_h2.tsx"/>
+ <tileset firstgid="2399" source="mesa_cam1.tsx"/>
+ <tileset firstgid="2874" source="mesa_cam2.tsx"/>
  <tileset firstgid="3349" source="plataforma1.tsx"/>
- <tileset firstgid="3398" source="Mesa_Holografica_mas_pequena3.tsx"/>
+ <tileset firstgid="3398" source="mesa_h3.tsx"/>
  <tileset firstgid="4298" source="mesita.tsx"/>
  <tileset firstgid="5198" source="estrellas.tsx"/>
  <tileset firstgid="5423" source="cancha1.tsx"/>
