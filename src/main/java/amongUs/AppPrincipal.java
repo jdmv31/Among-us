@@ -90,12 +90,8 @@ public class AppPrincipal extends GameApplication {
     public static void empezarPartida(String nombreMapa) {
         try {
             FXGL.getGameScene().clearUINodes();
-
-            // 1. COMENTA o ELIMINA temporalmente esta línea:
-            // FXGL.setLevelFromMap(nombreMapa);
-
-            // 2. Opcional: Pon un fondo de color para que no se vea negro
-            FXGL.getGameScene().setBackgroundColor(javafx.scene.paint.Color.LIGHTGRAY);
+            FXGL.setLevelFromMap(nombreMapa);
+            //FXGL.getGameScene().setBackgroundColor(javafx.scene.paint.Color.LIGHTGRAY);
 
             // 3. Spawneamos al personaje (Tu rectángulo rojo aparecerá en el fondo gris)
             jugador = FXGL.spawn("jugador", 100, 100);
