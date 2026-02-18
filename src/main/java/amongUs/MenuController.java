@@ -9,6 +9,7 @@ import javafx.scene.Parent;
 import static com.almasb.fxgl.dsl.FXGL.*;
 import com.almasb.fxgl.audio.Sound;
 import javafx.scene.control.RadioButton;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.Pane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -19,9 +20,11 @@ public class MenuController implements UIController {
     @FXML private ImageView imgGuia;
     @FXML private RadioButton botonBiblioteca;
     @FXML private RadioButton botonCancha;
+    @FXML private TextField txtNombre;
     public static Servidor servidor;
     public static Cliente cliente;
     public static String mapaSeleccionado = "mapa2.tmx";
+    public static String nombreUsuario = "Tripulante";
 
     private final String [] imagenesGuia = {
             "1.png",
@@ -150,18 +153,21 @@ public class MenuController implements UIController {
     private void crearSala() {
         botonPresionado();
         try {
-            // Evitamos crear el servidor si ya está corriendo uno
+            if (txtNombre != null && !txtNombre.getText().trim().isEmpty()) {
+                nombreUsuario = txtNombre.getText().trim();
+            } else {
+                nombreUsuario = "Tripulante";
+            }
+
             if (servidor == null) {
                 servidor = new Servidor();
             }
 
-            // Re-conectamos el cliente
             if (cliente != null) {
-                cliente.cliente.stop(); // Cerramos conexión previa por si acaso
+                cliente.cliente.stop();
             }
-            cliente = new Cliente("127.0.0.1", "Host");
+            cliente = new Cliente("127.0.0.1", nombreUsuario);
 
-            // Forzamos el inicio de partida
             onIniciarJuego();
 
         } catch (Exception e) {

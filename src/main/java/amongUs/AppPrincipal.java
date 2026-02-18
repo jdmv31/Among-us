@@ -2,8 +2,10 @@ package main.java.amongUs;
 
 import com.almasb.fxgl.app.GameApplication;
 import com.almasb.fxgl.app.GameSettings;
+import com.almasb.fxgl.app.scene.Viewport;
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.Entity;
+import com.almasb.fxgl.entity.SpawnData;
 import javafx.scene.Parent;
 
 public class AppPrincipal extends GameApplication {
@@ -12,7 +14,7 @@ public class AppPrincipal extends GameApplication {
 
     @Override
     protected void initInput() {
-        double velocidad = 5.0;
+        double velocidad = 3.5;
         FXGL.onKey(javafx.scene.input.KeyCode.W, () -> {
             if (jugador != null) {
                 jugador.translateY(-velocidad);
@@ -42,10 +44,9 @@ public class AppPrincipal extends GameApplication {
     private void enviarCoordenadas() {
         if (miCliente != null && miCliente.cliente != null && miCliente.cliente.isConnected()) {
             Movimiento mov = new Movimiento();
-            mov.username = "Host";
+            mov.username = MenuController.nombreUsuario;
             mov.x = (int) jugador.getX();
             mov.y = (int) jugador.getY();
-
             miCliente.cliente.sendUDP(mov);
             System.out.println("Enviando posición -> X: " + mov.x + " Y: " + mov.y);
         } else {
@@ -91,10 +92,18 @@ public class AppPrincipal extends GameApplication {
         try {
             FXGL.getGameScene().clearUINodes();
             FXGL.setLevelFromMap(nombreMapa);
-            jugador = FXGL.spawn("jugador", 100, 100);
+
+            SpawnData data = new SpawnData(300, 200);
+            data.put("nombre", MenuController.nombreUsuario);
+
+            jugador = FXGL.spawn("jugador", data);
+
+            Viewport viewport = FXGL.getGameScene().getViewport();
+            viewport.setZoom(1.5);
+            viewport.bindToEntity(jugador, FXGL.getAppWidth() / 2.0, FXGL.getAppHeight() / 2.0);
+            viewport.setBounds(0, 0, 992, 960);
 
             miCliente = MenuController.cliente;
-
             FXGL.getGameScene().getRoot().requestFocus();
         } catch(Exception e) {
             System.err.println("Error cargando el mapa: " + e.getMessage());

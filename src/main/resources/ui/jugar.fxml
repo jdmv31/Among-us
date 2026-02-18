@@ -72,14 +72,14 @@
             </ImageView>
          </children>
       </AnchorPane>
-      <AnchorPane fx:id="ventanaModal1" maxHeight="200.0" maxWidth="300.0" prefHeight="200.0" prefWidth="300.0" visible="false">
+      <AnchorPane fx:id="ventanaModal1" maxHeight="200.0" maxWidth="300.0" prefHeight="200.0" prefWidth="300.0">
          <children>
             <ImageView fitHeight="207.0" fitWidth="300.0" layoutY="-6.0" opacity="0.8" pickOnBounds="true">
                <image>
                   <Image url="@../images/ventanaModal.jpg" />
                </image>
             </ImageView>
-            <TextField layoutX="77.0" layoutY="35.0" promptText="Ej: Mango con Adobo" />
+            <TextField fx:id="txtNombre" layoutX="77.0" layoutY="35.0" promptText="Ej: Mango con Adobo" />
             <Label layoutX="38.0" layoutY="2.0" prefHeight="25.0" prefWidth="226.0" text="Ingrese su nombre de Usuario" textAlignment="CENTER" textFill="WHITE">
                <font>
                   <Font size="16.0" />
