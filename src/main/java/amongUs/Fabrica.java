@@ -26,4 +26,12 @@ public class Fabrica implements EntityFactory {
                 .with(new PhysicsComponent())
                 .build();
     }
+
+    @Spawns("jugador")
+    public Entity nuevoJugador(SpawnData data) {
+        return FXGL.entityBuilder(data)
+                .viewWithBBox(new javafx.scene.shape.Rectangle(30, 40, javafx.scene.paint.Color.RED))
+                .with(new PhysicsComponent())
+                .build();
+    }
 }

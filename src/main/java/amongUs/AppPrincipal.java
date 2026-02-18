@@ -3,10 +3,45 @@ package main.java.amongUs;
 import com.almasb.fxgl.app.GameApplication;
 import com.almasb.fxgl.app.GameSettings;
 import com.almasb.fxgl.dsl.FXGL;
+import com.almasb.fxgl.entity.Entity;
 import javafx.scene.Parent;
 
 public class AppPrincipal extends GameApplication {
+    // Variables globales en AppPrincipal
+    private Entity jugador;
+    private Cliente miCliente; // Asumiendo que instanciaste tu cliente al iniciar
 
+    @Override
+    protected void initInput() {
+        double velocidad = 5.0;
+
+        FXGL.onKey(javafx.scene.input.KeyCode.W, () -> {
+            jugador.translateY(-velocidad);
+            enviarCoordenadas();
+        });
+        FXGL.onKey(javafx.scene.input.KeyCode.S, () -> {
+            jugador.translateY(velocidad);
+            enviarCoordenadas();
+        });
+        FXGL.onKey(javafx.scene.input.KeyCode.A, () -> {
+            jugador.translateX(-velocidad);
+            enviarCoordenadas();
+        });
+        FXGL.onKey(javafx.scene.input.KeyCode.D, () -> {
+            jugador.translateX(velocidad);
+            enviarCoordenadas();
+        });
+    }
+
+    private void enviarCoordenadas() {
+        if (miCliente != null && miCliente.cliente.isConnected()) {
+            Movimiento mov = new Movimiento();
+            mov.username = "miUsuario";
+            mov.x = (int) jugador.getX();
+            mov.y = (int) jugador.getY();
+            miCliente.cliente.sendUDP(mov);
+        }
+    }
     @Override
     protected void initSettings(GameSettings settings) {
         settings.setWidth(800);
@@ -34,20 +69,20 @@ public class AppPrincipal extends GameApplication {
 
     @Override
     protected void initGame(){
-
-        // Registrar la fabrica
         FXGL.getGameWorld().addEntityFactory(new Fabrica());
-
-        try{
-            // Cargar el mapa
-            FXGL.setLevelFromMap("mapa2.tmx");
-
+        try {
             FXGL.getAudioPlayer().loopMusic(FXGL.getAssetLoader().loadMusic("musicaMenu.mp3"));
-            FXGL.getSettings().setGlobalMusicVolume(0.5);
-        }catch(Exception e){
-            System.err.println("No se pudo abrir el archivo de audio o mapa: "+e.getMessage());
-
+            FXGL.getSettings().setGlobalMusicVolume(0.4);
+        } catch (Exception e) {
+            System.err.println("Error cargando la música: " + e.getMessage());
         }
+        try{
+            FXGL.setLevelFromMap("mapa2.tmx");
+        }catch(Exception e){
+            System.err.println("Error cargando el mapa: " + e.getMessage());
+        }
+        jugador = FXGL.spawn("jugador", 100, 100);
+        miCliente = new Cliente();
     }
 
 

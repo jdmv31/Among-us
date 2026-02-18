@@ -8,6 +8,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import static com.almasb.fxgl.dsl.FXGL.*;
 import com.almasb.fxgl.audio.Sound;
+import javafx.scene.control.RadioButton;
 import javafx.scene.layout.Pane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -16,6 +17,11 @@ public class MenuController implements UIController {
     @FXML private Pane ventanaModal;
     @FXML private Pane ventanaModal1;
     @FXML private ImageView imgGuia;
+    @FXML private RadioButton botonBiblioteca;
+    @FXML private RadioButton botonCancha;
+    public static Servidor servidor;
+    public static Cliente cliente;
+
     private final String [] imagenesGuia = {
             "1.png",
             "2.png",
@@ -79,7 +85,7 @@ public class MenuController implements UIController {
 
     @FXML
     private void botonPresionado(){
-        Sound sonido = FXGL.getAssetLoader().loadSound("clickBoton.mp3");
+        Sound sonido = FXGL.getAssetLoader().loadSound("clickBoton.wav");
         getAudioPlayer().playSound(sonido);
     }
 
@@ -102,6 +108,16 @@ public class MenuController implements UIController {
     }
 
     @FXML
+    private void cerrarUnirse(){
+        ventanaModal.setVisible(false);
+    }
+
+    @FXML
+    private void cerrarCrear(){
+        ventanaModal1.setVisible(false);
+    }
+
+    @FXML
     private void onUnirsePartida(){
         botonPresionado();
         ventanaModal1.setVisible(false);
@@ -109,10 +125,33 @@ public class MenuController implements UIController {
     }
 
     @FXML
+    private void canchaSeleccionada(){
+        botonBiblioteca.setSelected(false);
+    }
+
+    @FXML
+    private void bibliotecaSeleccionada(){
+        botonCancha.setSelected(false);
+    }
+
+    @FXML
     private void onCrearPartida(){
         botonPresionado();
         ventanaModal.setVisible(false);
         ventanaModal1.setVisible(true);
+    }
+
+    @FXML
+    private void crearSala(){
+        botonPresionado();
+        try{
+            servidor = new Servidor();
+            cliente = new Cliente("127.0.0.1","Host");
+            cambiarEscena("/ui/lobby.fxml");
+        }catch(Exception e){
+            System.out.println("Error creando la partida");
+            e.printStackTrace();
+        }
     }
 
     @FXML
