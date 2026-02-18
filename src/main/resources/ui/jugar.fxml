@@ -90,7 +90,7 @@
                   <Font size="16.0" />
                </font>
             </Label>
-            <Button layoutX="116.0" layoutY="149.0" mnemonicParsing="false" text="Confirmar" />
+            <Button fx:id="botonCrear" layoutX="116.0" layoutY="149.0" mnemonicParsing="false" onMouseClicked="#crearSala" text="Confirmar" />
             <RadioButton fx:id="botonBiblioteca" layoutX="108.0" layoutY="106.0" mnemonicParsing="false" onMouseClicked="#bibliotecaSeleccionada" />
             <RadioButton fx:id="botonCancha" layoutX="230.0" layoutY="106.0" mnemonicParsing="false" onMouseClicked="#canchaSeleccionada" />
             <ImageView fitHeight="81.0" fitWidth="78.0" layoutX="26.0" layoutY="77.0" pickOnBounds="true" preserveRatio="true">

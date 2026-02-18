@@ -9,19 +9,15 @@ public class Cliente {
     public Client cliente;
     public String username;
 
-    Cliente(){
-        cliente = null;
-        username = "";
-    }
-
     public Cliente(String ip, String username) {
         this.username = username;
         cliente = new Client();
-        cliente.getKryo().register(Mensaje.class);
+        cliente.getKryo().register(Movimiento.class);
+        cliente.getKryo().register(MapaElegido.class);
         cliente.start();
 
         try {
-            cliente.connect(5000, ip, 54555);
+            cliente.connect(5000, ip, 54555,54556);
         } catch(IOException e) {
             System.err.println("Error al conectar al servidor: " + e.getMessage());
         }
@@ -33,23 +29,16 @@ public class Cliente {
                     Movimiento mov = (Movimiento) object;
 
                     javafx.application.Platform.runLater(() -> {
-                        // Aquí debes buscar la entidad que corresponde a "mov.username"
-                        // y actualizar sus coordenadas.
-                        // Ejemplo conceptual:
-                        // Entity otroJugador = buscarJugadorPorNombre(mov.username);
-                        // otroJugador.setPosition(mov.x, mov.y);
+                        System.out.println(mov.username + " se movió a " + mov.x + "," + mov.y);
+                    });
+                }
+                else if (object instanceof MapaElegido) {
+                    MapaElegido paquete = (MapaElegido) object;
+                    javafx.application.Platform.runLater(() -> {
+                        AppPrincipal.empezarPartida(paquete.nombreMapa);
                     });
                 }
             }
         });
-    }
-
-
-
-    public void enviarMensaje(String texto) {
-        Mensaje msj = new Mensaje();
-        msj.username = this.username;
-        msj.mensaje = texto;
-        cliente.sendTCP(msj);
     }
 }

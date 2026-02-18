@@ -21,6 +21,7 @@ public class MenuController implements UIController {
     @FXML private RadioButton botonCancha;
     public static Servidor servidor;
     public static Cliente cliente;
+    public static String mapaSeleccionado = "mapa2.tmx";
 
     private final String [] imagenesGuia = {
             "1.png",
@@ -126,12 +127,15 @@ public class MenuController implements UIController {
 
     @FXML
     private void canchaSeleccionada(){
+
         botonBiblioteca.setSelected(false);
+        mapaSeleccionado = "mapaCancha.tmx";
     }
 
     @FXML
     private void bibliotecaSeleccionada(){
         botonCancha.setSelected(false);
+        mapaSeleccionado = "mapa2.tmx";
     }
 
     @FXML
@@ -142,14 +146,25 @@ public class MenuController implements UIController {
     }
 
     @FXML
-    private void crearSala(){
+    private void crearSala() {
         botonPresionado();
-        try{
-            servidor = new Servidor();
-            cliente = new Cliente("127.0.0.1","Host");
-            cambiarEscena("/ui/lobby.fxml");
-        }catch(Exception e){
-            System.out.println("Error creando la partida");
+        try {
+            // Evitamos crear el servidor si ya está corriendo uno
+            if (servidor == null) {
+                servidor = new Servidor();
+            }
+
+            // Re-conectamos el cliente
+            if (cliente != null) {
+                cliente.cliente.stop(); // Cerramos conexión previa por si acaso
+            }
+            cliente = new Cliente("127.0.0.1", "Host");
+
+            // Forzamos el inicio de partida
+            onIniciarJuego();
+
+        } catch (Exception e) {
+            System.err.println("Error creando la partida");
             e.printStackTrace();
         }
     }
@@ -162,7 +177,10 @@ public class MenuController implements UIController {
 
     @FXML
     private void onIniciarJuego() {
-        System.out.println("Iniciando el juego...");
-        // Aquí podrías limpiar la UI y empezar la lógica de red con Kryonet
+        if (cliente != null && cliente.cliente.isConnected()) {
+            MapaElegido mapa = new MapaElegido();
+            mapa.nombreMapa = mapaSeleccionado;
+            cliente.cliente.sendTCP(mapa);
+        }
     }
 }

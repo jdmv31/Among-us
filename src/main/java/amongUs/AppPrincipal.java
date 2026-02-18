@@ -7,29 +7,36 @@ import com.almasb.fxgl.entity.Entity;
 import javafx.scene.Parent;
 
 public class AppPrincipal extends GameApplication {
-    // Variables globales en AppPrincipal
-    private Entity jugador;
-    private Cliente miCliente; // Asumiendo que instanciaste tu cliente al iniciar
+    public static Entity jugador;
+    public static Cliente miCliente;
 
     @Override
     protected void initInput() {
         double velocidad = 5.0;
 
         FXGL.onKey(javafx.scene.input.KeyCode.W, () -> {
-            jugador.translateY(-velocidad);
-            enviarCoordenadas();
+            if (jugador != null) {
+                jugador.translateY(-velocidad);
+                enviarCoordenadas();
+            }
         });
         FXGL.onKey(javafx.scene.input.KeyCode.S, () -> {
-            jugador.translateY(velocidad);
+            if (jugador != null){
+                jugador.translateY(velocidad);
             enviarCoordenadas();
+            }
         });
         FXGL.onKey(javafx.scene.input.KeyCode.A, () -> {
+            if (jugador != null){
             jugador.translateX(-velocidad);
             enviarCoordenadas();
+            }
         });
         FXGL.onKey(javafx.scene.input.KeyCode.D, () -> {
-            jugador.translateX(velocidad);
-            enviarCoordenadas();
+            if (jugador != null) {
+                jugador.translateX(velocidad);
+                enviarCoordenadas();
+            }
         });
     }
 
@@ -76,13 +83,16 @@ public class AppPrincipal extends GameApplication {
         } catch (Exception e) {
             System.err.println("Error cargando la música: " + e.getMessage());
         }
-        try{
-            FXGL.setLevelFromMap("mapa2.tmx");
-        }catch(Exception e){
+    }
+    public static void empezarPartida(String nombreMapa) {
+        try {
+            FXGL.getGameScene().clearUINodes();
+            FXGL.setLevelFromMap(nombreMapa);
+            jugador = FXGL.spawn("jugador", 100, 100);
+            miCliente = MenuController.cliente;
+        } catch(Exception e) {
             System.err.println("Error cargando el mapa: " + e.getMessage());
         }
-        jugador = FXGL.spawn("jugador", 100, 100);
-        miCliente = new Cliente();
     }
 
 
