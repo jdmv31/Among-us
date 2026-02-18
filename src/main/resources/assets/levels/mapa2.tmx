@@ -1,32 +1,86 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="31" height="30" tilewidth="32" tileheight="32" infinite="0" nextlayerid="17" nextobjectid="110">
- <tileset firstgid="1" source="suelo.tsx"/>
- <tileset firstgid="36" source="piso.tsx"/>
- <tileset firstgid="85" source="piso2.tsx"/>
- <tileset firstgid="134" source="detallitos.tsx"/>
- <tileset firstgid="183" source="disenito.tsx"/>
- <tileset firstgid="232" source="dibujito.tsx"/>
- <tileset firstgid="281" source="Cielo.tsx"/>
- <tileset firstgid="345" source="mesa.tsx"/>
- <tileset firstgid="394" source="mesa1.tsx"/>
- <tileset firstgid="443" source="muebles.tsx"/>
- <tileset firstgid="623" source="estantes.tsx"/>
- <tileset firstgid="831" source="estantes2.tsx"/>
- <tileset firstgid="1039" source="mesaposiones3.tsx"/>
- <tileset firstgid="1088" source="planeta.tsx"/>
- <tileset firstgid="1137" source="tanque.tsx"/>
- <tileset firstgid="1186" source="tanque1.tsx"/>
- <tileset firstgid="1235" source="reactor.tsx"/>
- <tileset firstgid="1499" source="mesa_h2.tsx"/>
- <tileset firstgid="2399" source="mesa_cam1.tsx"/>
- <tileset firstgid="2874" source="mesa_cam2.tsx"/>
- <tileset firstgid="3349" source="plataforma1.tsx"/>
- <tileset firstgid="3398" source="mesa_h3.tsx"/>
- <tileset firstgid="4298" source="mesita.tsx"/>
- <tileset firstgid="5198" source="estrellas.tsx"/>
- <tileset firstgid="5423" source="cancha1.tsx"/>
- <tileset firstgid="5472" source="futbol2.tsx"/>
- <tileset firstgid="5521" source="pared3.tsx"/>
+ <tileset firstgid="1" name="suelo" tilewidth="32" tileheight="32" tilecount="35" columns="7">
+  <image source="../textures/suelo.png" width="240" height="176"/>
+ </tileset>
+ <tileset firstgid="36" name="piso" tilewidth="32" tileheight="32" spacing="2" margin="2" tilecount="49" columns="7">
+  <image source="../textures/piso.png" width="256" height="256"/>
+ </tileset>
+ <tileset firstgid="85" name="piso2" tilewidth="32" tileheight="32" spacing="2" margin="2" tilecount="49" columns="7">
+  <image source="../textures/piso2.png" width="256" height="256"/>
+ </tileset>
+ <tileset firstgid="134" name="detallitos" tilewidth="32" tileheight="32" spacing="2" margin="2" tilecount="49" columns="7">
+  <image source="../textures/detallitos.png" width="256" height="256"/>
+ </tileset>
+ <tileset firstgid="183" name="disenito" tilewidth="32" tileheight="32" spacing="2" margin="2" tilecount="49" columns="7">
+  <image source="../textures/disenito.png" width="256" height="256"/>
+ </tileset>
+ <tileset firstgid="232" name="dibujito" tilewidth="32" tileheight="32" spacing="2" margin="2" tilecount="49" columns="7">
+  <image source="../textures/dibujito.png" width="256" height="256"/>
+ </tileset>
+ <tileset firstgid="281" name="Cielo" tilewidth="32" tileheight="32" tilecount="64" columns="8">
+  <image source="../textures/Cielo.png" width="256" height="256"/>
+ </tileset>
+ <tileset firstgid="345" name="mesa" tilewidth="32" tileheight="32" spacing="2" margin="2" tilecount="49" columns="7">
+  <image source="../textures/mesa.png" width="256" height="256"/>
+ </tileset>
+ <tileset firstgid="394" name="mesa1" tilewidth="32" tileheight="32" spacing="2" margin="2" tilecount="49" columns="7">
+  <image source="../textures/mesa1.png" width="256" height="256"/>
+ </tileset>
+ <tileset firstgid="443" name="muebles" tilewidth="32" tileheight="32" spacing="3" margin="3" tilecount="180" columns="15">
+  <image source="../textures/PostApoc_Workshop.png" width="544" height="448"/>
+ </tileset>
+ <tileset firstgid="623" name="estantes" tilewidth="32" tileheight="32" spacing="2" margin="2" tilecount="208" columns="16">
+  <image source="../textures/estantes.png" width="544" height="448"/>
+ </tileset>
+ <tileset firstgid="831" name="estantes2" tilewidth="32" tileheight="32" spacing="2" margin="2" tilecount="208" columns="16">
+  <image source="../textures/estantes2.png" width="544" height="448"/>
+ </tileset>
+ <tileset firstgid="1039" name="mesaposiones3" tilewidth="32" tileheight="32" spacing="2" margin="2" tilecount="49" columns="7">
+  <image source="../textures/mesaposiones3.png" width="256" height="256"/>
+ </tileset>
+ <tileset firstgid="1088" name="planeta" tilewidth="32" tileheight="32" spacing="2" margin="2" tilecount="49" columns="7">
+  <image source="../textures/planeta.png" width="256" height="256"/>
+ </tileset>
+ <tileset firstgid="1137" name="tanque" tilewidth="32" tileheight="32" spacing="2" margin="2" tilecount="49" columns="7">
+  <image source="../textures/tanque.png" width="256" height="256"/>
+ </tileset>
+ <tileset firstgid="1186" name="tanque1" tilewidth="32" tileheight="32" spacing="2" margin="2" tilecount="49" columns="7">
+  <image source="../textures/tanque1.png" width="256" height="256"/>
+ </tileset>
+ <tileset firstgid="1235" name="reactor" tilewidth="32" tileheight="32" spacing="2" margin="2" tilecount="264" columns="11">
+  <image source="../textures/Reactor_bueno1.png" width="382" height="848"/>
+ </tileset>
+ <tileset firstgid="1499" name="mesa_h2" tilewidth="32" tileheight="32" spacing="2" margin="2" tilecount="900" columns="30">
+  <image source="../textures/Mesa_Holografica_mas_pequena.png" width="1024" height="1024"/>
+ </tileset>
+ <tileset firstgid="2399" name="mesa_cam1" tilewidth="32" tileheight="32" spacing="2" margin="2" tilecount="475" columns="19">
+  <image source="../textures/Mesa_de_camaras1.png" width="677" height="871"/>
+ </tileset>
+ <tileset firstgid="2874" name="mesa_cam2" tilewidth="32" tileheight="32" spacing="2" margin="2" tilecount="475" columns="19">
+  <image source="../textures/Mesa_de_camaras2.png" width="677" height="871"/>
+ </tileset>
+ <tileset firstgid="3349" name="plataforma1" tilewidth="32" tileheight="32" spacing="2" margin="2" tilecount="49" columns="7">
+  <image source="../textures/plataforma1.png" width="256" height="256"/>
+ </tileset>
+ <tileset firstgid="3398" name="mesa_h3" tilewidth="32" tileheight="32" spacing="2" margin="2" tilecount="900" columns="30">
+  <image source="../textures/Mesa_Holografica_mas_pequena2.png" width="1024" height="1024"/>
+ </tileset>
+ <tileset firstgid="4298" name="mesita" tilewidth="32" tileheight="32" spacing="2" margin="2" tilecount="900" columns="30">
+  <image source="../textures/mesita.png" width="1024" height="1024"/>
+ </tileset>
+ <tileset firstgid="5198" name="estrellas" tilewidth="32" tileheight="32" spacing="2" margin="2" tilecount="225" columns="15">
+  <image source="../textures/estrellas.png" width="512" height="512"/>
+ </tileset>
+ <tileset firstgid="5423" name="cancha1" tilewidth="32" tileheight="32" spacing="2" margin="2" tilecount="49" columns="7">
+  <image source="../textures/cancha1.png" width="256" height="256"/>
+ </tileset>
+ <tileset firstgid="5472" name="futbol2" tilewidth="32" tileheight="32" spacing="2" margin="2" tilecount="49" columns="7">
+  <image source="../textures/futbol2.png" width="256" height="256"/>
+ </tileset>
+ <tileset firstgid="5521" name="pared3" tilewidth="32" tileheight="32" spacing="2" margin="2" tilecount="49" columns="7">
+  <image source="../textures/pared3.png" width="256" height="256"/>
+ </tileset>
  <layer id="11" name="fondo1" width="31" height="30">
   <data encoding="csv">
 337,281,282,283,284,285,286,287,288,281,281,282,281,282,283,284,285,286,287,288,288,288,281,281,281,282,283,284,285,286,287,
