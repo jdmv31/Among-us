@@ -13,7 +13,6 @@ public class AppPrincipal extends GameApplication {
     @Override
     protected void initInput() {
         double velocidad = 5.0;
-
         FXGL.onKey(javafx.scene.input.KeyCode.W, () -> {
             if (jugador != null) {
                 jugador.translateY(-velocidad);
@@ -21,15 +20,15 @@ public class AppPrincipal extends GameApplication {
             }
         });
         FXGL.onKey(javafx.scene.input.KeyCode.S, () -> {
-            if (jugador != null){
+            if (jugador != null) {
                 jugador.translateY(velocidad);
-            enviarCoordenadas();
+                enviarCoordenadas();
             }
         });
         FXGL.onKey(javafx.scene.input.KeyCode.A, () -> {
-            if (jugador != null){
-            jugador.translateX(-velocidad);
-            enviarCoordenadas();
+            if (jugador != null) {
+                jugador.translateX(-velocidad);
+                enviarCoordenadas();
             }
         });
         FXGL.onKey(javafx.scene.input.KeyCode.D, () -> {
@@ -41,19 +40,23 @@ public class AppPrincipal extends GameApplication {
     }
 
     private void enviarCoordenadas() {
-        if (miCliente != null && miCliente.cliente.isConnected()) {
+        if (miCliente != null && miCliente.cliente != null && miCliente.cliente.isConnected()) {
             Movimiento mov = new Movimiento();
-            mov.username = "miUsuario";
+            mov.username = "Host";
             mov.x = (int) jugador.getX();
             mov.y = (int) jugador.getY();
+
             miCliente.cliente.sendUDP(mov);
+            System.out.println("Enviando posición -> X: " + mov.x + " Y: " + mov.y);
+        } else {
+            System.out.println("Error: Cliente desconectado o nulo");
         }
     }
     @Override
     protected void initSettings(GameSettings settings) {
         settings.setWidth(800);
         settings.setHeight(600);
-        settings.setTitle("Among Us - Java Edition");
+        settings.setTitle("Among Us UNEG");
         settings.setAppIcon("icono.png");
         settings.setManualResizeEnabled(false);
     }
@@ -87,9 +90,19 @@ public class AppPrincipal extends GameApplication {
     public static void empezarPartida(String nombreMapa) {
         try {
             FXGL.getGameScene().clearUINodes();
-            FXGL.setLevelFromMap(nombreMapa);
+
+            // 1. COMENTA o ELIMINA temporalmente esta línea:
+            // FXGL.setLevelFromMap(nombreMapa);
+
+            // 2. Opcional: Pon un fondo de color para que no se vea negro
+            FXGL.getGameScene().setBackgroundColor(javafx.scene.paint.Color.LIGHTGRAY);
+
+            // 3. Spawneamos al personaje (Tu rectángulo rojo aparecerá en el fondo gris)
             jugador = FXGL.spawn("jugador", 100, 100);
+
             miCliente = MenuController.cliente;
+
+            FXGL.getGameScene().getRoot().requestFocus();
         } catch(Exception e) {
             System.err.println("Error cargando el mapa: " + e.getMessage());
         }

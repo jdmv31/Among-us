@@ -1,33 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="31" height="30" tilewidth="32" tileheight="32" infinite="0" nextlayerid="17" nextobjectid="110">
- <tileset firstgid="1" source="../../../../../Downloads/mapas/suelo.tsx"/>
- <tileset firstgid="36" source="../../../../../Downloads/mapas/piso.tsx"/>
- <tileset firstgid="85" source="../../../../../Downloads/mapas/piso2.tsx"/>
- <tileset firstgid="134" source="../../../../../Downloads/mapas/detallitos.tsx"/>
- <tileset firstgid="183" source="../../../../../Downloads/mapas/diseñito.tsx"/>
- <tileset firstgid="232" source="../../../../../Downloads/mapas/dibujito.tsx"/>
- <tileset firstgid="281" source="../../../../../Downloads/mapas/Cielo.tsx"/>
- <tileset firstgid="345" source="../../../../../Downloads/mapas/mesa.tsx"/>
- <tileset firstgid="394" source="../../../../../Downloads/mapas/mesa1.tsx"/>
- <tileset firstgid="443" source="../../../../../Downloads/mapas/muebles.tsx"/>
- <tileset firstgid="623" source="../../../../../Downloads/mapas/estantes.tsx"/>
- <tileset firstgid="831" source="../../../../../Downloads/mapas/estantes2.tsx"/>
- <tileset firstgid="1039" source="../../../../../Downloads/mapas/mesaposiones3.tsx"/>
- <tileset firstgid="1088" source="../../../../../Downloads/mapas/planeta.tsx"/>
- <tileset firstgid="1137" source="../../../../../Downloads/mapas/tanque.tsx"/>
- <tileset firstgid="1186" source="../../../../../Downloads/mapas/tanque1.tsx"/>
- <tileset firstgid="1235" source="../../../../../Downloads/mapas/Reactor_bueno1.tsx"/>
- <tileset firstgid="1499" source="../../../../../Downloads/mapas/Mesa_Holografica_mas_pequena1.tsx"/>
- <tileset firstgid="1499" source="../../../../../Downloads/mapas/Mesa_Holografica_mas_pequena2.tsx"/>
- <tileset firstgid="1499" source="../../../../../Downloads/mapas/Mesa_de_camaras1.tsx"/>
- <tileset firstgid="1974" source="../../../../../Downloads/mapas/Mesa_de_camaras2.tsx"/>
- <tileset firstgid="2449" source="../../../../../Downloads/mapas/plataforma1.tsx"/>
- <tileset firstgid="2498" source="../../../../../Downloads/mapas/Mesa_Holografica_mas_pequena3.tsx"/>
- <tileset firstgid="3398" source="../../../../../Downloads/mapas/mesita.tsx"/>
- <tileset firstgid="4298" source="../../../../../Downloads/mapas/estrellas.tsx"/>
+ <tileset firstgid="1" source="../textures/suelo.tsx"/>
+ <tileset firstgid="36" source="../textures/piso.tsx"/>
+ <tileset firstgid="85" source="../textures/piso2.tsx"/>
+ <tileset firstgid="134" source="../textures/detallitos.tsx"/>
+ <tileset firstgid="183" source="../textures/diseñito.tsx"/>
+ <tileset firstgid="232" source="../textures/dibujito.tsx"/>
+ <tileset firstgid="281" source="../textures/Cielo.tsx"/>
+ <tileset firstgid="345" source="../textures/mesa.tsx"/>
+ <tileset firstgid="394" source="../textures/mesa1.tsx"/>
+ <tileset firstgid="443" source="../textures/muebles.tsx"/>
+ <tileset firstgid="623" source="../textures/estantes.tsx"/>
+ <tileset firstgid="831" source="../textures/estantes2.tsx"/>
+ <tileset firstgid="1039" source="../textures/mesaposiones3.tsx"/>
+ <tileset firstgid="1088" source="../textures/planeta.tsx"/>
+ <tileset firstgid="1137" source="../textures/tanque.tsx"/>
+ <tileset firstgid="1186" source="../textures/tanque1.tsx"/>
+ <tileset firstgid="1235" source="../textures/Reactor_bueno1.tsx"/>
+ <tileset firstgid="1499" source="../textures/Mesa_Holografica_mas_pequena1.tsx"/>
+ <tileset firstgid="1499" source="../textures/Mesa_Holografica_mas_pequena2.tsx"/>
+ <tileset firstgid="1499" source="../textures/Mesa_de_camaras1.tsx"/>
+ <tileset firstgid="1974" source="../textures/Mesa_de_camaras2.tsx"/>
+ <tileset firstgid="2449" source="../textures/plataforma1.tsx"/>
+ <tileset firstgid="2498" source="../textures/Mesa_Holografica_mas_pequena3.tsx"/>
+ <tileset firstgid="3398" source="../textures/mesita.tsx"/>
+ <tileset firstgid="4298" source="../textures/estrellas.tsx"/>
  <tileset firstgid="4523" source="../../../../../Downloads/mapa1/cancha1.tsx"/>
- <tileset firstgid="4572" source="../../../../../Downloads/mapas/futbol2.tsx"/>
- <tileset firstgid="4621" source="../../../../../Downloads/mapas/pared3.tsx"/>
+ <tileset firstgid="4572" source="../textures/futbol2.tsx"/>
+ <tileset firstgid="4621" source="../textures/pared3.tsx"/>
  <layer id="11" name="fondo1" width="31" height="30">
   <data encoding="csv">
 337,281,282,283,284,285,286,287,288,281,281,282,281,282,283,284,285,286,287,288,288,288,281,281,281,282,283,284,285,286,287,

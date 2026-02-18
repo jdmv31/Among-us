@@ -127,15 +127,16 @@ public class MenuController implements UIController {
 
     @FXML
     private void canchaSeleccionada(){
-
         botonBiblioteca.setSelected(false);
-        mapaSeleccionado = "mapaCancha.tmx";
+        mapaSeleccionado = "mapa2.tmx";
+        // este es el mapa de la cancha
     }
 
     @FXML
     private void bibliotecaSeleccionada(){
         botonCancha.setSelected(false);
-        mapaSeleccionado = "mapa2.tmx";
+        mapaSeleccionado = "mapa1.tmx";
+        // este es el mapa de la biblioteca
     }
 
     @FXML

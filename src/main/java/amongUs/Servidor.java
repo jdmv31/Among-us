@@ -20,6 +20,11 @@ public class Servidor {
                 if (object instanceof Movimiento) {
                     server.sendToAllExceptUDP(connection.getID(), object);
                 }
+                // AQUÍ ESTÁ LA LÍNEA QUE FALTABA
+                else if (object instanceof MapaElegido) {
+                    // Cuando el host elige el mapa, el servidor se lo avisa a TODOS
+                    server.sendToAllTCP(object);
+                }
             }
         });
     }
