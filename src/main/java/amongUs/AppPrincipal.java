@@ -12,9 +12,11 @@ import com.almasb.fxgl.physics.PhysicsComponent;
 import javafx.scene.Parent;
 import javafx.scene.input.KeyCode;
 
+
 public class AppPrincipal extends GameApplication {
     public static Entity jugador;
     public static Cliente miCliente;
+
 
     @Override
     protected void initInput() {
@@ -141,8 +143,20 @@ public class AppPrincipal extends GameApplication {
             System.err.println("Error cargando la música: " + e.getMessage());
         }
     }
+
+    @Override
+    protected void onUpdate(double tpf) {
+        // Esto mantiene al Among Us funcionando bien cuando choca con las mesas
+        if (jugador != null) {
+            jugador.setZIndex((int) (jugador.getY() + (32 * 1.8)));
+        }
+    }
+
     public static void empezarPartida(String nombreMapa) {
         try {
+            // 🔥 ESTA LÍNEA ES LA MAGIA: Obliga a IntelliJ a recompilar todo 🔥
+            System.out.println("¡¡¡LEYENDO EL MAPA NUEVO Y FORZANDO CAPAS!!!");
+
             FXGL.getGameScene().clearUINodes();
             FXGL.setLevelFromMap(nombreMapa);
 
@@ -162,8 +176,6 @@ public class AppPrincipal extends GameApplication {
             System.err.println("Error cargando el mapa: " + e.getMessage());
         }
     }
-
-
     public static void main(String[] args) {
         launch(args);
     }

@@ -10,10 +10,10 @@ import com.almasb.fxgl.physics.BoundingShape;
 import com.almasb.fxgl.physics.HitBox;
 import com.almasb.fxgl.physics.PhysicsComponent;
 import com.almasb.fxgl.physics.box2d.dynamics.BodyType;
+import javafx.geometry.Point2D; // ✅ IMPORTANTE: Se necesita para posicionar el HitBox
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import main.java.amongUs.AnimacionJugador;
 
 public class Fabrica implements EntityFactory {
 
@@ -21,11 +21,14 @@ public class Fabrica implements EntityFactory {
     public Entity nuevaPared(SpawnData data) {
         PhysicsComponent fisicasPared = new PhysicsComponent();
         fisicasPared.setBodyType(BodyType.STATIC);
+
         return FXGL.entityBuilder(data)
                 .type(TipoEntidad.PARED)
                 .bbox(new HitBox(BoundingShape.box(data.<Integer>get("width"), data.<Integer>get("height"))))
                 .with(new CollidableComponent(true))
-                .with(new PhysicsComponent())
+                .with(fisicasPared)
+                // ✅ NUEVO: Le asignamos la profundidad (Posición Y + Altura del objeto)
+                .zIndex((int) (data.getY() + data.<Integer>get("height")))
                 .build();
     }
 
@@ -33,11 +36,14 @@ public class Fabrica implements EntityFactory {
     public Entity nuevoObjeto(SpawnData data) {
         PhysicsComponent fisicasObjeto = new PhysicsComponent();
         fisicasObjeto.setBodyType(BodyType.STATIC);
+
         return FXGL.entityBuilder(data)
                 .type(TipoEntidad.OBJETO)
                 .bbox(new HitBox(BoundingShape.box(data.<Integer>get("width"), data.<Integer>get("height"))))
                 .with(new CollidableComponent(true))
-                .with(new PhysicsComponent())
+                .with(fisicasObjeto)
+                // ✅ NUEVO: Le asignamos la profundidad (Posición Y + Altura del objeto)
+                .zIndex((int) (data.getY() + data.<Integer>get("height")))
                 .build();
     }
 
@@ -49,20 +55,27 @@ public class Fabrica implements EntityFactory {
         nombreVisual.setFont(Font.font("Arial", 6));
         nombreVisual.setTranslateY(-1);
         nombreVisual.setTranslateX( (32 / 2.0) - (nombreVisual.getLayoutBounds().getWidth() / 2.0) );
+
         PhysicsComponent fisicasJugador = new PhysicsComponent();
         fisicasJugador.setBodyType(BodyType.DYNAMIC);
 
-        HitBox piesHitBox = new HitBox("pies", BoundingShape.box(20, 15));
+        double escala = 1.6;
+
+        // ✅ CORREGIDO: Calculamos las posiciones primero
+        double posX = (32 / escala) / 2.0 - (20 / escala) / 2.0;
+        double posY = (32 / escala) - (15 / escala);
+
+        // ✅ CORREGIDO: Le pasamos un Point2D con las posiciones X e Y al crear el HitBox
+        HitBox piesHitBox = new HitBox("pies", new Point2D(posX, posY), BoundingShape.box(20 / escala, 15 / escala));
 
         return FXGL.entityBuilder(data)
                 .type(TipoEntidad.JUGADOR)
                 .bbox(piesHitBox)
                 .with(new CollidableComponent(true))
-                .with(new AnimacionJugador())
+                .with(new AnimacionJugador()) // Asegúrate de tener esta clase lista
                 .with(fisicasJugador)
-                .with(new PhysicsComponent())
+                .scale(escala, escala)
                 .view(nombreVisual)
-                .scale(1.5,1.5)
                 .build();
     }
 }
