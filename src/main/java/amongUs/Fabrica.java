@@ -9,6 +9,7 @@ import com.almasb.fxgl.entity.components.CollidableComponent;
 import com.almasb.fxgl.physics.BoundingShape;
 import com.almasb.fxgl.physics.HitBox;
 import com.almasb.fxgl.physics.PhysicsComponent;
+import com.almasb.fxgl.physics.box2d.dynamics.BodyType;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
@@ -18,16 +19,24 @@ public class Fabrica implements EntityFactory {
 
     @Spawns("pared")
     public Entity nuevaPared(SpawnData data) {
+        PhysicsComponent fisicasPared = new PhysicsComponent();
+        fisicasPared.setBodyType(BodyType.STATIC);
         return FXGL.entityBuilder(data)
+                .type(TipoEntidad.PARED)
                 .bbox(new HitBox(BoundingShape.box(data.<Integer>get("width"), data.<Integer>get("height"))))
+                .with(new CollidableComponent(true))
                 .with(new PhysicsComponent())
                 .build();
     }
 
     @Spawns("objeto")
     public Entity nuevoObjeto(SpawnData data) {
+        PhysicsComponent fisicasObjeto = new PhysicsComponent();
+        fisicasObjeto.setBodyType(BodyType.STATIC);
         return FXGL.entityBuilder(data)
+                .type(TipoEntidad.OBJETO)
                 .bbox(new HitBox(BoundingShape.box(data.<Integer>get("width"), data.<Integer>get("height"))))
+                .with(new CollidableComponent(true))
                 .with(new PhysicsComponent())
                 .build();
     }
@@ -40,6 +49,8 @@ public class Fabrica implements EntityFactory {
         nombreVisual.setFont(Font.font("Arial", 6));
         nombreVisual.setTranslateY(-1);
         nombreVisual.setTranslateX( (32 / 2.0) - (nombreVisual.getLayoutBounds().getWidth() / 2.0) );
+        PhysicsComponent fisicasJugador = new PhysicsComponent();
+        fisicasJugador.setBodyType(BodyType.DYNAMIC);
 
         HitBox piesHitBox = new HitBox("pies", BoundingShape.box(20, 15));
 
@@ -48,6 +59,8 @@ public class Fabrica implements EntityFactory {
                 .bbox(piesHitBox)
                 .with(new CollidableComponent(true))
                 .with(new AnimacionJugador())
+                .with(fisicasJugador)
+                .with(new PhysicsComponent())
                 .view(nombreVisual)
                 .scale(1.5,1.5)
                 .build();

@@ -6,7 +6,11 @@ import com.almasb.fxgl.app.scene.Viewport;
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.Entity;
 import com.almasb.fxgl.entity.SpawnData;
+import com.almasb.fxgl.input.UserAction;
+import com.almasb.fxgl.physics.CollisionHandler;
+import com.almasb.fxgl.physics.PhysicsComponent;
 import javafx.scene.Parent;
+import javafx.scene.input.KeyCode;
 
 public class AppPrincipal extends GameApplication {
     public static Entity jugador;
@@ -14,31 +18,63 @@ public class AppPrincipal extends GameApplication {
 
     @Override
     protected void initInput() {
-        double velocidad = 3.5;
-        FXGL.onKey(javafx.scene.input.KeyCode.W, () -> {
-            if (jugador != null) {
-                jugador.translateY(-velocidad);
-                enviarCoordenadas();
+        int velocidadFisica = 150;
+
+        FXGL.getInput().addAction(new UserAction("Mover Arriba") {
+            @Override
+            protected void onAction() {
+                if (jugador != null) {
+                    jugador.getComponent(PhysicsComponent.class).setVelocityY(-velocidadFisica);
+                    enviarCoordenadas();
+                }
             }
-        });
-        FXGL.onKey(javafx.scene.input.KeyCode.S, () -> {
-            if (jugador != null) {
-                jugador.translateY(velocidad);
-                enviarCoordenadas();
+            @Override
+            protected void onActionEnd() {
+                if (jugador != null) jugador.getComponent(PhysicsComponent.class).setVelocityY(0);
             }
-        });
-        FXGL.onKey(javafx.scene.input.KeyCode.A, () -> {
-            if (jugador != null) {
-                jugador.translateX(-velocidad);
-                enviarCoordenadas();
+        }, KeyCode.W);
+
+        FXGL.getInput().addAction(new UserAction("Mover Abajo") {
+            @Override
+            protected void onAction() {
+                if (jugador != null) {
+                    jugador.getComponent(PhysicsComponent.class).setVelocityY(velocidadFisica);
+                    enviarCoordenadas();
+                }
             }
-        });
-        FXGL.onKey(javafx.scene.input.KeyCode.D, () -> {
-            if (jugador != null) {
-                jugador.translateX(velocidad);
-                enviarCoordenadas();
+            @Override
+            protected void onActionEnd() {
+                if (jugador != null) jugador.getComponent(PhysicsComponent.class).setVelocityY(0);
             }
-        });
+        }, KeyCode.S);
+
+        FXGL.getInput().addAction(new UserAction("Mover Izquierda") {
+            @Override
+            protected void onAction() {
+                if (jugador != null) {
+                    jugador.getComponent(PhysicsComponent.class).setVelocityX(-velocidadFisica);
+                    enviarCoordenadas();
+                }
+            }
+            @Override
+            protected void onActionEnd() {
+                if (jugador != null) jugador.getComponent(PhysicsComponent.class).setVelocityX(0);
+            }
+        }, KeyCode.A);
+
+        FXGL.getInput().addAction(new UserAction("Mover Derecha") {
+            @Override
+            protected void onAction() {
+                if (jugador != null) {
+                    jugador.getComponent(PhysicsComponent.class).setVelocityX(velocidadFisica);
+                    enviarCoordenadas();
+                }
+            }
+            @Override
+            protected void onActionEnd() {
+                if (jugador != null) jugador.getComponent(PhysicsComponent.class).setVelocityX(0);
+            }
+        }, KeyCode.D);
     }
 
     private void enviarCoordenadas() {
@@ -53,6 +89,23 @@ public class AppPrincipal extends GameApplication {
             System.out.println("Error: Cliente desconectado o nulo");
         }
     }
+    @Override
+    protected void initPhysics(){
+        FXGL.getPhysicsWorld().setGravity(0,0);
+        FXGL.getPhysicsWorld().addCollisionHandler(new CollisionHandler(TipoEntidad.JUGADOR, TipoEntidad.PARED) {
+            @Override
+            protected void onCollision(Entity jugador, Entity pared) {
+                System.out.println("¡El jugador chocó contra una pared!");
+            }
+        });
+        FXGL.getPhysicsWorld().addCollisionHandler(new CollisionHandler(TipoEntidad.JUGADOR, TipoEntidad.OBJETO) {
+            @Override
+            protected void onCollision(Entity jugador, Entity objeto) {
+                System.out.println("¡El jugador está chocando con un objeto!");
+            }
+        });
+    }
+
     @Override
     protected void initSettings(GameSettings settings) {
         settings.setWidth(800);

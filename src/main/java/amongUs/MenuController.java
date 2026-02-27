@@ -13,6 +13,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.Pane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import java.util.Random;
 
 public class MenuController implements UIController {
     @FXML private Pane ventanaModal;
@@ -156,7 +157,8 @@ public class MenuController implements UIController {
             if (txtNombre != null && !txtNombre.getText().trim().isEmpty()) {
                 nombreUsuario = txtNombre.getText().trim();
             } else {
-                nombreUsuario = "Tripulante";
+                int numeroID = (int) (Math.random() * 999) + 1;
+                nombreUsuario = "Tripulante " + numeroID;
             }
 
             if (servidor == null) {
