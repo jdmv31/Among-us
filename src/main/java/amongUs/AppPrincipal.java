@@ -34,7 +34,10 @@ public class AppPrincipal extends GameApplication {
             }
             @Override
             protected void onActionEnd() {
-                if (jugador != null) jugador.getComponent(PhysicsComponent.class).setVelocityY(0);
+                if (jugador != null) {
+                    jugador.getComponent(PhysicsComponent.class).setVelocityY(0);
+                    enviarCoordenadas();
+                }
             }
         }, KeyCode.W);
 
@@ -48,7 +51,10 @@ public class AppPrincipal extends GameApplication {
             }
             @Override
             protected void onActionEnd() {
-                if (jugador != null) jugador.getComponent(PhysicsComponent.class).setVelocityY(0);
+                if (jugador != null) {
+                    jugador.getComponent(PhysicsComponent.class).setVelocityY(0);
+                    enviarCoordenadas();
+                }
             }
         }, KeyCode.S);
 
@@ -62,7 +68,10 @@ public class AppPrincipal extends GameApplication {
             }
             @Override
             protected void onActionEnd() {
-                if (jugador != null) jugador.getComponent(PhysicsComponent.class).setVelocityX(0);
+                if (jugador != null) {
+                    jugador.getComponent(PhysicsComponent.class).setVelocityX(0);
+                    enviarCoordenadas();
+                }
             }
         }, KeyCode.A);
 
@@ -76,7 +85,10 @@ public class AppPrincipal extends GameApplication {
             }
             @Override
             protected void onActionEnd() {
-                if (jugador != null) jugador.getComponent(PhysicsComponent.class).setVelocityX(0);
+                if (jugador != null) {
+                    jugador.getComponent(PhysicsComponent.class).setVelocityX(0);
+                    enviarCoordenadas();
+                }
             }
         }, KeyCode.D);
     }
@@ -148,11 +160,18 @@ public class AppPrincipal extends GameApplication {
 
     @Override
     protected void onUpdate(double tpf) {
-        // Esto mantiene al Among Us funcionando bien cuando choca con las mesas
         if (jugador != null) {
             jugador.setZIndex((int) (jugador.getY() + (32 * 1.8)));
         }
+
+        for (Entity otro : otrosJugadores.values()) {
+            if (otro != null) {
+                otro.setZIndex((int) (otro.getY() + (32 * 1.8)));
+            }
+        }
     }
+
+
 
     public static void empezarPartida(String nombreMapa) {
         try {

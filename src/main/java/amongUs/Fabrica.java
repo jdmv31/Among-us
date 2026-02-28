@@ -60,7 +60,7 @@ public class Fabrica implements EntityFactory {
     @Spawns("jugador")
     public Entity nuevoJugador(SpawnData data) {
         String nombre = data.hasKey("nombre") ? data.get("nombre") : "Jugador";
-        String nombreJugador = data.get("nombre");
+        String nombreJugador = nombre;
         String colorJugador = "negro";
         if (MenuController.estadoActual != null) {
             for (JugadorLobby j : MenuController.estadoActual.jugadores) {
