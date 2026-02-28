@@ -42,6 +42,7 @@ public class MenuController implements UIController {
     private ImageView[] imagenes;
     private Button[] botonesColor;
     public static MenuController instancia;
+    public static EstadoLobby estadoActual;
     private final String [] imagenesGuia = {
             "1.png",
             "2.png",
@@ -60,6 +61,7 @@ public class MenuController implements UIController {
 
     @FXML
     public void initialize() {
+        instancia = this;
         slots = new HBox[]{slot1, slot2, slot3, slot4, slot5, slot6, slot7, slot8, slot9,slot10};
         nombres = new Label[]{nombre1,nombre2,nombre3,nombre4,nombre5,nombre6,nombre7,nombre8,nombre9,nombre10};
         imagenes = new ImageView[]{foto1,foto2,foto3,foto4,foto5,foto6,foto7,foto8,foto9,foto10};
@@ -71,6 +73,7 @@ public class MenuController implements UIController {
     }
 
     public void actualizarLobby(EstadoLobby estado) {
+        estadoActual = estado;
         labelContador.setText("Jugadores: " + estado.jugadores.length + "/10");
         boolean host = false;
 
@@ -189,6 +192,14 @@ public class MenuController implements UIController {
     }
 
     @FXML
+    private void unirseSala() {
+        if (txtNombre.getText().isEmpty() || txtNombre.getText().isEmpty()) return;
+        nombreUsuario = txtNombre.getText();
+        cambiarEscena("/ui/lobby.fxml");
+        cliente = new Cliente(txtNombre.getText(), nombreUsuario);
+    }
+
+    @FXML
     private void canchaSeleccionada(){
         botonBiblioteca.setSelected(false);
         mapaSeleccionado = "mapa2.tmx";
@@ -219,6 +230,7 @@ public class MenuController implements UIController {
                 int numeroID = (int) (Math.random() * 999) + 1;
                 nombreUsuario = "Tripulante " + numeroID;
             }
+            cambiarEscena("/ui/lobby.fxml");
 
             if (servidor == null) {
                 servidor = new Servidor();
@@ -228,8 +240,6 @@ public class MenuController implements UIController {
                 cliente.cliente.stop();
             }
             cliente = new Cliente("127.0.0.1", nombreUsuario);
-
-            cambiarEscena("/ui/lobby.fxml");
 
         } catch (Exception e) {
             System.err.println("Error creando la partida");
