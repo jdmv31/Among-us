@@ -60,6 +60,16 @@ public class Fabrica implements EntityFactory {
     @Spawns("jugador")
     public Entity nuevoJugador(SpawnData data) {
         String nombre = data.hasKey("nombre") ? data.get("nombre") : "Jugador";
+        String nombreJugador = data.get("nombre");
+        String colorJugador = "negro";
+        if (MenuController.estadoActual != null) {
+            for (JugadorLobby j : MenuController.estadoActual.jugadores) {
+                if (j.nombre.equals(nombreJugador)) {
+                    colorJugador = j.color;
+                    break;
+                }
+            }
+        }
         Text nombreVisual = new Text(nombre);
         nombreVisual.setFill(Color.WHITE);
         nombreVisual.setFont(Font.font("Arial", 6));
@@ -80,7 +90,7 @@ public class Fabrica implements EntityFactory {
                 .type(TipoEntidad.JUGADOR)
                 .bbox(piesHitBox)
                 .with(new CollidableComponent(true))
-                .with(new AnimacionJugador())
+                .with(new AnimacionJugador(colorJugador))
                 .with(fisicasJugador)
                 .scale(escala, escala)
                 .view(nombreVisual)

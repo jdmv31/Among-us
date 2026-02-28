@@ -9,12 +9,8 @@ import javafx.util.Duration;
 public class AnimacionJugador extends Component {
     private AnimatedTexture textura;
     private AnimationChannel animIdle, animWalk;
+    private String color;
 
-    // Ahora declaramos tus dos imágenes por separado
-    private static final String IMG_QUIETO = "tripulante_negro.png";
-    private static final String IMG_CAMINAR = "animacion_negro.png";
-
-    // IMPORTANTE: Asegúrate de que este sea el ancho y alto real de tu personaje.
     private static final int ANCHO_FRAME = 32;
     private static final int ALTO_FRAME = 48;
 
@@ -22,8 +18,15 @@ public class AnimacionJugador extends Component {
     private double lastY = 0;
 
     public AnimacionJugador() {
-        animIdle = new AnimationChannel(FXGL.image(IMG_QUIETO), 1, ANCHO_FRAME, ALTO_FRAME, Duration.seconds(1.0), 0, 0);
-        animWalk = new AnimationChannel(FXGL.image(IMG_CAMINAR), 4, ANCHO_FRAME, ALTO_FRAME, Duration.seconds(0.6), 0, 3);
+        this("negro");
+    }
+
+    public AnimacionJugador(String color) {
+        this.color = color;
+        String imgQuieto = "tripulante_" + this.color + ".png";
+        String imgCaminar = "animacion_" + this.color + ".png";
+        animIdle = new AnimationChannel(FXGL.image(imgQuieto), 1, ANCHO_FRAME, ALTO_FRAME, Duration.seconds(1.0), 0, 0);
+        animWalk = new AnimationChannel(FXGL.image(imgCaminar), 4, ANCHO_FRAME, ALTO_FRAME, Duration.seconds(0.6), 0, 3);
 
         textura = new AnimatedTexture(animIdle);
         textura.loop();
@@ -31,6 +34,7 @@ public class AnimacionJugador extends Component {
 
     @Override
     public void onAdded() {
+        // Solo añadimos la textura ya configurada a la entidad
         entity.getViewComponent().addChild(textura);
         lastX = entity.getX();
         lastY = entity.getY();
@@ -42,6 +46,7 @@ public class AnimacionJugador extends Component {
         double currentY = entity.getY();
 
         boolean isMoving = (currentX != lastX) || (currentY != lastY);
+
         if (currentX < lastX) {
             textura.setScaleX(1); // La imagen mira a la izquierda
         } else if (currentX > lastX) {

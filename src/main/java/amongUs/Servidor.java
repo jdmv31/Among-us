@@ -41,7 +41,7 @@ public class Servidor {
                     JugadorLobby nuevo = new JugadorLobby();
                     nuevo.conexionId = connection.getID();
                     nuevo.nombre = peticion.nombre;
-                    nuevo.color = "#negro";
+                    nuevo.color = "negro";
                     nuevo.host = jugadoresLobby.isEmpty(); // El primero que entra es el host
 
                     jugadoresLobby.add(nuevo);
@@ -59,8 +59,9 @@ public class Servidor {
                 }
                 else if (object instanceof MapaElegido) {
                     // josue: modificar aca para hacer pruebas
-                    if (jugadoresLobby.size() >= 5) {
+                    if (jugadoresLobby.size() >= 1) {
                         server.sendToAllTCP(object);
+                        System.out.println("ingresando a partida");
                     } else {
                         System.out.println("Intento de inicio denegado. Jugadores actuales: " + jugadoresLobby.size());
                     }

@@ -154,9 +154,6 @@ public class AppPrincipal extends GameApplication {
 
     public static void empezarPartida(String nombreMapa) {
         try {
-            // 🔥 ESTA LÍNEA ES LA MAGIA: Obliga a IntelliJ a recompilar todo 🔥
-            System.out.println("¡¡¡LEYENDO EL MAPA NUEVO Y FORZANDO CAPAS!!!");
-
             FXGL.getGameScene().clearUINodes();
             FXGL.setLevelFromMap(nombreMapa);
 

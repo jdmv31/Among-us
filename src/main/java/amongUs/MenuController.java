@@ -193,10 +193,10 @@ public class MenuController implements UIController {
 
     @FXML
     private void unirseSala() {
-        if (txtNombre.getText().isEmpty() || txtNombre.getText().isEmpty()) return;
+        if (txtNombre.getText().isEmpty()) return;
         nombreUsuario = txtNombre.getText();
         cambiarEscena("/ui/lobby.fxml");
-        cliente = new Cliente(txtNombre.getText(), nombreUsuario);
+        cliente = new Cliente("127.0.0.1", nombreUsuario);
     }
 
     @FXML
@@ -267,11 +267,25 @@ public class MenuController implements UIController {
         Button botonClickeado = (Button) event.getSource();
 
         javafx.scene.control.ContextMenu menu = new javafx.scene.control.ContextMenu();
-        String[] nombresColores = {"negro", "rojo", "azul", "verde", "amarillo", "blanco"};
-        String[] coloresHex = {"#3F474E", "#C51111", "#132ED1", "#117F2D", "#F5F557", "#D6E0F0"};
+        String[] nombresColores = {
+                "blanco", "negro", "marron", "azul", "rojo",
+                "rosa", "verde", "amarillo", "morado", "naranja"
+        };
+        String[] coloresHex = {
+                "#D6E0F0", // blanco
+                "#3F474E", // negro
+                "#71491E", // marron
+                "#132ED1", // azul
+                "#C51111", // rojo
+                "#ED54BA", // rosa
+                "#117F2D", // verde
+                "#F5F557", // amarillo
+                "#6B31BC", // morado
+                "#F07D0D"  // naranja
+        };
 
         javafx.scene.layout.TilePane panelCuadrados = new javafx.scene.layout.TilePane();
-        panelCuadrados.setPrefColumns(3);
+        panelCuadrados.setPrefColumns(5);
         panelCuadrados.setHgap(5);
         panelCuadrados.setVgap(5);
 
