@@ -17,6 +17,18 @@ import javafx.scene.text.Text;
 
 public class Fabrica implements EntityFactory {
 
+    @Spawns("techo")
+    public Entity nuevoTecho(SpawnData data) {
+        PhysicsComponent fisicasTecho = new PhysicsComponent();
+        fisicasTecho.setBodyType(BodyType.STATIC);
+
+        return FXGL.entityBuilder(data)
+                .type(TipoEntidad.PARED)
+                .bbox(new HitBox(BoundingShape.box(data.<Integer>get("width"), data.<Integer>get("height"))))
+                .with(new CollidableComponent(true))
+                .with(fisicasTecho)
+                .build();
+    }
     @Spawns("pared")
     public Entity nuevaPared(SpawnData data) {
         PhysicsComponent fisicasPared = new PhysicsComponent();
@@ -27,7 +39,6 @@ public class Fabrica implements EntityFactory {
                 .bbox(new HitBox(BoundingShape.box(data.<Integer>get("width"), data.<Integer>get("height"))))
                 .with(new CollidableComponent(true))
                 .with(fisicasPared)
-                // ✅ NUEVO: Le asignamos la profundidad (Posición Y + Altura del objeto)
                 .zIndex((int) (data.getY() + data.<Integer>get("height")))
                 .build();
     }
@@ -42,7 +53,6 @@ public class Fabrica implements EntityFactory {
                 .bbox(new HitBox(BoundingShape.box(data.<Integer>get("width"), data.<Integer>get("height"))))
                 .with(new CollidableComponent(true))
                 .with(fisicasObjeto)
-                // ✅ NUEVO: Le asignamos la profundidad (Posición Y + Altura del objeto)
                 .zIndex((int) (data.getY() + data.<Integer>get("height")))
                 .build();
     }
@@ -61,18 +71,16 @@ public class Fabrica implements EntityFactory {
 
         double escala = 1.6;
 
-        // ✅ CORREGIDO: Calculamos las posiciones primero
         double posX = (32 / escala) / 2.0 - (20 / escala) / 2.0;
         double posY = (32 / escala) - (15 / escala);
 
-        // ✅ CORREGIDO: Le pasamos un Point2D con las posiciones X e Y al crear el HitBox
         HitBox piesHitBox = new HitBox("pies", new Point2D(posX, posY), BoundingShape.box(20 / escala, 15 / escala));
 
         return FXGL.entityBuilder(data)
                 .type(TipoEntidad.JUGADOR)
                 .bbox(piesHitBox)
                 .with(new CollidableComponent(true))
-                .with(new AnimacionJugador()) // Asegúrate de tener esta clase lista
+                .with(new AnimacionJugador())
                 .with(fisicasJugador)
                 .scale(escala, escala)
                 .view(nombreVisual)

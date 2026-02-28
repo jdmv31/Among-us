@@ -14,10 +14,18 @@ public class Cliente {
         cliente = new Client();
         cliente.getKryo().register(Movimiento.class);
         cliente.getKryo().register(MapaElegido.class);
+        cliente.getKryo().register(PeticionUnirse.class);
+        cliente.getKryo().register(JugadorLobby.class);
+        cliente.getKryo().register(JugadorLobby[].class);
+        cliente.getKryo().register(EstadoLobby.class);
+        cliente.getKryo().register(PeticionColor.class);
         cliente.start();
 
         try {
             cliente.connect(5000, ip, 54555,54556);
+            PeticionUnirse peticion = new PeticionUnirse();
+            peticion.nombre = this.username;
+            cliente.sendTCP(peticion);
         } catch(IOException e) {
             System.err.println("Error al conectar al servidor: " + e.getMessage());
         }
@@ -25,6 +33,14 @@ public class Cliente {
         cliente.addListener(new Listener() {
             @Override
             public void received(Connection connection, Object object) {
+                if (object instanceof EstadoLobby) {
+                    EstadoLobby estado = (EstadoLobby) object;
+                    javafx.application.Platform.runLater(() -> {
+                        if (MenuController.instancia != null) {
+                            MenuController.instancia.actualizarLobby(estado);
+                        }
+                    });
+                }
                 if (object instanceof Movimiento) {
                     Movimiento mov = (Movimiento) object;
 
