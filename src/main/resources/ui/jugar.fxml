@@ -52,19 +52,13 @@
                   <Image url="@../images/ventanaModal.jpg" />
                </image>
             </ImageView>
-            <TextField layoutX="77.0" layoutY="35.0" promptText="Ej: Mango con Adobo" />
-            <TextField layoutX="76.0" layoutY="100.0" promptText="Ej: 12345" />
-            <Label layoutX="38.0" layoutY="2.0" prefHeight="25.0" prefWidth="226.0" text="Ingrese su nombre de Usuario" textFill="WHITE">
+            <TextField fx:id="txtNombre2" layoutX="77.0" layoutY="94.0" promptText="Ej: Mango con Adobo" />
+            <Label layoutX="37.0" layoutY="50.0" prefHeight="25.0" prefWidth="226.0" text="Ingrese su nombre de Usuario" textFill="WHITE">
                <font>
                   <Font size="16.0" />
                </font>
             </Label>
-            <Label layoutX="39.0" layoutY="69.0" prefHeight="25.0" prefWidth="226.0" text="Ingrese el código de la lobby" textFill="WHITE">
-               <font>
-                  <Font size="16.0" />
-               </font>
-            </Label>
-            <Button layoutX="116.0" layoutY="149.0" mnemonicParsing="false" text="Confirmar" />
+            <Button layoutX="116.0" layoutY="149.0" mnemonicParsing="false" onAction="#unirseSala" text="Confirmar" />
             <ImageView fitHeight="45.0" fitWidth="37.0" layoutX="249.0" layoutY="156.0" onMouseClicked="#cerrarUnirse" pickOnBounds="true" preserveRatio="true">
                <image>
                   <Image url="@../images/botonVolver.png" />
@@ -72,7 +66,7 @@
             </ImageView>
          </children>
       </AnchorPane>
-      <AnchorPane fx:id="ventanaModal1" maxHeight="200.0" maxWidth="300.0" prefHeight="200.0" prefWidth="300.0">
+      <AnchorPane fx:id="ventanaModal1" maxHeight="200.0" maxWidth="300.0" prefHeight="200.0" prefWidth="300.0" visible="false">
          <children>
             <ImageView fitHeight="207.0" fitWidth="300.0" layoutY="-6.0" opacity="0.8" pickOnBounds="true">
                <image>

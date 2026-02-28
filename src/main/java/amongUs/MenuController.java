@@ -25,6 +25,7 @@ public class MenuController implements UIController {
     @FXML private RadioButton botonBiblioteca;
     @FXML private RadioButton botonCancha;
     @FXML private TextField txtNombre;
+    @FXML private TextField txtNombre2;
     @FXML private Label labelContador;
     public static Servidor servidor;
     public static Cliente cliente;
@@ -102,7 +103,8 @@ public class MenuController implements UIController {
             }
         }
         start.setVisible(host);
-        start.setDisable(estado.jugadores.length < 5);
+        // cambiar aca para hacer pruebas
+        start.setDisable(estado.jugadores.length < 1);
     }
 
     @FXML
@@ -193,8 +195,8 @@ public class MenuController implements UIController {
 
     @FXML
     private void unirseSala() {
-        if (txtNombre.getText().isEmpty()) return;
-        nombreUsuario = txtNombre.getText();
+        if (txtNombre2.getText().isEmpty()) return;
+        nombreUsuario = txtNombre2.getText();
         cambiarEscena("/ui/lobby.fxml");
         cliente = new Cliente("127.0.0.1", nombreUsuario);
     }

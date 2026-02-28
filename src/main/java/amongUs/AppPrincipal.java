@@ -11,12 +11,14 @@ import com.almasb.fxgl.physics.CollisionHandler;
 import com.almasb.fxgl.physics.PhysicsComponent;
 import javafx.scene.Parent;
 import javafx.scene.input.KeyCode;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class AppPrincipal extends GameApplication {
     public static Entity jugador;
     public static Cliente miCliente;
-
+    public static Map<String, Entity> otrosJugadores = new HashMap<>();
 
     @Override
     protected void initInput() {
@@ -157,15 +159,29 @@ public class AppPrincipal extends GameApplication {
             FXGL.getGameScene().clearUINodes();
             FXGL.setLevelFromMap(nombreMapa);
 
-            SpawnData data = new SpawnData(300, 200);
-            data.put("nombre", MenuController.nombreUsuario);
+            otrosJugadores.clear();
 
-            jugador = FXGL.spawn("jugador", data);
+            if (MenuController.estadoActual != null) {
+                for (JugadorLobby j : MenuController.estadoActual.jugadores) {
+                    SpawnData data = new SpawnData(300, 200);
+                    data.put("nombre", j.nombre);
 
-            Viewport viewport = FXGL.getGameScene().getViewport();
-            viewport.setZoom(1.5);
-            viewport.bindToEntity(jugador, FXGL.getAppWidth() / 2.0, FXGL.getAppHeight() / 2.0);
-            viewport.setBounds(0, 0, 992, 960);
+                    Entity entidad = FXGL.spawn("jugador", data);
+
+                    if (j.nombre.equals(MenuController.nombreUsuario)) {
+                        jugador = entidad;
+                    } else {
+                        otrosJugadores.put(j.nombre, entidad);
+                    }
+                }
+            }
+
+            if (jugador != null) {
+                Viewport viewport = FXGL.getGameScene().getViewport();
+                viewport.setZoom(1.5);
+                viewport.bindToEntity(jugador, FXGL.getAppWidth() / 2.0, FXGL.getAppHeight() / 2.0);
+                viewport.setBounds(0, 0, 992, 960);
+            }
 
             miCliente = MenuController.cliente;
             FXGL.getGameScene().getRoot().requestFocus();
@@ -173,6 +189,7 @@ public class AppPrincipal extends GameApplication {
             System.err.println("Error cargando el mapa: " + e.getMessage());
         }
     }
+
     public static void main(String[] args) {
         launch(args);
     }

@@ -34,8 +34,21 @@ public class Cliente {
                 }
                 if (object instanceof Movimiento) {
                     Movimiento mov = (Movimiento) object;
+
                     javafx.application.Platform.runLater(() -> {
-                        System.out.println(mov.username + " se movió a " + mov.x + "," + mov.y);
+                        if (!mov.username.equals(MenuController.nombreUsuario)) {
+                            com.almasb.fxgl.entity.Entity otro = AppPrincipal.otrosJugadores.get(mov.username);
+
+                            if (otro != null) {
+                                com.almasb.fxgl.physics.PhysicsComponent fisicas = otro.getComponent(com.almasb.fxgl.physics.PhysicsComponent.class);
+
+                                if (fisicas != null) {
+                                    fisicas.overwritePosition(new javafx.geometry.Point2D(mov.x, mov.y));
+                                } else {
+                                    otro.setPosition(mov.x, mov.y);
+                                }
+                            }
+                        }
                     });
                 }
                 else if (object instanceof MapaElegido) {
