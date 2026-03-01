@@ -19,6 +19,8 @@ public class Cliente {
         cliente.getKryo().register(JugadorLobby[].class);
         cliente.getKryo().register(EstadoLobby.class);
         cliente.getKryo().register(PeticionColor.class);
+        cliente.getKryo().register(AsignacionRol.class);
+        cliente.getKryo().register(MovimientoAlcantarilla.class);
         cliente.start();
 
         cliente.addListener(new Listener() {
@@ -55,6 +57,31 @@ public class Cliente {
                     MapaElegido paquete = (MapaElegido) object;
                     javafx.application.Platform.runLater(() -> {
                         AppPrincipal.empezarPartida(paquete.nombreMapa);
+                    });
+                }
+                if (object instanceof AsignacionRol) {
+                    AsignacionRol rolAsignado = (AsignacionRol) object;
+                    AppPrincipal.esImpostor = rolAsignado.esImpostor;
+                    System.out.println("Impostor: " + AppPrincipal.esImpostor);
+                }
+                if (object instanceof MovimientoAlcantarilla){
+                    MovimientoAlcantarilla movAlcantarilla = (MovimientoAlcantarilla) object;
+
+                    javafx.application.Platform.runLater(() -> {
+                        com.almasb.fxgl.entity.Entity otroJugador = AppPrincipal.otrosJugadores.get(movAlcantarilla.nombreUsuario);
+
+                        if (otroJugador != null) {
+                            if (movAlcantarilla.entrando) {
+                                otroJugador.getComponent(AnimacionJugador.class).entrarAlcantarilla();
+                                com.almasb.fxgl.dsl.FXGL.getGameTimer().runOnceAfter(() -> {
+                                    otroJugador.getViewComponent().setVisible(false);
+                                }, javafx.util.Duration.seconds(0.5));
+
+                            } else {
+                                otroJugador.getViewComponent().setVisible(true);
+                                otroJugador.getComponent(AnimacionJugador.class).salirAlcantarilla();
+                            }
+                        }
                     });
                 }
             }

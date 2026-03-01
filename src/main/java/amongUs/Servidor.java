@@ -5,6 +5,7 @@ import com.esotericsoftware.kryonet.Server;
 import com.esotericsoftware.kryonet.Listener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class Servidor {
     Server server;
@@ -20,6 +21,8 @@ public class Servidor {
         server.getKryo().register(JugadorLobby[].class);
         server.getKryo().register(EstadoLobby.class);
         server.getKryo().register(PeticionColor.class);
+        server.getKryo().register(AsignacionRol.class);
+        server.getKryo().register(MovimientoAlcantarilla.class);
         server.start();
         server.bind(54555, 54556);
 
@@ -58,16 +61,25 @@ public class Servidor {
                     enviarEstadoLobby();
                 }
                 else if (object instanceof MapaElegido) {
-                    // josue: modificar aca para hacer pruebas
-                    if (jugadoresLobby.size() >= 1) {
-                        server.sendToAllTCP(object);
-                        System.out.println("ingresando a partida");
-                    } else {
-                        System.out.println("Intento de inicio denegado. Jugadores actuales: " + jugadoresLobby.size());
+                    Connection[] conexiones = server.getConnections();
+
+                    if (conexiones.length > 0) {
+                        Random rand = new Random();
+                        int indiceImpostor = rand.nextInt(conexiones.length);
+                        for (int i = 0; i < conexiones.length; i++) {
+                            AsignacionRol rol = new AsignacionRol();
+                            rol.esImpostor = (i == indiceImpostor);
+
+                            server.sendToTCP(conexiones[i].getID(), rol);
+                        }
                     }
+                    server.sendToAllTCP(object);
                 }
                 else if (object instanceof Movimiento) {
                     server.sendToAllExceptUDP(connection.getID(), object);
+                }
+                else if (object instanceof MovimientoAlcantarilla){
+                    server.sendToAllExceptTCP(connection.getID(),object);
                 }
             }
         });
