@@ -13,12 +13,17 @@ import javafx.scene.Parent;
 import javafx.scene.input.KeyCode;
 import java.util.HashMap;
 import java.util.Map;
-
+import com.almasb.fxgl.texture.Texture;
 
 public class AppPrincipal extends GameApplication {
     public static Entity jugador;
     public static Cliente miCliente;
     public static Map<String, Entity> otrosJugadores = new HashMap<>();
+    private Texture uiCamaras;
+    private boolean camarasAbiertas = false;
+    private Texture btnIzq;
+    private Texture btnDer;
+    private int indiceCamaraActual = 0;
 
     @Override
     protected void initInput() {
@@ -27,8 +32,8 @@ public class AppPrincipal extends GameApplication {
         FXGL.getInput().addAction(new UserAction("Mover Arriba") {
             @Override
             protected void onAction() {
-                if (jugador != null) {
-                    jugador.getComponent(PhysicsComponent.class).setVelocityY(-velocidadFisica);
+                if (jugador != null && !camarasAbiertas) {
+                    jugador.getComponent(PhysicsComponent.class).setVelocityY(-velocidadFisica); // Correcto (Y negativo)
                     enviarCoordenadas();
                 }
             }
@@ -44,8 +49,8 @@ public class AppPrincipal extends GameApplication {
         FXGL.getInput().addAction(new UserAction("Mover Abajo") {
             @Override
             protected void onAction() {
-                if (jugador != null) {
-                    jugador.getComponent(PhysicsComponent.class).setVelocityY(velocidadFisica);
+                if (jugador != null && !camarasAbiertas) {
+                    jugador.getComponent(PhysicsComponent.class).setVelocityY(velocidadFisica); // CORREGIDO: Y positivo (sin el menos)
                     enviarCoordenadas();
                 }
             }
@@ -61,8 +66,8 @@ public class AppPrincipal extends GameApplication {
         FXGL.getInput().addAction(new UserAction("Mover Izquierda") {
             @Override
             protected void onAction() {
-                if (jugador != null) {
-                    jugador.getComponent(PhysicsComponent.class).setVelocityX(-velocidadFisica);
+                if (jugador != null && !camarasAbiertas) {
+                    jugador.getComponent(PhysicsComponent.class).setVelocityX(-velocidadFisica); // CORREGIDO: Eje X negativo
                     enviarCoordenadas();
                 }
             }
@@ -78,8 +83,8 @@ public class AppPrincipal extends GameApplication {
         FXGL.getInput().addAction(new UserAction("Mover Derecha") {
             @Override
             protected void onAction() {
-                if (jugador != null) {
-                    jugador.getComponent(PhysicsComponent.class).setVelocityX(velocidadFisica);
+                if (jugador != null && !camarasAbiertas) {
+                    jugador.getComponent(PhysicsComponent.class).setVelocityX(velocidadFisica); // CORREGIDO: Eje X positivo
                     enviarCoordenadas();
                 }
             }
@@ -91,6 +96,21 @@ public class AppPrincipal extends GameApplication {
                 }
             }
         }, KeyCode.D);
+
+        FXGL.getInput().addAction(new UserAction("Abrir Camaras") {
+            @Override
+            protected void onActionBegin() {
+                if (jugador != null) {
+                    double distancia = jugador.getPosition().distance(ubicacionMesaCamaras);
+
+                    if (distancia < 60 || camarasAbiertas) {
+                        alternarCamaras();
+                    } else {
+                        System.out.println("Estás muy lejos de las cámaras para usarlas.");
+                    }
+                }
+            }
+        }, KeyCode.C);
     }
 
     private void enviarCoordenadas() {
@@ -147,9 +167,71 @@ public class AppPrincipal extends GameApplication {
         }
     }
 
+    private final javafx.geometry.Point2D ubicacionMesaCamaras = new javafx.geometry.Point2D(110, 750);
+
+    private final javafx.geometry.Point2D[] coordenadasCamaras = {
+            new javafx.geometry.Point2D(-30, 500), // nicole: camara del pasillo de abajo cerca del cuarto de camaras
+            new javafx.geometry.Point2D(-50, 150),  // camara de arriba, pasillo bomberos
+            new javafx.geometry.Point2D(450, 300),  // camara pasillo de comedor a laboratorio
+            new javafx.geometry.Point2D(500, 500)   // camara de la cantina
+    };
+
+    private void alternarCamaras() {
+        if (camarasAbiertas) {
+            FXGL.removeUINode(uiCamaras);
+            FXGL.removeUINode(btnIzq);
+            FXGL.removeUINode(btnDer);
+            camarasAbiertas = false;
+
+            FXGL.getGameScene().getViewport().bindToEntity(jugador, FXGL.getAppWidth() / 2.0, FXGL.getAppHeight() / 2.0);
+        } else {
+            // Mostrar la interfaz y los botones
+            FXGL.addUINode(uiCamaras, 0, 0);
+            FXGL.addUINode(btnIzq, -10, 390);
+            FXGL.addUINode(btnDer, 590, 390);
+            camarasAbiertas = true;
+
+            if (jugador != null) {
+                jugador.getComponent(PhysicsComponent.class).setVelocityX(0);
+                jugador.getComponent(PhysicsComponent.class).setVelocityY(0);
+            }
+
+            FXGL.getGameScene().getViewport().unbind();
+
+            // Forzar a que siempre empiece en la primera camara al abrir
+            indiceCamaraActual = 0;
+            actualizarVistaCamara();
+        }
+    }
+    private void cambiarCamara(int direccion) {
+        indiceCamaraActual += direccion;
+        if (indiceCamaraActual < 0) {
+            indiceCamaraActual = coordenadasCamaras.length - 1;
+        }
+        else if (indiceCamaraActual >= coordenadasCamaras.length) {
+            indiceCamaraActual = 0;
+        }
+
+        actualizarVistaCamara();
+    }
+
+    private void actualizarVistaCamara() {
+        Viewport viewport = FXGL.getGameScene().getViewport();
+        javafx.geometry.Point2D coord = coordenadasCamaras[indiceCamaraActual];
+        viewport.setX(coord.getX());
+        viewport.setY(coord.getY());
+    }
+
     @Override
     protected void initGame(){
         FXGL.getGameWorld().addEntityFactory(new Fabrica());
+
+        uiCamaras = FXGL.texture("MonitorDeCamaras.png");
+        btnIzq = FXGL.texture("flechaAmarillaIzq.png");
+        btnDer = FXGL.texture("flechaAmarillaDer.png");
+
+        btnIzq.setOnMouseClicked(e -> cambiarCamara(-1));
+        btnDer.setOnMouseClicked(e -> cambiarCamara(1));
         try {
             FXGL.getAudioPlayer().loopMusic(FXGL.getAssetLoader().loadMusic("musicaMenu.mp3"));
             FXGL.getSettings().setGlobalMusicVolume(0.4);
@@ -157,6 +239,7 @@ public class AppPrincipal extends GameApplication {
             System.err.println("Error cargando la música: " + e.getMessage());
         }
     }
+
 
     @Override
     protected void onUpdate(double tpf) {
@@ -170,7 +253,6 @@ public class AppPrincipal extends GameApplication {
             }
         }
     }
-
 
 
     public static void empezarPartida(String nombreMapa) {
