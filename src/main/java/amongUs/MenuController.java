@@ -26,6 +26,7 @@ public class MenuController implements UIController {
     @FXML private RadioButton botonCancha;
     @FXML private TextField txtNombre;
     @FXML private TextField txtNombre2;
+    @FXML private TextField txtIp;
     @FXML private Label labelContador;
     public static Servidor servidor;
     public static Cliente cliente;
@@ -196,9 +197,11 @@ public class MenuController implements UIController {
     @FXML
     private void unirseSala() {
         if (txtNombre2.getText().isEmpty()) return;
+        if (txtIp.getText().isEmpty()) return;
+        String ip = txtIp.getText();
         nombreUsuario = txtNombre2.getText();
         cambiarEscena("/ui/lobby.fxml");
-        cliente = new Cliente("127.0.0.1", nombreUsuario);
+        cliente = new Cliente(ip, nombreUsuario);
     }
 
     @FXML

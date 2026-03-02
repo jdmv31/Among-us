@@ -52,8 +52,8 @@
                   <Image url="@../images/ventanaModal.jpg" />
                </image>
             </ImageView>
-            <TextField fx:id="txtNombre2" layoutX="77.0" layoutY="94.0" promptText="Ej: Mango con Adobo" />
-            <Label layoutX="37.0" layoutY="50.0" prefHeight="25.0" prefWidth="226.0" text="Ingrese su nombre de Usuario" textFill="WHITE">
+            <TextField fx:id="txtNombre2" layoutX="76.0" layoutY="48.0" promptText="Ej: Mango con Adobo" />
+            <Label layoutX="37.0" layoutY="14.0" prefHeight="25.0" prefWidth="226.0" text="Ingrese su nombre de Usuario" textFill="WHITE">
                <font>
                   <Font size="16.0" />
                </font>
@@ -64,6 +64,12 @@
                   <Image url="@../images/botonVolver.png" />
                </image>
             </ImageView>
+            <TextField fx:id="txtIp" layoutX="76.0" layoutY="110.0" promptText="Ej: 192.168.1.103" />
+            <Label layoutX="46.0" layoutY="82.0" prefHeight="25.0" prefWidth="209.0" text="Ingrese el codigo de la lobby" textFill="WHITE">
+               <font>
+                  <Font size="16.0" />
+               </font>
+            </Label>
          </children>
       </AnchorPane>
       <AnchorPane fx:id="ventanaModal1" maxHeight="200.0" maxWidth="300.0" prefHeight="200.0" prefWidth="300.0" visible="false">
