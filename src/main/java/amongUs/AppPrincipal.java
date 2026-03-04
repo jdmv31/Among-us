@@ -369,8 +369,9 @@ public class AppPrincipal extends GameApplication {
             camarasAbiertas = false;
 
             if (oscuridad != null) oscuridad.setVisible(true);
-
+            FXGL.getGameScene().getViewport().setZoom(2.5);
             FXGL.getGameScene().getViewport().bindToEntity(jugador, FXGL.getAppWidth() / 2.0, FXGL.getAppHeight() / 2.0);
+
         } else {
             FXGL.addUINode(uiCamaras, 0, 0);
             FXGL.addUINode(btnIzq, -10, 390);
@@ -383,8 +384,8 @@ public class AppPrincipal extends GameApplication {
                 jugador.getComponent(PhysicsComponent.class).setVelocityX(0);
                 jugador.getComponent(PhysicsComponent.class).setVelocityY(0);
             }
-
             FXGL.getGameScene().getViewport().unbind();
+            FXGL.getGameScene().getViewport().setZoom(1.0);
             indiceCamaraActual = 0;
             actualizarVistaCamara();
         }
