@@ -30,6 +30,7 @@ public class AppPrincipal extends GameApplication {
     private Entity ventflechaIzq,ventflechaAbajo,ventflechaArriba,ventflechaDer;
     public static int alcantarillaActual = -1;
     public static boolean esImpostor = false;
+    public static javafx.scene.shape.Rectangle oscuridad;
 
     // josue: esta es una clase interna para representar la interconexion entre las alcantarillas en caso de ser impostor
     public static class NodoAlcantarilla {
@@ -367,13 +368,16 @@ public class AppPrincipal extends GameApplication {
             FXGL.removeUINode(btnDer);
             camarasAbiertas = false;
 
+            if (oscuridad != null) oscuridad.setVisible(true);
+
             FXGL.getGameScene().getViewport().bindToEntity(jugador, FXGL.getAppWidth() / 2.0, FXGL.getAppHeight() / 2.0);
         } else {
-            // Mostrar la interfaz y los botones
             FXGL.addUINode(uiCamaras, 0, 0);
             FXGL.addUINode(btnIzq, -10, 390);
             FXGL.addUINode(btnDer, 590, 390);
             camarasAbiertas = true;
+
+            if (oscuridad != null) oscuridad.setVisible(false);
 
             if (jugador != null) {
                 jugador.getComponent(PhysicsComponent.class).setVelocityX(0);
@@ -381,8 +385,6 @@ public class AppPrincipal extends GameApplication {
             }
 
             FXGL.getGameScene().getViewport().unbind();
-
-            // Forzar a que siempre empiece en la primera camara al abrir
             indiceCamaraActual = 0;
             actualizarVistaCamara();
         }
@@ -490,12 +492,25 @@ public class AppPrincipal extends GameApplication {
 
             if (jugador != null) {
                 Viewport viewport = FXGL.getGameScene().getViewport();
-                viewport.setZoom(1.5);
+                viewport.setZoom(2.5);
                 viewport.bindToEntity(jugador, FXGL.getAppWidth() / 2.0, FXGL.getAppHeight() / 2.0);
                 viewport.setBounds(0, 0, 992, 960);
             }
 
             miCliente = MenuController.cliente;
+            oscuridad = new javafx.scene.shape.Rectangle(FXGL.getAppWidth(), FXGL.getAppHeight());
+            javafx.scene.paint.RadialGradient gradiente = new javafx.scene.paint.RadialGradient(
+                    0, 0, 0.5, 0.5, 0.5, true, javafx.scene.paint.CycleMethod.NO_CYCLE,
+                    new javafx.scene.paint.Stop(0, javafx.scene.paint.Color.TRANSPARENT),
+                    new javafx.scene.paint.Stop(0.15, javafx.scene.paint.Color.TRANSPARENT),
+                    new javafx.scene.paint.Stop(0.45, javafx.scene.paint.Color.rgb(10, 10, 10, 0.6)),
+                    new javafx.scene.paint.Stop(0.75, javafx.scene.paint.Color.rgb(10, 10, 10, 0.95)),
+                    new javafx.scene.paint.Stop(1, javafx.scene.paint.Color.rgb(10, 10, 10, 0.98))
+            );
+            oscuridad.setFill(gradiente);
+            oscuridad.setMouseTransparent(true);
+            FXGL.addUINode(oscuridad);
+
             botonAccion = FXGL.texture("accionNegada.png");
             double tamanoBoton = 120.0;
             botonAccion.setFitWidth(tamanoBoton);
