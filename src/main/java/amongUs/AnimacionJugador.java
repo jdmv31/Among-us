@@ -13,6 +13,10 @@ public class AnimacionJugador extends Component {
     private AnimationChannel salirAlcantarilla;
     private AnimationChannel entrarAlcantarilla;
     public boolean enAlcantarilla = false;
+    private AnimationChannel animMuerto;
+    public boolean estaMuerto = false;
+    private AnimationChannel animFantasma;
+    public boolean esFantasma = false;
 
     private static final int ANCHO_FRAME = 32;
     private static final int ALTO_FRAME = 48;
@@ -30,6 +34,10 @@ public class AnimacionJugador extends Component {
         String imgCaminar = "animacion_" + this.color + ".png";
         String imgAlcantarillaSalida = "alcantarilla_" + this.color + ".png";
         String imgAlcantarillaEntrada = "alcantarilla_"+this.color + "E.png";
+        String imgMuerto = this.color + "_muerto.png";
+
+        animFantasma = new AnimationChannel(FXGL.image("fantasma.png"), 1, ANCHO_FRAME, ALTO_FRAME, Duration.seconds(1.0), 0, 0);
+        animMuerto = new AnimationChannel(FXGL.image(imgMuerto), 1, ANCHO_FRAME, ALTO_FRAME, Duration.seconds(1.0), 0, 0);
         animIdle = new AnimationChannel(FXGL.image(imgQuieto), 1, ANCHO_FRAME, ALTO_FRAME, Duration.seconds(1.0), 0, 0);
         animWalk = new AnimationChannel(FXGL.image(imgCaminar), 4, ANCHO_FRAME, ALTO_FRAME, Duration.seconds(0.6), 0, 3);
         salirAlcantarilla = new AnimationChannel(FXGL.image(imgAlcantarillaSalida), 4, ANCHO_FRAME, ALTO_FRAME, Duration.seconds(0.5), 0, 3);
@@ -39,8 +47,19 @@ public class AnimacionJugador extends Component {
         textura.loop();
     }
 
+    public void convertirFantasma() {
+        esFantasma = true;
+        estaMuerto = false;
+        textura.loopAnimationChannel(animFantasma);
+    }
+
     public String getColor(){
         return color;
+    }
+
+    public void morir() {
+        estaMuerto = true;
+        textura.loopAnimationChannel(animMuerto);
     }
 
     public void entrarAlcantarilla() {
@@ -65,6 +84,8 @@ public class AnimacionJugador extends Component {
 
     @Override
     public void onUpdate(double tpf) {
+        if (estaMuerto) return;
+
         if (enAlcantarilla) {
             lastX = entity.getX();
             lastY = entity.getY();
@@ -82,12 +103,16 @@ public class AnimacionJugador extends Component {
         }
 
         if (isMoving) {
-            if (textura.getAnimationChannel() != animWalk) {
-                textura.loopAnimationChannel(animWalk);
+            if (esFantasma) {
+                if (textura.getAnimationChannel() != animFantasma) textura.loopAnimationChannel(animFantasma);
+            } else {
+                if (textura.getAnimationChannel() != animWalk) textura.loopAnimationChannel(animWalk);
             }
         } else {
-            if (textura.getAnimationChannel() != animIdle) {
-                textura.loopAnimationChannel(animIdle);
+            if (esFantasma) {
+                if (textura.getAnimationChannel() != animFantasma) textura.loopAnimationChannel(animFantasma);
+            } else {
+                if (textura.getAnimationChannel() != animIdle) textura.loopAnimationChannel(animIdle);
             }
         }
 

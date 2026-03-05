@@ -31,6 +31,13 @@ public class AppPrincipal extends GameApplication {
     public static int alcantarillaActual = -1;
     public static boolean esImpostor = false;
     public static javafx.scene.shape.Rectangle oscuridad;
+    public static Texture botonMatar;
+    public static boolean matarDisponible = false;
+    public static boolean cooldownKill = false;
+    public static double tiempoCooldown = 0.0;
+    public static javafx.scene.text.Text textoCooldown;
+    public static boolean estoyMuerto = false;
+    public static String victimaCercana = "";
 
     // josue: esta es una clase interna para representar la interconexion entre las alcantarillas en caso de ser impostor
     public static class NodoAlcantarilla {
@@ -65,14 +72,20 @@ public class AppPrincipal extends GameApplication {
             protected void onAction() {
                 if (jugador != null && !camarasAbiertas && !enAlcantarilla) {
                     jugador.getComponent(PhysicsComponent.class).setVelocityY(-velocidadFisica);
-                    enviarCoordenadas();
+
+                    if (!estoyMuerto) {
+                        enviarCoordenadas();
+                    }
                 }
             }
             @Override
             protected void onActionEnd() {
                 if (jugador != null && !enAlcantarilla) {
                     jugador.getComponent(PhysicsComponent.class).setVelocityY(0);
-                    enviarCoordenadas();
+
+                    if (!estoyMuerto) {
+                        enviarCoordenadas();
+                    }
                 }
             }
         }, KeyCode.W);
@@ -82,14 +95,20 @@ public class AppPrincipal extends GameApplication {
             protected void onAction() {
                 if (jugador != null && !camarasAbiertas && !enAlcantarilla) {
                     jugador.getComponent(PhysicsComponent.class).setVelocityY(velocidadFisica);
-                    enviarCoordenadas();
+
+                    if (!estoyMuerto) {
+                        enviarCoordenadas();
+                    }
                 }
             }
             @Override
             protected void onActionEnd() {
                 if (jugador != null && !enAlcantarilla) {
                     jugador.getComponent(PhysicsComponent.class).setVelocityY(0);
-                    enviarCoordenadas();
+
+                    if (!estoyMuerto) {
+                        enviarCoordenadas();
+                    }
                 }
             }
         }, KeyCode.S);
@@ -99,14 +118,20 @@ public class AppPrincipal extends GameApplication {
             protected void onAction() {
                 if (jugador != null && !camarasAbiertas && !enAlcantarilla) {
                     jugador.getComponent(PhysicsComponent.class).setVelocityX(-velocidadFisica);
-                    enviarCoordenadas();
+
+                    if (!estoyMuerto) {
+                        enviarCoordenadas();
+                    }
                 }
             }
             @Override
             protected void onActionEnd() {
                 if (jugador != null && !enAlcantarilla) {
                     jugador.getComponent(PhysicsComponent.class).setVelocityX(0);
-                    enviarCoordenadas();
+
+                    if (!estoyMuerto) {
+                        enviarCoordenadas();
+                    }
                 }
             }
         }, KeyCode.A);
@@ -116,14 +141,20 @@ public class AppPrincipal extends GameApplication {
             protected void onAction() {
                 if (jugador != null && !camarasAbiertas && !enAlcantarilla) {
                     jugador.getComponent(PhysicsComponent.class).setVelocityX(velocidadFisica);
-                    enviarCoordenadas();
+
+                    if (!estoyMuerto) {
+                        enviarCoordenadas();
+                    }
                 }
             }
             @Override
             protected void onActionEnd() {
                 if (jugador != null && !enAlcantarilla) {
                     jugador.getComponent(PhysicsComponent.class).setVelocityX(0);
-                    enviarCoordenadas();
+
+                    if (!estoyMuerto) {
+                        enviarCoordenadas();
+                    }
                 }
             }
         }, KeyCode.D);
@@ -150,7 +181,7 @@ public class AppPrincipal extends GameApplication {
                     if (!enAlcantarilla) {
 
                         NodoAlcantarilla nodoCercano = null;
-                        double distanciaMinima = 60.0;
+                        double distanciaMinima = 20.0;
 
                         for (NodoAlcantarilla nodo : redAlcantarillas) {
                             double distancia = jugador.getPosition().distance(nodo.x, nodo.y);
@@ -223,8 +254,15 @@ public class AppPrincipal extends GameApplication {
             @Override
             protected void onActionBegin() { viajarAlcantarilla("ABAJO"); }
         }, KeyCode.DOWN);
-    }
 
+        FXGL.getInput().addAction(new UserAction("Matar Jugador") {
+            @Override
+            protected void onActionBegin() {
+                matar();
+            }
+        }, KeyCode.Q);
+
+    }
 
     private void viajarAlcantarilla(String direccion) {
         if (enAlcantarilla && alcantarillaActual != -1) {
@@ -367,24 +405,24 @@ public class AppPrincipal extends GameApplication {
             FXGL.removeUINode(btnIzq);
             FXGL.removeUINode(btnDer);
             camarasAbiertas = false;
-
             if (oscuridad != null) oscuridad.setVisible(true);
-            FXGL.getGameScene().getViewport().setZoom(1.5);
+            FXGL.getGameScene().getViewport().setZoom(2.5);
             FXGL.getGameScene().getViewport().bindToEntity(jugador, FXGL.getAppWidth() / 2.0, FXGL.getAppHeight() / 2.0);
+
         } else {
             FXGL.addUINode(uiCamaras, 0, 0);
             FXGL.addUINode(btnIzq, -10, 390);
             FXGL.addUINode(btnDer, 590, 390);
             camarasAbiertas = true;
-
             if (oscuridad != null) oscuridad.setVisible(false);
 
             if (jugador != null) {
                 jugador.getComponent(PhysicsComponent.class).setVelocityX(0);
                 jugador.getComponent(PhysicsComponent.class).setVelocityY(0);
             }
+
             FXGL.getGameScene().getViewport().unbind();
-            FXGL.getGameScene().getViewport().setZoom(1.0);
+            FXGL.getGameScene().getViewport().setZoom(1.5);
             indiceCamaraActual = 0;
             actualizarVistaCamara();
         }
@@ -408,6 +446,29 @@ public class AppPrincipal extends GameApplication {
         viewport.setY(coord.getY());
     }
 
+    private static void matar() {
+        if (esImpostor && matarDisponible && !cooldownKill && !victimaCercana.isEmpty()) {
+            System.out.println("¡Mataste a " + victimaCercana + "!");
+            Entity victima = otrosJugadores.get(victimaCercana);
+            if (victima != null) {
+                victima.getComponent(AnimacionJugador.class).morir();
+                victima.getComponent(PhysicsComponent.class).setVelocityX(0);
+                victima.getComponent(PhysicsComponent.class).setVelocityY(0);
+            }
+            cooldownKill = true;
+            tiempoCooldown = 30.0;
+            matarDisponible = false;
+            botonMatar.setImage(FXGL.image("matarNegado.png"));
+
+            Asesinato paquete = new Asesinato();
+            paquete.asesino = MenuController.nombreUsuario;
+            paquete.victima = victimaCercana;
+            miCliente.cliente.sendTCP(paquete);
+
+            victimaCercana = "";
+        }
+    }
+
     @Override
     protected void initGame(){
         FXGL.getGameWorld().addEntityFactory(new Fabrica());
@@ -426,18 +487,69 @@ public class AppPrincipal extends GameApplication {
         }
     }
 
+    private void botonMatar(){
+        if (botonMatar != null && !enAlcantarilla) {
+            boolean rango = false;
+            double distanciaMinima = 30.0;
+            String jugadorMasCercano = "";
+
+            for (java.util.Map.Entry<String, Entity> entry : otrosJugadores.entrySet()) {
+                Entity otro = entry.getValue();
+                if (otro != null && otro.getViewComponent().isVisible() && !otro.getComponent(AnimacionJugador.class).estaMuerto) {
+                    double distancia = jugador.getPosition().distance(otro.getPosition());
+
+                    if (distancia < distanciaMinima) {
+                        rango = true;
+                        distanciaMinima = distancia;
+                        jugadorMasCercano = entry.getKey();
+                    }
+                }
+            }
+
+            if (rango && !cooldownKill) {
+                if (!matarDisponible) {
+                    botonMatar.setImage(FXGL.image("matar.png"));
+                    matarDisponible = true;
+                }
+                victimaCercana = jugadorMasCercano;
+            } else {
+                if (matarDisponible || cooldownKill) {
+                    botonMatar.setImage(FXGL.image("matarNegado.png"));
+                    matarDisponible = false;
+                    victimaCercana = "";
+                }
+            }
+        }
+    }
+
+
 
     @Override
     protected void onUpdate(double tpf) {
+        if (esImpostor && botonMatar != null && !enAlcantarilla) {
+            if (cooldownKill) {
+                tiempoCooldown -= tpf;
+                if (tiempoCooldown <= 0) {
+                    cooldownKill = false;
+                    textoCooldown.setText("");
+                } else {
+                    textoCooldown.setText(String.valueOf((int) tiempoCooldown + 1));
+                }
+            }
+        }
         if (jugador != null) {
             jugador.setZIndex((int) (jugador.getY() + (32 * 1.8)));
+
+            if (esImpostor) {
+                botonMatar();
+            }
+
             if (botonAccion != null) {
                 boolean cercaDeInteraccion = false;
 
                 if (esImpostor) {
-                    // Si es IMPOSTOR, verificamos distancia a cualquier alcantarilla
                     for (NodoAlcantarilla nodo : redAlcantarillas) {
-                        if (jugador.getPosition().distance(nodo.x, nodo.y) < 60) {
+                        if (jugador.getPosition().distance(nodo.x, nodo.y) < 20) {
                             cercaDeInteraccion = true;
                             break;
                         }
@@ -447,6 +559,7 @@ public class AppPrincipal extends GameApplication {
                         cercaDeInteraccion = true;
                     }
                 }
+
                 if (cercaDeInteraccion && !camarasAbiertas && !enAlcantarilla) {
                     if (!accionDisponible) {
                         botonAccion.setImage(FXGL.image("accion.png"));
@@ -460,7 +573,6 @@ public class AppPrincipal extends GameApplication {
                 }
             }
         }
-
         for (Entity otro : otrosJugadores.values()) {
             if (otro != null) {
                 otro.setZIndex((int) (otro.getY() + (32 * 1.8)));
@@ -519,10 +631,40 @@ public class AppPrincipal extends GameApplication {
             botonAccion.setTranslateX(FXGL.getAppWidth() - tamanoBoton - margen);
             botonAccion.setTranslateY(FXGL.getAppHeight() - tamanoBoton - margen);
 
+            if (esImpostor) {
+                botonMatar = FXGL.texture("matarNegado.png");
+                botonMatar.setFitWidth(tamanoBoton);
+                botonMatar.setFitHeight(tamanoBoton);
+                botonMatar.setTranslateX(FXGL.getAppWidth() - tamanoBoton - margen);
+                botonMatar.setTranslateY(FXGL.getAppHeight() - (tamanoBoton * 2) - (margen * 2));
+                botonMatar.setOnMouseClicked(e -> matar());
+                FXGL.addUINode(botonMatar);
+                textoCooldown = new javafx.scene.text.Text("");
+                textoCooldown.setFill(javafx.scene.paint.Color.RED);
+                textoCooldown.setFont(javafx.scene.text.Font.font("Arial", javafx.scene.text.FontWeight.BOLD, 45));
+                textoCooldown.setTranslateX(botonMatar.getTranslateX() + (tamanoBoton / 2.5));
+                textoCooldown.setTranslateY(botonMatar.getTranslateY() + (tamanoBoton / 1.5));
+                FXGL.addUINode(textoCooldown);
+
+                matarDisponible = false;
+            }
+
             FXGL.addUINode(botonAccion);
             accionDisponible = false;
+
+            botonAccion.setOnMouseClicked(e -> {
+                if (accionDisponible) {
+                    if (esImpostor) {
+                        FXGL.getInput().mockKeyPress(javafx.scene.input.KeyCode.SPACE);
+                        FXGL.getInput().mockKeyRelease(javafx.scene.input.KeyCode.SPACE);
+                    } else {
+                        FXGL.getInput().mockKeyPress(javafx.scene.input.KeyCode.C);
+                        FXGL.getInput().mockKeyRelease(javafx.scene.input.KeyCode.C);
+                    }
+                }
+            });
+
             FXGL.getGameScene().getRoot().requestFocus();
-            botonAccion = FXGL.texture("accionNegada.png");
             mostrarPantallaRol();
         } catch(Exception e) {
             System.err.println("Error cargando el mapa: " + e.getMessage());

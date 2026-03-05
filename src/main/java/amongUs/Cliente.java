@@ -21,6 +21,7 @@ public class Cliente {
         cliente.getKryo().register(PeticionColor.class);
         cliente.getKryo().register(AsignacionRol.class);
         cliente.getKryo().register(MovimientoAlcantarilla.class);
+        cliente.getKryo().register(Asesinato.class);
         cliente.start();
 
         cliente.addListener(new Listener() {
@@ -63,6 +64,34 @@ public class Cliente {
                     AsignacionRol rolAsignado = (AsignacionRol) object;
                     AppPrincipal.esImpostor = rolAsignado.esImpostor;
                     System.out.println("Impostor: " + AppPrincipal.esImpostor);
+                }
+                if (object instanceof Asesinato) {
+                    Asesinato paquete = (Asesinato) object;
+
+                    javafx.application.Platform.runLater(() -> {
+                        if (paquete.victima.equals(MenuController.nombreUsuario)) {
+                            AppPrincipal.estoyMuerto = true;
+
+                            if (AppPrincipal.jugador != null) {
+                                String miColor = AppPrincipal.jugador.getComponent(AnimacionJugador.class).getColor();
+                                com.almasb.fxgl.dsl.FXGL.entityBuilder()
+                                        .at(AppPrincipal.jugador.getX(), AppPrincipal.jugador.getY())
+                                        .view(miColor + "_muerto.png")
+                                        .scale(1.6, 1.6)
+                                        .zIndex((int) (AppPrincipal.jugador.getY() + (32 * 1.8)))
+                                        .buildAndAttach();
+                                AppPrincipal.jugador.getComponent(AnimacionJugador.class).convertirFantasma();
+                                AppPrincipal.jugador.getViewComponent().setOpacity(0.5);
+                            }
+                        } else {
+                            com.almasb.fxgl.entity.Entity victima = AppPrincipal.otrosJugadores.get(paquete.victima);
+                            if (victima != null) {
+                                victima.getComponent(AnimacionJugador.class).morir();
+                                victima.getComponent(com.almasb.fxgl.physics.PhysicsComponent.class).setVelocityX(0);
+                                victima.getComponent(com.almasb.fxgl.physics.PhysicsComponent.class).setVelocityY(0);
+                            }
+                        }
+                    });
                 }
                 if (object instanceof MovimientoAlcantarilla){
                     MovimientoAlcantarilla movAlcantarilla = (MovimientoAlcantarilla) object;

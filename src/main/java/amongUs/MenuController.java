@@ -17,6 +17,9 @@ import javafx.scene.layout.Pane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import java.util.Random;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.util.Enumeration;
 
 public class MenuController implements UIController {
     @FXML private Pane ventanaModal;
@@ -28,16 +31,19 @@ public class MenuController implements UIController {
     @FXML private TextField txtNombre2;
     @FXML private TextField txtIp;
     @FXML private Label labelContador;
+    @FXML private Label labelIp;
     public static Servidor servidor;
     public static Cliente cliente;
     public static String mapaSeleccionado = "mapa2.tmx";
     public static String nombreUsuario = "Tripulante";
+    public static String ipSala = "";
     @FXML private HBox slot1, slot2, slot3, slot4, slot5, slot6, slot7, slot8, slot9, slot10;
     @FXML private Label nombre1,nombre2,nombre3,nombre4,nombre5,nombre6,nombre7,nombre8,nombre9,nombre10;
     @FXML private ImageView foto1,foto2,foto3,foto4,foto5,foto6,foto7,foto8,foto9,foto10;
     @FXML private Button boton1,boton2,boton3,boton4,boton5,boton6,boton7,boton8,boton9,boton10;
     @FXML private ImageView start;
     @FXML private javafx.scene.layout.TilePane panelJugadores;
+
 
     private HBox[] slots;
     private Label[] nombres;
@@ -77,6 +83,9 @@ public class MenuController implements UIController {
     public void actualizarLobby(EstadoLobby estado) {
         estadoActual = estado;
         labelContador.setText("Jugadores: " + estado.jugadores.length + "/10");
+        if (labelIp != null) {
+            labelIp.setText("IP: " + ipSala);
+        }
         boolean host = false;
 
         for (int i = 0; i < 10; i++) {
@@ -92,7 +101,7 @@ public class MenuController implements UIController {
                     System.out.println("No se encontró el sprite para el color: " + j.color);
                 }
 
-                boolean esMiSlot = j.nombre.equals(this.nombreUsuario);
+                boolean esMiSlot = j.nombre.equals(MenuController.nombreUsuario);
                 botonesColor[i].setDisable(!esMiSlot);
                 botonesColor[i].setText("Color");
 
@@ -108,6 +117,29 @@ public class MenuController implements UIController {
         start.setDisable(estado.jugadores.length < 1);
     }
 
+    private String obtenerIp() {
+        try {
+            Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+            while (interfaces.hasMoreElements()) {
+                NetworkInterface iface = interfaces.nextElement();
+                if (iface.isLoopback() || !iface.isUp()) continue;
+                Enumeration<InetAddress> direcciones = iface.getInetAddresses();
+
+                while (direcciones.hasMoreElements()) {
+                    InetAddress direccion = direcciones.nextElement();
+                    if (direccion instanceof java.net.Inet4Address) {
+                        String ip = direccion.getHostAddress();
+                        if (ip.startsWith("25.")) {
+                            return ip;
+                        }
+                    }
+                }
+            }
+            return InetAddress.getLocalHost().getHostAddress(); // Por defecto si no encuentra Hamachi
+        } catch (Exception e) {
+            return "Desconocida";
+        }
+    }
     @FXML
     private void onSalir() {
         FXGL.getGameController().exit();
@@ -199,6 +231,7 @@ public class MenuController implements UIController {
         if (txtNombre2.getText().isEmpty()) return;
         if (txtIp.getText().isEmpty()) return;
         String ip = txtIp.getText();
+        ipSala = ip;
         nombreUsuario = txtNombre2.getText();
         cambiarEscena("/ui/lobby.fxml");
         cliente = new Cliente(ip, nombreUsuario);
@@ -236,6 +269,7 @@ public class MenuController implements UIController {
                 nombreUsuario = "Tripulante " + numeroID;
             }
             cambiarEscena("/ui/lobby.fxml");
+            ipSala = obtenerIp();
 
             if (servidor == null) {
                 servidor = new Servidor();

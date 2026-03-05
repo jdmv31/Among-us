@@ -23,6 +23,7 @@ public class Servidor {
         server.getKryo().register(PeticionColor.class);
         server.getKryo().register(AsignacionRol.class);
         server.getKryo().register(MovimientoAlcantarilla.class);
+        server.getKryo().register(Asesinato.class);
         server.start();
         server.bind(54555, 54556);
 
@@ -80,6 +81,9 @@ public class Servidor {
                 }
                 else if (object instanceof MovimientoAlcantarilla){
                     server.sendToAllExceptTCP(connection.getID(),object);
+                }
+                else if (object instanceof Asesinato){
+                    server.sendToAllTCP(object);
                 }
             }
         });

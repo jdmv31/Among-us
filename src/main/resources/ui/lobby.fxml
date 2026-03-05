@@ -145,5 +145,10 @@
             <Image url="@../images/start.png" />
          </image>
       </ImageView>
+      <Label fx:id="labelIp" layoutX="515.0" layoutY="105.0" text="IP: " textFill="WHITE">
+         <font>
+            <Font name="SansSerif Regular" size="29.0" />
+         </font>
+      </Label>
    </children>
 </AnchorPane>
