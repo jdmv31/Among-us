@@ -22,6 +22,7 @@ public class Cliente {
         cliente.getKryo().register(AsignacionRol.class);
         cliente.getKryo().register(MovimientoAlcantarilla.class);
         cliente.getKryo().register(Asesinato.class);
+        cliente.getKryo().register(Sabotaje.class);
         cliente.start();
 
         cliente.addListener(new Listener() {
@@ -43,11 +44,12 @@ public class Cliente {
                             com.almasb.fxgl.entity.Entity otro = AppPrincipal.otrosJugadores.get(mov.username);
 
                             if (otro != null) {
-                                com.almasb.fxgl.physics.PhysicsComponent fisicas = otro.getComponent(com.almasb.fxgl.physics.PhysicsComponent.class);
-
-                                if (fisicas != null) {
+                                // CORRECCIÓN: Verificamos si tiene el componente antes de pedirlo
+                                if (otro.hasComponent(com.almasb.fxgl.physics.PhysicsComponent.class)) {
+                                    com.almasb.fxgl.physics.PhysicsComponent fisicas = otro.getComponent(com.almasb.fxgl.physics.PhysicsComponent.class);
                                     fisicas.overwritePosition(new javafx.geometry.Point2D(mov.x, mov.y));
                                 } else {
+                                    // Si no tiene físicas (como ahora), solo actualizamos su posición visual
                                     otro.setPosition(mov.x, mov.y);
                                 }
                             }
@@ -87,8 +89,10 @@ public class Cliente {
                             com.almasb.fxgl.entity.Entity victima = AppPrincipal.otrosJugadores.get(paquete.victima);
                             if (victima != null) {
                                 victima.getComponent(AnimacionJugador.class).morir();
-                                victima.getComponent(com.almasb.fxgl.physics.PhysicsComponent.class).setVelocityX(0);
-                                victima.getComponent(com.almasb.fxgl.physics.PhysicsComponent.class).setVelocityY(0);
+                                if (victima.hasComponent(com.almasb.fxgl.physics.PhysicsComponent.class)) {
+                                    victima.getComponent(com.almasb.fxgl.physics.PhysicsComponent.class).setVelocityX(0);
+                                    victima.getComponent(com.almasb.fxgl.physics.PhysicsComponent.class).setVelocityY(0);
+                                }
                             }
                         }
                     });
@@ -112,6 +116,8 @@ public class Cliente {
                             }
                         }
                     });
+                }else if (object instanceof Sabotaje){
+                    AppPrincipal.peticionSabotaje = true;
                 }
             }
         });

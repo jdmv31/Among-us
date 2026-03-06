@@ -62,38 +62,48 @@ public class Fabrica implements EntityFactory {
         String nombre = data.hasKey("nombre") ? data.get("nombre") : "Jugador";
         String nombreJugador = nombre;
         String colorJugador = "negro";
+        boolean esLocal = false;
+
         if (MenuController.estadoActual != null) {
             for (JugadorLobby j : MenuController.estadoActual.jugadores) {
                 if (j.nombre.equals(nombreJugador)) {
                     colorJugador = j.color;
+                    if (j.nombre.equals(MenuController.nombreUsuario)) {
+                        esLocal = true;
+                    }
                     break;
                 }
             }
         }
+
         Text nombreVisual = new Text(nombre);
         nombreVisual.setFill(Color.WHITE);
         nombreVisual.setFont(Font.font("Arial", 6));
         nombreVisual.setTranslateY(-1);
         nombreVisual.setTranslateX( (32 / 2.0) - (nombreVisual.getLayoutBounds().getWidth() / 2.0) );
 
-        PhysicsComponent fisicasJugador = new PhysicsComponent();
-        fisicasJugador.setBodyType(BodyType.DYNAMIC);
-
         double escala = 1.6;
-
         double posX = (32 / escala) / 2.0 - (20 / escala) / 2.0;
         double posY = (32 / escala) - (15 / escala);
-
         HitBox piesHitBox = new HitBox("pies", new Point2D(posX, posY), BoundingShape.box(20 / escala, 15 / escala));
 
-        return FXGL.entityBuilder(data)
+        var builder = FXGL.entityBuilder(data)
                 .type(TipoEntidad.JUGADOR)
-                .bbox(piesHitBox)
-                .with(new CollidableComponent(true))
                 .with(new AnimacionJugador(colorJugador))
-                .with(fisicasJugador)
                 .scale(escala, escala)
-                .view(nombreVisual)
-                .build();
+                .view(nombreVisual);
+
+        if (esLocal) {
+            PhysicsComponent fisicasJugador = new PhysicsComponent();
+            fisicasJugador.setBodyType(BodyType.DYNAMIC);
+
+            builder.bbox(piesHitBox)
+                    .with(new CollidableComponent(true))
+                    .with(fisicasJugador);
+        } else {
+            builder.bbox(new HitBox("cuerpo", new Point2D(0, 0), BoundingShape.box(32, 32)));
+        }
+
+        return builder.build();
     }
 }

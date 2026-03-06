@@ -323,6 +323,13 @@ public class MenuController implements UIController {
                 "#F07D0D"  // naranja
         };
 
+        java.util.List<String> coloresOcupados = new java.util.ArrayList<>();
+        if (estadoActual != null && estadoActual.jugadores != null) {
+            for (JugadorLobby j : estadoActual.jugadores) {
+                coloresOcupados.add(j.color);
+            }
+        }
+
         javafx.scene.layout.TilePane panelCuadrados = new javafx.scene.layout.TilePane();
         panelCuadrados.setPrefColumns(5);
         panelCuadrados.setHgap(5);
@@ -333,16 +340,23 @@ public class MenuController implements UIController {
 
             Button btnCuadrado = new Button();
             btnCuadrado.setPrefSize(30, 30);
-            btnCuadrado.setStyle("-fx-background-color: " + coloresHex[i] + "; -fx-border-color: black;");
+            boolean estaOcupado = coloresOcupados.contains(nombreColor);
 
-            btnCuadrado.setOnAction(e -> {
-                if (cliente != null && cliente.cliente.isConnected()) {
-                    PeticionColor peticion = new PeticionColor();
-                    peticion.color = nombreColor;
-                    cliente.cliente.sendTCP(peticion);
-                }
-                menu.hide();
-            });
+            if (estaOcupado) {
+                btnCuadrado.setStyle("-fx-background-color: " + coloresHex[i] + "; -fx-border-color: black; -fx-opacity: 0.3;");
+                btnCuadrado.setText("X");
+                btnCuadrado.setDisable(true);
+            } else {
+                btnCuadrado.setStyle("-fx-background-color: " + coloresHex[i] + "; -fx-border-color: black;");
+                btnCuadrado.setOnAction(e -> {
+                    if (cliente != null && cliente.cliente.isConnected()) {
+                        PeticionColor peticion = new PeticionColor();
+                        peticion.color = nombreColor;
+                        cliente.cliente.sendTCP(peticion);
+                    }
+                    menu.hide();
+                });
+            }
 
             panelCuadrados.getChildren().add(btnCuadrado);
         }

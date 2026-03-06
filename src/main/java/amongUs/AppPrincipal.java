@@ -20,7 +20,6 @@ public class AppPrincipal extends GameApplication {
     public static Cliente miCliente;
     public static Map<String, Entity> otrosJugadores = new HashMap<>();
     private Texture uiCamaras;
-    private boolean camarasAbiertas = false;
     private Texture btnIzq;
     private Texture btnDer;
     private int indiceCamaraActual = 0;
@@ -38,6 +37,15 @@ public class AppPrincipal extends GameApplication {
     public static javafx.scene.text.Text textoCooldown;
     public static boolean estoyMuerto = false;
     public static String victimaCercana = "";
+
+    public static boolean camarasAbiertas = false;
+    public static boolean peticionSabotaje = false;
+    public static boolean sabotajeActivo = false;
+    public static double tiempoSabotaje = 0;
+    public static Texture botonSabotaje;
+    public static javafx.scene.text.Text textoCooldownSabotaje;
+    public static boolean sabotajeDisponible = true;
+    public static double tiempoCooldownSabotaje = 0;
 
     // josue: esta es una clase interna para representar la interconexion entre las alcantarillas en caso de ser impostor
     public static class NodoAlcantarilla {
@@ -452,8 +460,10 @@ public class AppPrincipal extends GameApplication {
             Entity victima = otrosJugadores.get(victimaCercana);
             if (victima != null) {
                 victima.getComponent(AnimacionJugador.class).morir();
-                victima.getComponent(PhysicsComponent.class).setVelocityX(0);
-                victima.getComponent(PhysicsComponent.class).setVelocityY(0);
+                if (victima.hasComponent(PhysicsComponent.class)) {
+                    victima.getComponent(PhysicsComponent.class).setVelocityX(0);
+                    victima.getComponent(PhysicsComponent.class).setVelocityY(0);
+                }
             }
             cooldownKill = true;
             tiempoCooldown = 30.0;
@@ -484,6 +494,56 @@ public class AppPrincipal extends GameApplication {
             FXGL.getSettings().setGlobalMusicVolume(0.4);
         } catch (Exception e) {
             System.err.println("Error cargando la música: " + e.getMessage());
+        }
+    }
+
+    public static void iniciarSabotaje() {
+        sabotajeDisponible = false;
+        tiempoCooldownSabotaje = 60.0;
+        botonSabotaje.setImage(FXGL.image("sabotajeNegado.png"));
+
+        activarCorteElectrico();
+        Sabotaje peticion = new Sabotaje();
+        peticion.activar = true;
+        // Se envía por TCP para asegurar de que todos reciban el corte eléctrico sin pérdida de paquetes
+        if (miCliente != null && miCliente.cliente != null) {
+            miCliente.cliente.sendTCP(peticion);
+        }
+    }
+
+    public static void activarCorteElectrico() {
+        sabotajeActivo = true;
+        tiempoSabotaje = 15.0;
+
+        if (!esImpostor && jugador != null && !estoyMuerto) {
+            if (oscuridad != null) {
+                javafx.scene.paint.RadialGradient gradienteSabotaje = new javafx.scene.paint.RadialGradient(
+                        0, 0, 0.5, 0.5, 0.5, true, javafx.scene.paint.CycleMethod.NO_CYCLE,
+                        new javafx.scene.paint.Stop(0, javafx.scene.paint.Color.TRANSPARENT),
+                        new javafx.scene.paint.Stop(0.04, javafx.scene.paint.Color.TRANSPARENT),
+                        new javafx.scene.paint.Stop(0.12, javafx.scene.paint.Color.rgb(10, 10, 10, 0.98)),
+                        new javafx.scene.paint.Stop(1, javafx.scene.paint.Color.rgb(10, 10, 10, 1.0))
+                );
+                oscuridad.setFill(gradienteSabotaje);
+            }
+
+            if (camarasAbiertas) {
+                FXGL.getInput().mockKeyPress(javafx.scene.input.KeyCode.C);
+                FXGL.getInput().mockKeyRelease(javafx.scene.input.KeyCode.C);
+            }
+
+        } else if (esImpostor) {
+            if (oscuridad != null) {
+                javafx.scene.paint.RadialGradient gradienteAlarma = new javafx.scene.paint.RadialGradient(
+                        0, 0, 0.5, 0.5, 0.5, true, javafx.scene.paint.CycleMethod.NO_CYCLE,
+                        new javafx.scene.paint.Stop(0, javafx.scene.paint.Color.TRANSPARENT),
+                        new javafx.scene.paint.Stop(0.15, javafx.scene.paint.Color.TRANSPARENT),
+                        new javafx.scene.paint.Stop(0.45, javafx.scene.paint.Color.rgb(50, 10, 10, 0.6)), // Tono rojizo
+                        new javafx.scene.paint.Stop(0.75, javafx.scene.paint.Color.rgb(50, 10, 10, 0.95)),
+                        new javafx.scene.paint.Stop(1, javafx.scene.paint.Color.rgb(20, 0, 0, 0.98))
+                );
+                oscuridad.setFill(gradienteAlarma);
+            }
         }
     }
 
@@ -526,6 +586,54 @@ public class AppPrincipal extends GameApplication {
 
     @Override
     protected void onUpdate(double tpf) {
+        if (peticionSabotaje) {
+            peticionSabotaje = false;
+            activarCorteElectrico();
+        }
+
+        if (sabotajeActivo) {
+            tiempoSabotaje -= tpf;
+
+            if (tiempoSabotaje <= 0) {
+                sabotajeActivo = false;
+
+                if (oscuridad != null && jugador != null && !estoyMuerto) {
+                    javafx.scene.paint.RadialGradient gradienteNormal = new javafx.scene.paint.RadialGradient(
+                            0, 0, 0.5, 0.5, 0.5, true, javafx.scene.paint.CycleMethod.NO_CYCLE,
+                            new javafx.scene.paint.Stop(0, javafx.scene.paint.Color.TRANSPARENT),
+                            new javafx.scene.paint.Stop(0.15, javafx.scene.paint.Color.TRANSPARENT),
+                            new javafx.scene.paint.Stop(0.45, javafx.scene.paint.Color.rgb(10, 10, 10, 0.6)),
+                            new javafx.scene.paint.Stop(0.75, javafx.scene.paint.Color.rgb(10, 10, 10, 0.95)),
+                            new javafx.scene.paint.Stop(1, javafx.scene.paint.Color.rgb(10, 10, 10, 0.98))
+                    );
+                    oscuridad.setFill(gradienteNormal);
+                }
+            }
+        }
+
+        if (esImpostor && botonMatar != null && !enAlcantarilla) {
+            if (cooldownKill) {
+                tiempoCooldown -= tpf;
+                if (tiempoCooldown <= 0) {
+                    cooldownKill = false;
+                    textoCooldown.setText("");
+                } else {
+                    textoCooldown.setText(String.valueOf((int) tiempoCooldown + 1));
+                }
+            }
+
+            if (botonSabotaje != null && !sabotajeDisponible) {
+                tiempoCooldownSabotaje -= tpf;
+                if (tiempoCooldownSabotaje <= 0) {
+                    sabotajeDisponible = true;
+                    textoCooldownSabotaje.setText("");
+                    botonSabotaje.setImage(FXGL.image("sabotaje.png"));
+                } else {
+                    textoCooldownSabotaje.setText(String.valueOf((int) tiempoCooldownSabotaje + 1));
+                }
+            }
+        }
+
         if (esImpostor && botonMatar != null && !enAlcantarilla) {
             if (cooldownKill) {
                 tiempoCooldown -= tpf;
@@ -645,7 +753,25 @@ public class AppPrincipal extends GameApplication {
                 textoCooldown.setTranslateX(botonMatar.getTranslateX() + (tamanoBoton / 2.5));
                 textoCooldown.setTranslateY(botonMatar.getTranslateY() + (tamanoBoton / 1.5));
                 FXGL.addUINode(textoCooldown);
+                botonSabotaje = FXGL.texture("sabotaje.png");
+                botonSabotaje.setFitWidth(tamanoBoton);
+                botonSabotaje.setFitHeight(tamanoBoton);
+                botonSabotaje.setTranslateX(FXGL.getAppWidth() - (tamanoBoton * 2) - (margen * 3));
+                botonSabotaje.setTranslateY(FXGL.getAppHeight() - (tamanoBoton * 2) - (margen * 2));
 
+                botonSabotaje.setOnMouseClicked(e -> {
+                    if (sabotajeDisponible && !sabotajeActivo) {
+                        iniciarSabotaje();
+                    }
+                });
+                FXGL.addUINode(botonSabotaje);
+
+                textoCooldownSabotaje = new javafx.scene.text.Text("");
+                textoCooldownSabotaje.setFill(javafx.scene.paint.Color.RED);
+                textoCooldownSabotaje.setFont(javafx.scene.text.Font.font("Arial", javafx.scene.text.FontWeight.BOLD, 45));
+                textoCooldownSabotaje.setTranslateX(botonSabotaje.getTranslateX() + (tamanoBoton / 2.5));
+                textoCooldownSabotaje.setTranslateY(botonSabotaje.getTranslateY() + (tamanoBoton / 1.5));
+                FXGL.addUINode(textoCooldownSabotaje);
                 matarDisponible = false;
             }
 

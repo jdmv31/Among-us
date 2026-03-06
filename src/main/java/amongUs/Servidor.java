@@ -11,6 +11,10 @@ public class Servidor {
     Server server;
     List<JugadorLobby> jugadoresLobby = new ArrayList<>();
 
+    private final String[] COLORES_TOTALES = {
+            "blanco", "negro", "marron", "azul", "rojo",
+            "rosa", "verde", "amarillo", "morado", "naranja"
+    };
 
     public Servidor() throws Exception {
         server = new Server();
@@ -24,6 +28,7 @@ public class Servidor {
         server.getKryo().register(AsignacionRol.class);
         server.getKryo().register(MovimientoAlcantarilla.class);
         server.getKryo().register(Asesinato.class);
+        server.getKryo().register(Sabotaje.class);
         server.start();
         server.bind(54555, 54556);
 
@@ -45,7 +50,7 @@ public class Servidor {
                     JugadorLobby nuevo = new JugadorLobby();
                     nuevo.conexionId = connection.getID();
                     nuevo.nombre = peticion.nombre;
-                    nuevo.color = "negro";
+                    nuevo.color = obtenerColorDisponible();
                     nuevo.host = jugadoresLobby.isEmpty(); // El primero que entra es el host
 
                     jugadoresLobby.add(nuevo);
@@ -53,13 +58,20 @@ public class Servidor {
                 }
                 else if (object instanceof PeticionColor) {
                     PeticionColor peticion = (PeticionColor) object;
-                    for (JugadorLobby j : jugadoresLobby) {
-                        if (j.conexionId == connection.getID()) {
-                            j.color = peticion.color;
-                            break;
+
+                    // Verificamos si el color solicitado ya lo tiene alguien más
+                    boolean colorOcupado = jugadoresLobby.stream()
+                            .anyMatch(j -> j.color.equals(peticion.color));
+
+                    if (!colorOcupado) {
+                        for (JugadorLobby j : jugadoresLobby) {
+                            if (j.conexionId == connection.getID()) {
+                                j.color = peticion.color;
+                                break;
+                            }
                         }
+                        enviarEstadoLobby();
                     }
-                    enviarEstadoLobby();
                 }
                 else if (object instanceof MapaElegido) {
                     Connection[] conexiones = server.getConnections();
@@ -76,17 +88,30 @@ public class Servidor {
                     }
                     server.sendToAllTCP(object);
                 }
-                else if (object instanceof Movimiento) {
+                if (object instanceof Movimiento) {
                     server.sendToAllExceptUDP(connection.getID(), object);
                 }
-                else if (object instanceof MovimientoAlcantarilla){
+                if (object instanceof MovimientoAlcantarilla){
                     server.sendToAllExceptTCP(connection.getID(),object);
                 }
-                else if (object instanceof Asesinato){
+                if (object instanceof Asesinato){
                     server.sendToAllTCP(object);
+                }
+                if (object instanceof Sabotaje){
+                    server.sendToAllExceptUDP(connection.getID(),object);
                 }
             }
         });
+    }
+
+    private String obtenerColorDisponible() {
+        for (String color : COLORES_TOTALES) {
+            boolean enUso = jugadoresLobby.stream().anyMatch(j -> j.color.equals(color));
+            if (!enUso) {
+                return color;
+            }
+        }
+        return "blanco";
     }
 
     private void enviarEstadoLobby() {
