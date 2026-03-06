@@ -73,6 +73,10 @@ public class Cliente {
                     javafx.application.Platform.runLater(() -> {
                         if (paquete.victima.equals(MenuController.nombreUsuario)) {
                             AppPrincipal.estoyMuerto = true;
+                            if (AppPrincipal.camarasAbiertas) {
+                                com.almasb.fxgl.dsl.FXGL.getInput().mockKeyPress(javafx.scene.input.KeyCode.C);
+                                com.almasb.fxgl.dsl.FXGL.getInput().mockKeyRelease(javafx.scene.input.KeyCode.C);
+                            }
 
                             if (AppPrincipal.jugador != null) {
                                 String miColor = AppPrincipal.jugador.getComponent(AnimacionJugador.class).getColor();

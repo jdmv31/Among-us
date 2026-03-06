@@ -505,7 +505,6 @@ public class AppPrincipal extends GameApplication {
         activarCorteElectrico();
         Sabotaje peticion = new Sabotaje();
         peticion.activar = true;
-        // Se envía por TCP para asegurar de que todos reciban el corte eléctrico sin pérdida de paquetes
         if (miCliente != null && miCliente.cliente != null) {
             miCliente.cliente.sendTCP(peticion);
         }
@@ -514,6 +513,11 @@ public class AppPrincipal extends GameApplication {
     public static void activarCorteElectrico() {
         sabotajeActivo = true;
         tiempoSabotaje = 15.0;
+
+        if (camarasAbiertas) {
+            FXGL.getInput().mockKeyPress(javafx.scene.input.KeyCode.C);
+            FXGL.getInput().mockKeyRelease(javafx.scene.input.KeyCode.C);
+        }
 
         if (!esImpostor && jugador != null && !estoyMuerto) {
             if (oscuridad != null) {
@@ -593,26 +597,71 @@ public class AppPrincipal extends GameApplication {
 
         if (sabotajeActivo) {
             tiempoSabotaje -= tpf;
-
             if (tiempoSabotaje <= 0) {
                 sabotajeActivo = false;
+            }
+        }
 
-                if (oscuridad != null && jugador != null && !estoyMuerto) {
-                    javafx.scene.paint.RadialGradient gradienteNormal = new javafx.scene.paint.RadialGradient(
-                            0, 0, 0.5, 0.5, 0.5, true, javafx.scene.paint.CycleMethod.NO_CYCLE,
-                            new javafx.scene.paint.Stop(0, javafx.scene.paint.Color.TRANSPARENT),
-                            new javafx.scene.paint.Stop(0.15, javafx.scene.paint.Color.TRANSPARENT),
-                            new javafx.scene.paint.Stop(0.45, javafx.scene.paint.Color.rgb(10, 10, 10, 0.6)),
-                            new javafx.scene.paint.Stop(0.75, javafx.scene.paint.Color.rgb(10, 10, 10, 0.95)),
-                            new javafx.scene.paint.Stop(1, javafx.scene.paint.Color.rgb(10, 10, 10, 0.98))
-                    );
-                    oscuridad.setFill(gradienteNormal);
+        if (oscuridad != null && jugador != null) {
+            if (estoyMuerto) {
+                oscuridad.setFill(javafx.scene.paint.Color.TRANSPARENT);
+            }
+            else {
+                double zoom = FXGL.getGameScene().getViewport().getZoom();
+                double screenX = (jugador.getX() + 25 - FXGL.getGameScene().getViewport().getX()) * zoom;
+                double screenY = (jugador.getY() + 25 - FXGL.getGameScene().getViewport().getY()) * zoom;
+                double centroX = screenX / FXGL.getAppWidth();
+                double centroY = screenY / FXGL.getAppHeight();
+
+                if (!esImpostor) {
+                    if (sabotajeActivo) {
+                        javafx.scene.paint.RadialGradient gradienteSabotaje = new javafx.scene.paint.RadialGradient(
+                                0, 0, centroX, centroY, 0.5, true, javafx.scene.paint.CycleMethod.NO_CYCLE,
+                                new javafx.scene.paint.Stop(0, javafx.scene.paint.Color.TRANSPARENT),
+                                new javafx.scene.paint.Stop(0.12, javafx.scene.paint.Color.TRANSPARENT),
+                                new javafx.scene.paint.Stop(0.25, javafx.scene.paint.Color.rgb(10, 10, 10, 0.98)),
+                                new javafx.scene.paint.Stop(1, javafx.scene.paint.Color.rgb(10, 10, 10, 1.0))
+                        );
+                        oscuridad.setFill(gradienteSabotaje);
+                    } else {
+                        javafx.scene.paint.RadialGradient gradienteNormal = new javafx.scene.paint.RadialGradient(
+                                0, 0, centroX, centroY, 0.5, true, javafx.scene.paint.CycleMethod.NO_CYCLE,
+                                new javafx.scene.paint.Stop(0, javafx.scene.paint.Color.TRANSPARENT),
+                                new javafx.scene.paint.Stop(0.15, javafx.scene.paint.Color.TRANSPARENT),
+                                new javafx.scene.paint.Stop(0.45, javafx.scene.paint.Color.rgb(10, 10, 10, 0.6)),
+                                new javafx.scene.paint.Stop(0.75, javafx.scene.paint.Color.rgb(10, 10, 10, 0.95)),
+                                new javafx.scene.paint.Stop(1, javafx.scene.paint.Color.rgb(10, 10, 10, 0.98))
+                        );
+                        oscuridad.setFill(gradienteNormal);
+                    }
+                } else {
+                    if (sabotajeActivo) {
+                        javafx.scene.paint.RadialGradient gradienteAlarma = new javafx.scene.paint.RadialGradient(
+                                0, 0, centroX, centroY, 0.5, true, javafx.scene.paint.CycleMethod.NO_CYCLE,
+                                new javafx.scene.paint.Stop(0, javafx.scene.paint.Color.TRANSPARENT),
+                                new javafx.scene.paint.Stop(0.15, javafx.scene.paint.Color.TRANSPARENT),
+                                new javafx.scene.paint.Stop(0.45, javafx.scene.paint.Color.rgb(50, 10, 10, 0.6)),
+                                new javafx.scene.paint.Stop(0.75, javafx.scene.paint.Color.rgb(50, 10, 10, 0.95)),
+                                new javafx.scene.paint.Stop(1, javafx.scene.paint.Color.rgb(20, 0, 0, 0.98))
+                        );
+                        oscuridad.setFill(gradienteAlarma);
+                    } else {
+                        javafx.scene.paint.RadialGradient gradienteNormal = new javafx.scene.paint.RadialGradient(
+                                0, 0, centroX, centroY, 0.5, true, javafx.scene.paint.CycleMethod.NO_CYCLE,
+                                new javafx.scene.paint.Stop(0, javafx.scene.paint.Color.TRANSPARENT),
+                                new javafx.scene.paint.Stop(0.15, javafx.scene.paint.Color.TRANSPARENT),
+                                new javafx.scene.paint.Stop(0.45, javafx.scene.paint.Color.rgb(10, 10, 10, 0.6)),
+                                new javafx.scene.paint.Stop(0.75, javafx.scene.paint.Color.rgb(10, 10, 10, 0.95)),
+                                new javafx.scene.paint.Stop(1, javafx.scene.paint.Color.rgb(10, 10, 10, 0.98))
+                        );
+                        oscuridad.setFill(gradienteNormal);
+                    }
                 }
             }
         }
 
-        if (esImpostor && botonMatar != null && !enAlcantarilla) {
-            if (cooldownKill) {
+        if (esImpostor) {
+            if (cooldownKill && botonMatar != null && !enAlcantarilla) {
                 tiempoCooldown -= tpf;
                 if (tiempoCooldown <= 0) {
                     cooldownKill = false;
@@ -634,17 +683,6 @@ public class AppPrincipal extends GameApplication {
             }
         }
 
-        if (esImpostor && botonMatar != null && !enAlcantarilla) {
-            if (cooldownKill) {
-                tiempoCooldown -= tpf;
-                if (tiempoCooldown <= 0) {
-                    cooldownKill = false;
-                    textoCooldown.setText("");
-                } else {
-                    textoCooldown.setText(String.valueOf((int) tiempoCooldown + 1));
-                }
-            }
-        }
         if (jugador != null) {
             jugador.setZIndex((int) (jugador.getY() + (32 * 1.8)));
 
@@ -681,6 +719,7 @@ public class AppPrincipal extends GameApplication {
                 }
             }
         }
+
         for (Entity otro : otrosJugadores.values()) {
             if (otro != null) {
                 otro.setZIndex((int) (otro.getY() + (32 * 1.8)));
