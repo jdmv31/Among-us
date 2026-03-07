@@ -58,7 +58,9 @@ public class SistemaCamaras {
 
             if (AppPrincipal.oscuridad != null) AppPrincipal.oscuridad.setVisible(true);
 
-            if (AppPrincipal.barraTareasUI != null) AppPrincipal.barraTareasUI.setVisible(true);
+            if (jugador.hasComponent(TripulanteComponent.class)) {
+                jugador.getComponent(TripulanteComponent.class).getBarraTareasUI().setVisible(true);
+            }
             viewport.setZoom(2.5);
             viewport.bindToEntity(jugador, FXGL.getAppWidth() / 2.0, FXGL.getAppHeight() / 2.0);
 
@@ -69,7 +71,9 @@ public class SistemaCamaras {
             camarasAbiertas = true;
 
             if (AppPrincipal.oscuridad != null) AppPrincipal.oscuridad.setVisible(false);
-            if (AppPrincipal.barraTareasUI != null) AppPrincipal.barraTareasUI.setVisible(false);
+            if (jugador.hasComponent(TripulanteComponent.class)) {
+                jugador.getComponent(TripulanteComponent.class).getBarraTareasUI().setVisible(false);
+            }
             if (jugador != null && jugador.hasComponent(PhysicsComponent.class)) {
                 jugador.getComponent(PhysicsComponent.class).setVelocityX(0);
                 jugador.getComponent(PhysicsComponent.class).setVelocityY(0);

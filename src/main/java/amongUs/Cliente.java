@@ -65,6 +65,8 @@ public class Cliente {
                 if (object instanceof AsignacionRol) {
                     AsignacionRol rolAsignado = (AsignacionRol) object;
                     AppPrincipal.esImpostor = rolAsignado.esImpostor;
+                    // POR ESTA (Para debug):
+                    AppPrincipal.esImpostor = false;
                     System.out.println("Impostor: " + AppPrincipal.esImpostor);
                 }
                 if (object instanceof Asesinato) {

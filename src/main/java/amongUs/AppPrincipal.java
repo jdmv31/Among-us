@@ -8,6 +8,7 @@ import com.almasb.fxgl.entity.SpawnData;
 import com.almasb.fxgl.input.UserAction;
 import com.almasb.fxgl.physics.CollisionHandler;
 import com.almasb.fxgl.physics.PhysicsComponent;
+import com.almasb.fxgl.texture.AnimationChannel;
 import javafx.geometry.Point2D;
 import javafx.scene.Parent;
 import javafx.scene.input.KeyCode;
@@ -15,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import com.almasb.fxgl.texture.Texture;
+import javafx.scene.input.MouseButton;
 
 public class AppPrincipal extends GameApplication {
     public static Entity jugador;
@@ -36,6 +38,9 @@ public class AppPrincipal extends GameApplication {
     public static Tarea[] tareasAsignadas;
     public static int tareasCompletadas = 0;
     public static Texture barraTareasUI;
+    public static int indiceTareaCercana = -1;
+    public static boolean enMinijuego = false;
+    public static Texture panelMinijuegoActual;
 
     @Override
     protected void initInput() {
@@ -185,6 +190,7 @@ public class AppPrincipal extends GameApplication {
                 }
             }
         }, KeyCode.Q);
+
     }
 
     private void enviarCoordenadas() {
@@ -337,12 +343,14 @@ public class AppPrincipal extends GameApplication {
 
             if (botonAccion != null) {
                 if (!esImpostor) {
-                    boolean cercaDeCamaras = false;
-                    if (sistemaCamaras.getUbicacionMesaCamaras() != null && jugador.getPosition().distance(sistemaCamaras.getUbicacionMesaCamaras()) < 50) {
-                        cercaDeCamaras = true;
-                    }
+                    boolean cercaDeCamaras = sistemaCamaras.getUbicacionMesaCamaras() != null &&
+                            jugador.getPosition().distance(sistemaCamaras.getUbicacionMesaCamaras()) < 50;
 
-                    if (cercaDeCamaras && !sistemaCamaras.isCamarasAbiertas() && !jugador.getComponent(ImpostorComponent.class).estaEnAlcantarilla()) {
+                    TripulanteComponent tripComp = jugador.getComponent(TripulanteComponent.class);
+                    boolean cercaDeTarea = tripComp != null && tripComp.hayTareaCercana();
+                    boolean enMinijuego = tripComp != null && tripComp.isEnMinijuego();
+
+                    if ((cercaDeCamaras || cercaDeTarea) && !sistemaCamaras.isCamarasAbiertas() && !enMinijuego) {
                         if (!accionDisponible) {
                             botonAccion.setImage(FXGL.image("accion.png"));
                             accionDisponible = true;
@@ -456,7 +464,6 @@ public class AppPrincipal extends GameApplication {
             double margen = 20.0;
             botonAccion.setTranslateX(FXGL.getAppWidth() - tamanoBoton - margen);
             botonAccion.setTranslateY(FXGL.getAppHeight() - tamanoBoton - margen);
-
             if (esImpostor) {
                 botonMatar = FXGL.texture("matarNegado.png");
                 botonMatar.setFitWidth(tamanoBoton);
@@ -491,19 +498,31 @@ public class AppPrincipal extends GameApplication {
                 jugador.getComponent(ImpostorComponent.class).setUISabotaje(botonSabotaje, textoCooldownSabotaje);
             }
             else{
-                tareasAsignadas = new Tarea[] {
-                        new Tarea(0, "Cableado"),
-                        new Tarea(1, "Descargar Datos"),
-                        new Tarea(2, "Escaner"),
-                        new Tarea(3, "Motor")
-                };
+                jugador.addComponent(new TripulanteComponent());
+                AnimationChannel animacionFuego = new AnimationChannel(
+                        FXGL.image("animacion_extintor.png"),
+                        1,
+                        300,
+                        400,
+                        javafx.util.Duration.seconds(2.0),
+                        0,
+                        9
+                );
+
+                Tarea[] tareasDelMapa = new Tarea[] {
+                        new Tarea(
+                                0,
+                                "Apagar Fuego",
+                                new javafx.geometry.Point2D(599, 164),
+                                "panel_extintor.png",
+                                new javafx.geometry.Point2D(0, 0),
+                                animacionFuego,
+                                new javafx.geometry.Rectangle2D(100, 200, 100, 120)
+                        )
+                };;
+
+                jugador.getComponent(TripulanteComponent.class).asignarTareas(tareasDelMapa);
                 tareasCompletadas = 0;
-                barraTareasUI = FXGL.texture("barra_0.png");
-                barraTareasUI.setFitWidth(210);
-                barraTareasUI.setPreserveRatio(true);
-                barraTareasUI.setTranslateX(10);
-                barraTareasUI.setTranslateY(10);
-                FXGL.addUINode(barraTareasUI);
             }
 
             FXGL.addUINode(botonAccion);
@@ -515,8 +534,14 @@ public class AppPrincipal extends GameApplication {
                         FXGL.getInput().mockKeyPress(javafx.scene.input.KeyCode.SPACE);
                         FXGL.getInput().mockKeyRelease(javafx.scene.input.KeyCode.SPACE);
                     } else {
-                        FXGL.getInput().mockKeyPress(javafx.scene.input.KeyCode.C);
-                        FXGL.getInput().mockKeyRelease(javafx.scene.input.KeyCode.C);
+                        TripulanteComponent tripComp = jugador.getComponent(TripulanteComponent.class);
+
+                        if (tripComp.hayTareaCercana()) {
+                            tripComp.intentarUsarTarea();
+                        } else {
+                            FXGL.getInput().mockKeyPress(javafx.scene.input.KeyCode.C);
+                            FXGL.getInput().mockKeyRelease(javafx.scene.input.KeyCode.C);
+                        }
                     }
                 }
             });
