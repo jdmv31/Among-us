@@ -99,6 +99,8 @@ public class Fabrica implements EntityFactory {
 
             builder.bbox(piesHitBox)
                     .with(new CollidableComponent(true))
+                    .with(new VisionComponent())
+                    .with(new ImpostorComponent())
                     .with(fisicasJugador);
         } else {
             builder.bbox(new HitBox("cuerpo", new Point2D(0, 0), BoundingShape.box(32, 32)));

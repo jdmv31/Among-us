@@ -73,7 +73,7 @@ public class Cliente {
                     javafx.application.Platform.runLater(() -> {
                         if (paquete.victima.equals(MenuController.nombreUsuario)) {
                             AppPrincipal.estoyMuerto = true;
-                            if (AppPrincipal.camarasAbiertas) {
+                            if (AppPrincipal.sistemaCamaras.isCamarasAbiertas()) {
                                 com.almasb.fxgl.dsl.FXGL.getInput().mockKeyPress(javafx.scene.input.KeyCode.C);
                                 com.almasb.fxgl.dsl.FXGL.getInput().mockKeyRelease(javafx.scene.input.KeyCode.C);
                             }
