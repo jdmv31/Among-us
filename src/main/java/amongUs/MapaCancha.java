@@ -1,10 +1,57 @@
 package main.java.amongUs;
 
+import com.almasb.fxgl.dsl.FXGL;
+import com.almasb.fxgl.texture.AnimationChannel;
 import javafx.geometry.Point2D;
+import javafx.geometry.Rectangle2D;
+import javafx.util.Duration;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class MapaCancha implements ConfiguracionMapa{
+
+    public Tarea[] obtenerTareas() {
+        Tarea[] tareas = new Tarea[2];
+        AnimationChannel animacionFuego = new AnimationChannel(
+                FXGL.image("animacion_extintor.png"),
+                9, 300, 400, Duration.seconds(1), 0, 9
+        );
+
+        Tarea tareaFuego = new Tarea(
+                1,
+                "Apagar Incendio",
+                new Point2D(599, 164),
+                "panel_extintor.png",
+                new Point2D(0, 0),
+                animacionFuego,
+                new Rectangle2D(104, 121, 86, 183)
+        );
+        tareaFuego.setDuracionSegundos(8);
+        tareaFuego.setTexturaFinal("extintor_apagado.png");
+        tareas[0] = tareaFuego;
+
+        AnimationChannel animacionDatos = new AnimationChannel(
+                FXGL.image("animacion_datos.png"),
+                8, 615, 400, Duration.seconds(1), 0, 8
+        );
+
+        Tarea tareaDatos = new Tarea(
+                2,
+                "Transferir Datos",
+                new Point2D(796, 701),
+                "panel_datos.png",
+                new Point2D(0, 0),
+                animacionDatos,
+                new Rectangle2D(240, 251, 131, 25)
+        );
+        tareaDatos.setDuracionSegundos(10.0);
+        tareaDatos.setTexturaFinal("datos_terminado.png");
+        tareas[1] = tareaDatos;
+
+        return tareas;
+    }
+
 
     @Override
     public String getArchivoTMX() {

@@ -49,6 +49,9 @@ public class AppPrincipal extends GameApplication {
         FXGL.getInput().addAction(new UserAction("Mover Arriba") {
             @Override
             protected void onAction() {
+                TripulanteComponent tripComp = jugador.getComponent(TripulanteComponent.class);
+                if (tripComp != null && tripComp.isEnMinijuego()) return;
+
                 if (jugador != null && !sistemaCamaras.isCamarasAbiertas() && !jugador.getComponent(ImpostorComponent.class).estaEnAlcantarilla()) {
                     jugador.getComponent(PhysicsComponent.class).setVelocityY(-velocidadFisica);
 
@@ -72,6 +75,9 @@ public class AppPrincipal extends GameApplication {
         FXGL.getInput().addAction(new UserAction("Mover Abajo") {
             @Override
             protected void onAction() {
+                TripulanteComponent tripComp = jugador.getComponent(TripulanteComponent.class);
+                if (tripComp != null && tripComp.isEnMinijuego()) return;
+
                 if (jugador != null && !sistemaCamaras.isCamarasAbiertas() && !jugador.getComponent(ImpostorComponent.class).estaEnAlcantarilla()) {
                     jugador.getComponent(PhysicsComponent.class).setVelocityY(velocidadFisica);
 
@@ -95,6 +101,9 @@ public class AppPrincipal extends GameApplication {
         FXGL.getInput().addAction(new UserAction("Mover Izquierda") {
             @Override
             protected void onAction() {
+                TripulanteComponent tripComp = jugador.getComponent(TripulanteComponent.class);
+                if (tripComp != null && tripComp.isEnMinijuego()) return;
+
                 if (jugador != null && !sistemaCamaras.isCamarasAbiertas() && !jugador.getComponent(ImpostorComponent.class).estaEnAlcantarilla()) {
                     jugador.getComponent(PhysicsComponent.class).setVelocityX(-velocidadFisica);
 
@@ -118,6 +127,9 @@ public class AppPrincipal extends GameApplication {
         FXGL.getInput().addAction(new UserAction("Mover Derecha") {
             @Override
             protected void onAction() {
+                TripulanteComponent tripComp = jugador.getComponent(TripulanteComponent.class);
+                if (tripComp != null && tripComp.isEnMinijuego()) return;
+
                 if (jugador != null && !sistemaCamaras.isCamarasAbiertas() && !jugador.getComponent(ImpostorComponent.class).estaEnAlcantarilla()) {
                     jugador.getComponent(PhysicsComponent.class).setVelocityX(velocidadFisica);
 
@@ -208,18 +220,8 @@ public class AppPrincipal extends GameApplication {
     @Override
     protected void initPhysics(){
         FXGL.getPhysicsWorld().setGravity(0,0);
-        FXGL.getPhysicsWorld().addCollisionHandler(new CollisionHandler(TipoEntidad.JUGADOR, TipoEntidad.PARED) {
-            @Override
-            protected void onCollision(Entity jugador, Entity pared) {
-                System.out.println();
-            }
-        });
-        FXGL.getPhysicsWorld().addCollisionHandler(new CollisionHandler(TipoEntidad.JUGADOR, TipoEntidad.OBJETO) {
-            @Override
-            protected void onCollision(Entity jugador, Entity objeto) {
-                System.out.println();
-            }
-        });
+        FXGL.getPhysicsWorld().addCollisionHandler(new CollisionHandler(TipoEntidad.JUGADOR, TipoEntidad.PARED) {});
+        FXGL.getPhysicsWorld().addCollisionHandler(new CollisionHandler(TipoEntidad.JUGADOR, TipoEntidad.OBJETO) {});
     }
 
     @Override
@@ -499,28 +501,15 @@ public class AppPrincipal extends GameApplication {
             }
             else{
                 jugador.addComponent(new TripulanteComponent());
-                AnimationChannel animacionFuego = new AnimationChannel(
-                        FXGL.image("animacion_extintor.png"),
-                        1,
-                        300,
-                        400,
-                        javafx.util.Duration.seconds(2.0),
-                        0,
-                        9
-                );
-
-                Tarea[] tareasDelMapa = new Tarea[] {
-                        new Tarea(
-                                0,
-                                "Apagar Fuego",
-                                new javafx.geometry.Point2D(599, 164),
-                                "panel_extintor.png",
-                                new javafx.geometry.Point2D(0, 0),
-                                animacionFuego,
-                                new javafx.geometry.Rectangle2D(100, 200, 100, 120)
-                        )
-                };;
-
+                Tarea[] tareasDelMapa = new Tarea[0];
+                if (mapaActual instanceof MapaCancha) {
+                    tareasDelMapa = ((MapaCancha) mapaActual).obtenerTareas();
+                }
+                /*
+                else if (mapaActual instanceof MapaBiblioteca) {
+                    tareasDelMapa = ((MapaBiblioteca) mapaActual).obtenerTareas();
+                }
+                */
                 jugador.getComponent(TripulanteComponent.class).asignarTareas(tareasDelMapa);
                 tareasCompletadas = 0;
             }

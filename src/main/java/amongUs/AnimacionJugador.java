@@ -35,8 +35,8 @@ public class AnimacionJugador extends Component {
         String imgAlcantarillaSalida = "alcantarilla_" + this.color + ".png";
         String imgAlcantarillaEntrada = "alcantarilla_"+this.color + "E.png";
         String imgMuerto = this.color + "_muerto.png";
+        animFantasma = new AnimationChannel(FXGL.image("animacion_fantasma.png"), 4, ANCHO_FRAME, ALTO_FRAME, Duration.seconds(0.6), 0, 3);
 
-        animFantasma = new AnimationChannel(FXGL.image("fantasma.png"), 1, ANCHO_FRAME, ALTO_FRAME, Duration.seconds(1.0), 0, 0);
         animMuerto = new AnimationChannel(FXGL.image(imgMuerto), 1, ANCHO_FRAME, ALTO_FRAME, Duration.seconds(1.0), 0, 0);
         animIdle = new AnimationChannel(FXGL.image(imgQuieto), 1, ANCHO_FRAME, ALTO_FRAME, Duration.seconds(1.0), 0, 0);
         animWalk = new AnimationChannel(FXGL.image(imgCaminar), 4, ANCHO_FRAME, ALTO_FRAME, Duration.seconds(0.6), 0, 3);
