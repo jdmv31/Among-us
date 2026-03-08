@@ -405,7 +405,7 @@ public class AppPrincipal extends GameApplication {
             mapaActual = new MapaCancha();
         }
         else if (nombreMapa.equals("mapa1.tmx")){
-            System.out.println("aca va el mapa de la biblioteca");
+            mapaActual = new MapaBiblioteca();
         }
 
         try {
