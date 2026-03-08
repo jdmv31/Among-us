@@ -165,8 +165,10 @@ public class TripulanteComponent extends Component {
                 barraTareasUI.setImage(FXGL.image("barra_" + tareasCompletadas + ".png"));
             }
 
-            if (tareasCompletadas >= tareasAsignadas.length) {
-                System.out.println("¡Todas las tareas listas! Enviar aviso al servidor.");
+            if (tareasCompletadas == 4) {
+                FinPartida fin = new FinPartida();
+                fin.ganador = "TRIPULANTES";
+                AppPrincipal.miCliente.cliente.sendTCP(fin);
             }
         }
     }

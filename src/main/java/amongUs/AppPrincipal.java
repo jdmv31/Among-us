@@ -602,6 +602,35 @@ public class AppPrincipal extends GameApplication {
         }, javafx.util.Duration.seconds(3.5));
     }
 
+    public static void mostrarPantallaFin(String ganador) {
+        FXGL.getInput().setRegisterInput(false);
+
+        if (jugador != null && jugador.hasComponent(com.almasb.fxgl.physics.PhysicsComponent.class)) {
+            jugador.getComponent(com.almasb.fxgl.physics.PhysicsComponent.class).setVelocityX(0);
+            jugador.getComponent(com.almasb.fxgl.physics.PhysicsComponent.class).setVelocityY(0);
+        }
+        //limpiarTodosLosJugadores();
+        String imagenFin = "";
+        if (ganador.equals("TRIPULANTES")) {
+            imagenFin = esImpostor ? "derrota_impostor.png" : "victoria_tripulante.png";
+        } else { // Ganaron IMPOSTORES
+            imagenFin = esImpostor ? "victoria_impostor.png" : "derrota_tripulante.png";
+        }
+
+        try {
+            com.almasb.fxgl.texture.Texture texturaFin = FXGL.texture(imagenFin);
+            texturaFin.setTranslateX((FXGL.getAppWidth() / 2.0) - (texturaFin.getWidth() / 2.0));
+            texturaFin.setTranslateY((FXGL.getAppHeight() / 2.0) - (texturaFin.getHeight() / 2.0));
+            FXGL.addUINode(texturaFin);
+            FXGL.getGameTimer().runOnceAfter(() -> {
+                System.out.println("Fin de la partida. Retornando...");
+            }, javafx.util.Duration.seconds(5));
+
+        } catch (Exception e) {
+            System.err.println("Error cargando pantalla de fin: " + e.getMessage());
+        }
+    }
+
     public static void cargarInterfazVotacion() {
         try {
             javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(
@@ -652,21 +681,26 @@ public class AppPrincipal extends GameApplication {
             System.err.println("Error al cargar la pantalla de roles: " + e.getMessage());
         }
     }
-    public static void completarTarea(int indiceTarea) {
-        if (!esImpostor && tareasAsignadas != null && indiceTarea >= 0 && indiceTarea < tareasAsignadas.length) {
-            if (!tareasAsignadas[indiceTarea].tareaCompletada()) {
-                tareasAsignadas[indiceTarea].completar();
-                tareasCompletadas++;
 
-                if (barraTareasUI != null) {
-                    barraTareasUI.setImage(FXGL.image("barra_" + tareasCompletadas + ".png"));
-                }
-
-                System.out.println("Tarea completada: " + tareasAsignadas[indiceTarea].getNombre());
-                if (tareasCompletadas >= tareasAsignadas.length) {
-                    System.out.println("¡Todas las tareas listas! Enviar aviso al servidor de victoria.");
-                }
+    public static void removerJugador(String nombreUsuario) {
+        if (otrosJugadores.containsKey(nombreUsuario)) {
+            com.almasb.fxgl.entity.Entity jugadorARemover = otrosJugadores.get(nombreUsuario);
+            if (jugadorARemover != null) {
+                jugadorARemover.removeFromWorld();
             }
+            otrosJugadores.remove(nombreUsuario);
+        }
+    }
+
+    public static void limpiarTodosLosJugadores() {
+        for (com.almasb.fxgl.entity.Entity otro : otrosJugadores.values()) {
+            if (otro != null) {
+                otro.removeFromWorld();
+            }
+        }
+        otrosJugadores.clear();
+        if (jugador != null) {
+            jugador.removeFromWorld();
         }
     }
     public static void main(String[] args) {

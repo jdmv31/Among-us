@@ -87,7 +87,7 @@ public class MapaCancha implements ConfiguracionMapa{
 
         AnimationChannel animacionBasura = new AnimationChannel(
                 FXGL.image("animacion_basura.png"),
-                6,256,256,Duration.seconds(1),0,5
+                6,400,500,Duration.seconds(1),0,5
         );
 
         Tarea tareaBasura = new Tarea(
@@ -97,7 +97,7 @@ public class MapaCancha implements ConfiguracionMapa{
                 "panel_basura.png",
                 new Point2D(0,0),
                 animacionBasura,
-                new Rectangle2D(190,80,54,62)
+                new Rectangle2D(298,158,80,118)
         );
         tareaBasura.setDuracionSegundos(8);
         tareaBasura.setTexturaFinal("basura_final.png");

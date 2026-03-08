@@ -25,6 +25,8 @@ public class Cliente {
         cliente.getKryo().register(Sabotaje.class);
         cliente.getKryo().register(PeticionReunion.class);
         cliente.getKryo().register(MensajeChat.class);
+        cliente.getKryo().register(FinPartida.class);
+        cliente.getKryo().register(DesconexionJugador.class);
         cliente.start();
 
         cliente.addListener(new Listener() {
@@ -100,6 +102,19 @@ public class Cliente {
                             }
                         }
                     });
+                    int vivos = 0;
+                    if (!AppPrincipal.estoyMuerto) vivos++;
+
+                    for (com.almasb.fxgl.entity.Entity otro : AppPrincipal.otrosJugadores.values()) {
+                        AnimacionJugador anim = otro.getComponent(AnimacionJugador.class);
+                        if (anim != null && !anim.estaMuerto) vivos++;
+                    }
+
+                    if (vivos <= 1 && AppPrincipal.esImpostor) {
+                        FinPartida fin = new FinPartida();
+                        fin.ganador = "IMPOSTORES";
+                        AppPrincipal.miCliente.cliente.sendTCP(fin);
+                    }
                 }
                 if (object instanceof MovimientoAlcantarilla){
                     MovimientoAlcantarilla movAlcantarilla = (MovimientoAlcantarilla) object;
@@ -139,6 +154,20 @@ public class Cliente {
                             if (msg.esFantasma && !AppPrincipal.estoyMuerto)
                                 return;
                             ReunionController.instancia.agregarMensaje(msg.emisor, msg.mensaje, msg.esFantasma);
+                        }
+                    });
+                }
+                if (object instanceof FinPartida) {
+                    FinPartida fin = (FinPartida) object;
+                    javafx.application.Platform.runLater(() -> {
+                        AppPrincipal.mostrarPantallaFin(fin.ganador);
+                    });
+                }
+                if (object instanceof DesconexionJugador) {
+                    DesconexionJugador desc = (DesconexionJugador) object;
+                    javafx.application.Platform.runLater(() -> {
+                        if (!desc.nombreUsuario.equals(MenuController.nombreUsuario)) {
+                            AppPrincipal.removerJugador(desc.nombreUsuario);
                         }
                     });
                 }

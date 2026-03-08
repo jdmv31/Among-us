@@ -31,18 +31,33 @@ public class Servidor {
         server.getKryo().register(Sabotaje.class);
         server.getKryo().register(PeticionReunion.class);
         server.getKryo().register(MensajeChat.class);
+        server.getKryo().register(FinPartida.class);
+        server.getKryo().register(DesconexionJugador.class);
         server.start();
         server.bind(54555, 54556);
 
         server.addListener(new Listener() {
             @Override
             public void disconnected(Connection connection) {
-                jugadoresLobby.removeIf(j -> j.conexionId == connection.getID());
+                String nombreDesconectado = null;
+                for (JugadorLobby j : jugadoresLobby) {
+                    if (j.conexionId == connection.getID()) {
+                        nombreDesconectado = j.nombre;
+                        break;
+                    }
+                }
 
+                jugadoresLobby.removeIf(j -> j.conexionId == connection.getID());
                 if(!jugadoresLobby.isEmpty() && jugadoresLobby.stream().noneMatch(j -> j.host)) {
                     jugadoresLobby.get(0).host = true;
                 }
                 enviarEstadoLobby();
+
+                if (nombreDesconectado != null) {
+                    DesconexionJugador desc = new DesconexionJugador();
+                    desc.nombreUsuario = nombreDesconectado;
+                    server.sendToAllTCP(desc);
+                }
             }
 
             @Override
@@ -106,6 +121,9 @@ public class Servidor {
                     server.sendToAllTCP(peticion);
                 }
                 if (object instanceof MensajeChat) {
+                    server.sendToAllTCP(object);
+                }
+                if (object instanceof FinPartida) {
                     server.sendToAllTCP(object);
                 }
             }
