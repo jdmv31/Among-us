@@ -44,12 +44,10 @@ public class Cliente {
                             com.almasb.fxgl.entity.Entity otro = AppPrincipal.otrosJugadores.get(mov.username);
 
                             if (otro != null) {
-                                // CORRECCIÓN: Verificamos si tiene el componente antes de pedirlo
                                 if (otro.hasComponent(com.almasb.fxgl.physics.PhysicsComponent.class)) {
                                     com.almasb.fxgl.physics.PhysicsComponent fisicas = otro.getComponent(com.almasb.fxgl.physics.PhysicsComponent.class);
                                     fisicas.overwritePosition(new javafx.geometry.Point2D(mov.x, mov.y));
                                 } else {
-                                    // Si no tiene físicas (como ahora), solo actualizamos su posición visual
                                     otro.setPosition(mov.x, mov.y);
                                 }
                             }
@@ -65,8 +63,6 @@ public class Cliente {
                 if (object instanceof AsignacionRol) {
                     AsignacionRol rolAsignado = (AsignacionRol) object;
                     AppPrincipal.esImpostor = rolAsignado.esImpostor;
-                    // POR ESTA (Para debug):
-                    AppPrincipal.esImpostor = false;
                     System.out.println("Impostor: " + AppPrincipal.esImpostor);
                 }
                 if (object instanceof Asesinato) {

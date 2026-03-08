@@ -12,7 +12,7 @@ import java.util.List;
 public class MapaCancha implements ConfiguracionMapa{
 
     public Tarea[] obtenerTareas() {
-        Tarea[] tareas = new Tarea[2];
+        Tarea[] tareas = new Tarea[3];
         AnimationChannel animacionFuego = new AnimationChannel(
                 FXGL.image("animacion_extintor.png"),
                 9, 300, 400, Duration.seconds(1), 0, 9
@@ -48,6 +48,24 @@ public class MapaCancha implements ConfiguracionMapa{
         tareaDatos.setDuracionSegundos(10.0);
         tareaDatos.setTexturaFinal("datos_terminado.png");
         tareas[1] = tareaDatos;
+
+        AnimationChannel animacionTemperatura = new AnimationChannel(
+                FXGL.image("animacion_temperatura.png"),
+                8,700,391,Duration.seconds(1),0,5
+        );
+
+        Tarea tareaTemperatura = new Tarea(
+                3,
+                "Regular Temperatura",
+                new Point2D(861,386),
+                "panel_temperatura.png",
+                new Point2D(0,0),
+                animacionTemperatura,
+                new Rectangle2D(167,66,384,247)
+        );
+        tareaTemperatura.setDuracionSegundos(20);
+        tareaTemperatura.setTexturaFinal("temperatura_final.png");
+        tareas[2] = tareaTemperatura;
 
         return tareas;
     }
