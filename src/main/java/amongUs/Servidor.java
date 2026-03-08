@@ -29,6 +29,8 @@ public class Servidor {
         server.getKryo().register(MovimientoAlcantarilla.class);
         server.getKryo().register(Asesinato.class);
         server.getKryo().register(Sabotaje.class);
+        server.getKryo().register(PeticionReunion.class);
+        server.getKryo().register(MensajeChat.class);
         server.start();
         server.bind(54555, 54556);
 
@@ -51,15 +53,13 @@ public class Servidor {
                     nuevo.conexionId = connection.getID();
                     nuevo.nombre = peticion.nombre;
                     nuevo.color = obtenerColorDisponible();
-                    nuevo.host = jugadoresLobby.isEmpty(); // El primero que entra es el host
+                    nuevo.host = jugadoresLobby.isEmpty();
 
                     jugadoresLobby.add(nuevo);
                     enviarEstadoLobby();
                 }
                 else if (object instanceof PeticionColor) {
                     PeticionColor peticion = (PeticionColor) object;
-
-                    // Verificamos si el color solicitado ya lo tiene alguien más
                     boolean colorOcupado = jugadoresLobby.stream()
                             .anyMatch(j -> j.color.equals(peticion.color));
 
@@ -99,6 +99,14 @@ public class Servidor {
                 }
                 if (object instanceof Sabotaje){
                     server.sendToAllExceptUDP(connection.getID(),object);
+                }
+                if (object instanceof PeticionReunion) {
+                    PeticionReunion peticion = (PeticionReunion) object;
+                    System.out.println("Reunión solicitada por " + peticion.reportador);
+                    server.sendToAllTCP(peticion);
+                }
+                if (object instanceof MensajeChat) {
+                    server.sendToAllTCP(object);
                 }
             }
         });

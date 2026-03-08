@@ -27,6 +27,7 @@ public class AppPrincipal extends GameApplication {
     public static boolean esImpostor = false;
     public static javafx.scene.shape.Rectangle oscuridad;
     public static Texture botonMatar;
+    public static Texture botonReportar;
     public static javafx.scene.text.Text textoCooldown;
     public static boolean estoyMuerto = false;
     public static boolean peticionSabotaje = false;
@@ -49,25 +50,26 @@ public class AppPrincipal extends GameApplication {
         FXGL.getInput().addAction(new UserAction("Mover Arriba") {
             @Override
             protected void onAction() {
-                TripulanteComponent tripComp = jugador.getComponent(TripulanteComponent.class);
-                if (tripComp != null && tripComp.isEnMinijuego()) return;
+                if (jugador == null) return;
 
-                if (jugador != null && !sistemaCamaras.isCamarasAbiertas() && !jugador.getComponent(ImpostorComponent.class).estaEnAlcantarilla()) {
+                if (jugador.hasComponent(TripulanteComponent.class) && jugador.getComponent(TripulanteComponent.class).isEnMinijuego()) return;
+
+                boolean enAlcantarilla = jugador.hasComponent(ImpostorComponent.class) && jugador.getComponent(ImpostorComponent.class).estaEnAlcantarilla();
+
+                if (!sistemaCamaras.isCamarasAbiertas() && !enAlcantarilla) {
                     jugador.getComponent(PhysicsComponent.class).setVelocityY(-velocidadFisica);
-
-                    if (!estoyMuerto) {
-                        enviarCoordenadas();
-                    }
+                    if (!estoyMuerto) enviarCoordenadas();
                 }
             }
             @Override
             protected void onActionEnd() {
-                if (jugador != null && !jugador.getComponent(ImpostorComponent.class).estaEnAlcantarilla()) {
-                    jugador.getComponent(PhysicsComponent.class).setVelocityY(0);
+                if (jugador == null) return;
 
-                    if (!estoyMuerto) {
-                        enviarCoordenadas();
-                    }
+                boolean enAlcantarilla = jugador.hasComponent(ImpostorComponent.class) && jugador.getComponent(ImpostorComponent.class).estaEnAlcantarilla();
+
+                if (!enAlcantarilla) {
+                    jugador.getComponent(PhysicsComponent.class).setVelocityY(0);
+                    if (!estoyMuerto) enviarCoordenadas();
                 }
             }
         }, KeyCode.W);
@@ -75,25 +77,26 @@ public class AppPrincipal extends GameApplication {
         FXGL.getInput().addAction(new UserAction("Mover Abajo") {
             @Override
             protected void onAction() {
-                TripulanteComponent tripComp = jugador.getComponent(TripulanteComponent.class);
-                if (tripComp != null && tripComp.isEnMinijuego()) return;
+                if (jugador == null) return;
 
-                if (jugador != null && !sistemaCamaras.isCamarasAbiertas() && !jugador.getComponent(ImpostorComponent.class).estaEnAlcantarilla()) {
+                if (jugador.hasComponent(TripulanteComponent.class) && jugador.getComponent(TripulanteComponent.class).isEnMinijuego()) return;
+
+                boolean enAlcantarilla = jugador.hasComponent(ImpostorComponent.class) && jugador.getComponent(ImpostorComponent.class).estaEnAlcantarilla();
+
+                if (!sistemaCamaras.isCamarasAbiertas() && !enAlcantarilla) {
                     jugador.getComponent(PhysicsComponent.class).setVelocityY(velocidadFisica);
-
-                    if (!estoyMuerto) {
-                        enviarCoordenadas();
-                    }
+                    if (!estoyMuerto) enviarCoordenadas();
                 }
             }
             @Override
             protected void onActionEnd() {
-                if (jugador != null && !jugador.getComponent(ImpostorComponent.class).estaEnAlcantarilla()) {
-                    jugador.getComponent(PhysicsComponent.class).setVelocityY(0);
+                if (jugador == null) return;
 
-                    if (!estoyMuerto) {
-                        enviarCoordenadas();
-                    }
+                boolean enAlcantarilla = jugador.hasComponent(ImpostorComponent.class) && jugador.getComponent(ImpostorComponent.class).estaEnAlcantarilla();
+
+                if (!enAlcantarilla) {
+                    jugador.getComponent(PhysicsComponent.class).setVelocityY(0);
+                    if (!estoyMuerto) enviarCoordenadas();
                 }
             }
         }, KeyCode.S);
@@ -101,25 +104,26 @@ public class AppPrincipal extends GameApplication {
         FXGL.getInput().addAction(new UserAction("Mover Izquierda") {
             @Override
             protected void onAction() {
-                TripulanteComponent tripComp = jugador.getComponent(TripulanteComponent.class);
-                if (tripComp != null && tripComp.isEnMinijuego()) return;
+                if (jugador == null) return;
 
-                if (jugador != null && !sistemaCamaras.isCamarasAbiertas() && !jugador.getComponent(ImpostorComponent.class).estaEnAlcantarilla()) {
+                if (jugador.hasComponent(TripulanteComponent.class) && jugador.getComponent(TripulanteComponent.class).isEnMinijuego()) return;
+
+                boolean enAlcantarilla = jugador.hasComponent(ImpostorComponent.class) && jugador.getComponent(ImpostorComponent.class).estaEnAlcantarilla();
+
+                if (!sistemaCamaras.isCamarasAbiertas() && !enAlcantarilla) {
                     jugador.getComponent(PhysicsComponent.class).setVelocityX(-velocidadFisica);
-
-                    if (!estoyMuerto) {
-                        enviarCoordenadas();
-                    }
+                    if (!estoyMuerto) enviarCoordenadas();
                 }
             }
             @Override
             protected void onActionEnd() {
-                if (jugador != null && !jugador.getComponent(ImpostorComponent.class).estaEnAlcantarilla()) {
-                    jugador.getComponent(PhysicsComponent.class).setVelocityX(0);
+                if (jugador == null) return;
 
-                    if (!estoyMuerto) {
-                        enviarCoordenadas();
-                    }
+                boolean enAlcantarilla = jugador.hasComponent(ImpostorComponent.class) && jugador.getComponent(ImpostorComponent.class).estaEnAlcantarilla();
+
+                if (!enAlcantarilla) {
+                    jugador.getComponent(PhysicsComponent.class).setVelocityX(0);
+                    if (!estoyMuerto) enviarCoordenadas();
                 }
             }
         }, KeyCode.A);
@@ -127,25 +131,26 @@ public class AppPrincipal extends GameApplication {
         FXGL.getInput().addAction(new UserAction("Mover Derecha") {
             @Override
             protected void onAction() {
-                TripulanteComponent tripComp = jugador.getComponent(TripulanteComponent.class);
-                if (tripComp != null && tripComp.isEnMinijuego()) return;
+                if (jugador == null) return;
 
-                if (jugador != null && !sistemaCamaras.isCamarasAbiertas() && !jugador.getComponent(ImpostorComponent.class).estaEnAlcantarilla()) {
+                if (jugador.hasComponent(TripulanteComponent.class) && jugador.getComponent(TripulanteComponent.class).isEnMinijuego()) return;
+
+                boolean enAlcantarilla = jugador.hasComponent(ImpostorComponent.class) && jugador.getComponent(ImpostorComponent.class).estaEnAlcantarilla();
+
+                if (!sistemaCamaras.isCamarasAbiertas() && !enAlcantarilla) {
                     jugador.getComponent(PhysicsComponent.class).setVelocityX(velocidadFisica);
-
-                    if (!estoyMuerto) {
-                        enviarCoordenadas();
-                    }
+                    if (!estoyMuerto) enviarCoordenadas();
                 }
             }
             @Override
             protected void onActionEnd() {
-                if (jugador != null && !jugador.getComponent(ImpostorComponent.class).estaEnAlcantarilla()) {
-                    jugador.getComponent(PhysicsComponent.class).setVelocityX(0);
+                if (jugador == null) return;
 
-                    if (!estoyMuerto) {
-                        enviarCoordenadas();
-                    }
+                boolean enAlcantarilla = jugador.hasComponent(ImpostorComponent.class) && jugador.getComponent(ImpostorComponent.class).estaEnAlcantarilla();
+
+                if (!enAlcantarilla) {
+                    jugador.getComponent(PhysicsComponent.class).setVelocityX(0);
+                    if (!estoyMuerto) enviarCoordenadas();
                 }
             }
         }, KeyCode.D);
@@ -153,7 +158,9 @@ public class AppPrincipal extends GameApplication {
         FXGL.getInput().addAction(new UserAction("Abrir Camaras") {
             @Override
             protected void onActionBegin() {
-                sistemaCamaras.intentarAbrirCamaras(jugador, esImpostor);
+                if (!estoyMuerto) {
+                    sistemaCamaras.intentarAbrirCamaras(jugador, esImpostor);
+                }
             }
         }, KeyCode.C);
 
@@ -202,6 +209,17 @@ public class AppPrincipal extends GameApplication {
                 }
             }
         }, KeyCode.Q);
+
+        FXGL.getInput().addAction(new UserAction("Reportar Cadaver") {
+            @Override
+            protected void onActionBegin() {
+                if (jugador != null && jugador.hasComponent(ReporteComponent.class)) {
+                    if (!estoyMuerto){
+                        jugador.getComponent(ReporteComponent.class).intentarReportar();
+                    }
+                }
+            }
+        }, KeyCode.R);
 
     }
 
@@ -347,7 +365,9 @@ public class AppPrincipal extends GameApplication {
                 if (!esImpostor) {
                     boolean cercaDeCamaras = sistemaCamaras.getUbicacionMesaCamaras() != null &&
                             jugador.getPosition().distance(sistemaCamaras.getUbicacionMesaCamaras()) < 50;
-
+                    if (estoyMuerto) {
+                        cercaDeCamaras = false;
+                    }
                     TripulanteComponent tripComp = jugador.getComponent(TripulanteComponent.class);
                     boolean cercaDeTarea = tripComp != null && tripComp.hayTareaCercana();
                     boolean enMinijuego = tripComp != null && tripComp.isEnMinijuego();
@@ -466,6 +486,26 @@ public class AppPrincipal extends GameApplication {
             double margen = 20.0;
             botonAccion.setTranslateX(FXGL.getAppWidth() - tamanoBoton - margen);
             botonAccion.setTranslateY(FXGL.getAppHeight() - tamanoBoton - margen);
+            botonReportar = FXGL.texture("reportarNegado.png");
+            botonReportar.setFitWidth(tamanoBoton);
+            botonReportar.setFitHeight(tamanoBoton);
+
+            if (esImpostor) {
+                botonReportar.setTranslateX(FXGL.getAppWidth() - (tamanoBoton * 3) - (margen * 3));
+                botonReportar.setTranslateY(FXGL.getAppHeight() - tamanoBoton - margen);
+            } else {
+                botonReportar.setTranslateX(FXGL.getAppWidth() - tamanoBoton - margen);
+                botonReportar.setTranslateY(FXGL.getAppHeight() - (tamanoBoton * 2) - (margen * 2));
+            }
+            FXGL.addUINode(botonReportar);
+            ReporteComponent reporteComp = new ReporteComponent();
+            reporteComp.setBotonReportar(botonReportar);
+            jugador.addComponent(reporteComp);
+
+            botonReportar.setOnMouseClicked(e -> {
+                jugador.getComponent(ReporteComponent.class).intentarReportar();
+            });
+
             if (esImpostor) {
                 botonMatar = FXGL.texture("matarNegado.png");
                 botonMatar.setFitWidth(tamanoBoton);
@@ -539,6 +579,46 @@ public class AppPrincipal extends GameApplication {
             mostrarPantallaRol();
         } catch(Exception e) {
             System.err.println("Error cargando el mapa: " + e.getMessage());
+        }
+    }
+    public static void iniciarCinematicaReporte(String reportador, String cadaver) {
+        if (jugador != null && jugador.hasComponent(com.almasb.fxgl.physics.PhysicsComponent.class)) {
+            jugador.getComponent(com.almasb.fxgl.physics.PhysicsComponent.class).setVelocityX(0);
+            jugador.getComponent(com.almasb.fxgl.physics.PhysicsComponent.class).setVelocityY(0);
+        }
+
+        FXGL.getInput().setRegisterInput(false);
+        com.almasb.fxgl.texture.Texture imagenCuerpo = FXGL.texture("cuerpo.png");
+        imagenCuerpo.setTranslateX((FXGL.getAppWidth() / 2.0) - (imagenCuerpo.getWidth() / 2.0));
+        imagenCuerpo.setTranslateY((FXGL.getAppHeight() / 2.0) - (imagenCuerpo.getHeight() / 2.0));
+
+        javafx.scene.Group grupoCinematica = new javafx.scene.Group(imagenCuerpo);
+        FXGL.addUINode(grupoCinematica);
+
+        FXGL.getGameTimer().runOnceAfter(() -> {
+            FXGL.removeUINode(grupoCinematica);
+            System.out.println("Iniciando fase de votación...");
+            cargarInterfazVotacion();
+        }, javafx.util.Duration.seconds(3.5));
+    }
+
+    public static void cargarInterfazVotacion() {
+        try {
+            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(
+                    AppPrincipal.class.getResource("/ui/reunion.fxml")
+            );
+            javafx.scene.Parent root = loader.load();
+            root.setTranslateX((FXGL.getAppWidth() - 800) / 2.0);
+            root.setTranslateY((FXGL.getAppHeight() - 600) / 2.0);
+
+            FXGL.addUINode(root);
+            if (botonAccion != null) botonAccion.setVisible(false);
+            if (botonMatar != null) botonMatar.setVisible(false);
+            if (botonReportar != null) botonReportar.setVisible(false);
+
+        } catch (Exception e) {
+            System.err.println("Error al cargar FXML de la reunión: ");
+            e.printStackTrace();
         }
     }
 

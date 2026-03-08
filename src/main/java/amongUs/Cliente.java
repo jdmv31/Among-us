@@ -23,6 +23,8 @@ public class Cliente {
         cliente.getKryo().register(MovimientoAlcantarilla.class);
         cliente.getKryo().register(Asesinato.class);
         cliente.getKryo().register(Sabotaje.class);
+        cliente.getKryo().register(PeticionReunion.class);
+        cliente.getKryo().register(MensajeChat.class);
         cliente.start();
 
         cliente.addListener(new Listener() {
@@ -120,6 +122,23 @@ public class Cliente {
                     });
                 }else if (object instanceof Sabotaje){
                     AppPrincipal.peticionSabotaje = true;
+                }
+                if (object instanceof PeticionReunion) {
+                    PeticionReunion peticion = (PeticionReunion) object;
+                    javafx.application.Platform.runLater(() -> {
+                        if (AppPrincipal.sistemaCamaras != null && AppPrincipal.sistemaCamaras.isCamarasAbiertas()) {
+                            AppPrincipal.sistemaCamaras.forzarCierre(AppPrincipal.jugador);
+                        }
+                        AppPrincipal.iniciarCinematicaReporte(peticion.reportador, peticion.cadaver);
+                    });
+                }
+                if (object instanceof MensajeChat) {
+                    MensajeChat msg = (MensajeChat) object;
+                    javafx.application.Platform.runLater(() -> {
+                        if (ReunionController.instancia != null) {
+                            ReunionController.instancia.agregarMensaje(msg.emisor, msg.mensaje);
+                        }
+                    });
                 }
             }
         });

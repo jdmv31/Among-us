@@ -25,6 +25,10 @@ public class TripulanteComponent extends Component {
     private Texture panelMinijuegoActual;
     private com.almasb.fxgl.texture.AnimatedTexture botonAnimadoActual;
 
+    private TimerAction timerAnimacion;
+    private TimerAction timerFinalizacion;
+    private TimerAction timerCierre;
+
     public void asignarTareas(Tarea[] tareas) {
         this.tareasAsignadas = tareas;
         this.tareasCompletadas = 0;
@@ -39,16 +43,24 @@ public class TripulanteComponent extends Component {
 
     @Override
     public void onUpdate(double tpf) {
+        if (AppPrincipal.estoyMuerto) {
+            if (enMinijuego) {
+                cerrarMinijuego();
+            }
+            indiceTareaCercana = -1;
+            return;
+        }
+
         if (enMinijuego) {
             return;
         }
 
-        if (tareasAsignadas == null || enMinijuego) return;
+        if (tareasAsignadas == null) return;
 
         indiceTareaCercana = -1;
 
         for (int i = 0; i < tareasAsignadas.length; i++) {
-            if (!tareasAsignadas[i].tareaCompletada() && entity.getPosition().distance(tareasAsignadas[i].getUbicacion()) < 50) {
+            if (!tareasAsignadas[i].tareaCompletada() && entity.getPosition().distance(tareasAsignadas[i].getUbicacion()) < 30) {
                 indiceTareaCercana = i;
                 break;
             }
@@ -56,6 +68,8 @@ public class TripulanteComponent extends Component {
     }
 
     public void intentarUsarTarea() {
+        if (AppPrincipal.estoyMuerto) return;
+
         if (indiceTareaCercana != -1 && !enMinijuego) {
             abrirMinijuego(indiceTareaCercana);
         }
@@ -76,7 +90,7 @@ public class TripulanteComponent extends Component {
             com.almasb.fxgl.texture.AnimationChannel channel = tarea.getCanalAnimacion();
             double frameW = channel.getFrameWidth(0);
             double frameH = channel.getFrameHeight(0);
-            double duracionTarea = tarea.getDuracionSegundos(); // Obtenemos el tiempo dinámicamente
+            double duracionTarea = tarea.getDuracionSegundos();
 
             javafx.scene.image.ImageView animacionUI = new javafx.scene.image.ImageView(channel.getImage());
             animacionUI.setViewport(new javafx.geometry.Rectangle2D(0, 0, frameW, frameH));
@@ -111,21 +125,22 @@ public class TripulanteComponent extends Component {
 
                 java.util.concurrent.atomic.AtomicInteger frameActual = new java.util.concurrent.atomic.AtomicInteger(0);
 
-                TimerAction timerAnimacion = FXGL.getGameTimer().runAtInterval(() -> {
+                timerAnimacion = FXGL.getGameTimer().runAtInterval(() -> {
                     int idx = frameActual.getAndIncrement();
                     if (idx < totalFrames) {
                         animacionUI.setViewport(new javafx.geometry.Rectangle2D(idx * frameW, 0, frameW, frameH));
                     }
                 }, Duration.seconds(duracionPorFrame));
 
-                FXGL.getGameTimer().runOnceAfter(() -> {
+                timerFinalizacion = FXGL.getGameTimer().runOnceAfter(() -> {
                     if (timerAnimacion != null) timerAnimacion.expire();
                     contenedorMinijuego.getChildren().remove(animacionUI);
                     Texture imagenFinal = FXGL.texture(tarea.getTexturaFinal());
                     imagenFinal.setTranslateX(tarea.getPosicionBoton().getX());
                     imagenFinal.setTranslateY(tarea.getPosicionBoton().getY());
                     contenedorMinijuego.getChildren().add(imagenFinal);
-                    FXGL.getGameTimer().runOnceAfter(() -> {
+
+                    timerCierre = FXGL.getGameTimer().runOnceAfter(() -> {
                         completarTarea(indice);
                         cerrarMinijuego();
                     }, Duration.seconds(1));
@@ -140,6 +155,7 @@ public class TripulanteComponent extends Component {
             enMinijuego = false;
         }
     }
+
     private void completarTarea(int indice) {
         if (!tareasAsignadas[indice].tareaCompletada()) {
             tareasAsignadas[indice].completar();
@@ -168,6 +184,10 @@ public class TripulanteComponent extends Component {
     }
 
     private void cerrarMinijuego() {
+        if (timerAnimacion != null) { timerAnimacion.expire(); timerAnimacion = null; }
+        if (timerFinalizacion != null) { timerFinalizacion.expire(); timerFinalizacion = null; }
+        if (timerCierre != null) { timerCierre.expire(); timerCierre = null; }
+
         if (contenedorMinijuego != null) {
             FXGL.removeUINode(contenedorMinijuego);
             contenedorMinijuego = null;
