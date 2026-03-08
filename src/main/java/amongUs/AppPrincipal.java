@@ -358,7 +358,7 @@ public class AppPrincipal extends GameApplication {
                 }
             }
         }
-        if (jugador != null) {
+        if (jugador != null && jugador.isActive()) {
             jugador.setZIndex((int) (jugador.getY() + (32 * 1.8)));
 
             if (botonAccion != null) {
@@ -414,7 +414,7 @@ public class AppPrincipal extends GameApplication {
         }
 
         for (Entity otro : otrosJugadores.values()) {
-            if (otro != null) {
+            if (otro != null && otro.isActive()) {
                 otro.setZIndex((int) (otro.getY() + (32 * 1.8)));
             }
         }
@@ -609,7 +609,7 @@ public class AppPrincipal extends GameApplication {
             jugador.getComponent(com.almasb.fxgl.physics.PhysicsComponent.class).setVelocityX(0);
             jugador.getComponent(com.almasb.fxgl.physics.PhysicsComponent.class).setVelocityY(0);
         }
-        //limpiarTodosLosJugadores();
+        limpiarTodosLosJugadores();
         String imagenFin = "";
         if (ganador.equals("TRIPULANTES")) {
             imagenFin = esImpostor ? "derrota_impostor.png" : "victoria_tripulante.png";
@@ -623,7 +623,7 @@ public class AppPrincipal extends GameApplication {
             texturaFin.setTranslateY((FXGL.getAppHeight() / 2.0) - (texturaFin.getHeight() / 2.0));
             FXGL.addUINode(texturaFin);
             FXGL.getGameTimer().runOnceAfter(() -> {
-                System.out.println("Fin de la partida. Retornando...");
+                volverAlMenuPrincipal();
             }, javafx.util.Duration.seconds(5));
 
         } catch (Exception e) {
@@ -701,6 +701,47 @@ public class AppPrincipal extends GameApplication {
         otrosJugadores.clear();
         if (jugador != null) {
             jugador.removeFromWorld();
+        }
+    }
+
+    public static void volverAlMenuPrincipal() {
+        System.out.println("Regresando al menú principal...");
+
+        if (miCliente != null && miCliente.cliente != null && miCliente.cliente.isConnected()) {
+            miCliente.cliente.close();
+        }
+        miCliente = null;
+        MenuController.cliente = null;
+        MenuController.estadoActual = null;
+        com.almasb.fxgl.dsl.FXGL.getGameScene().clearUINodes();
+        com.almasb.fxgl.dsl.FXGL.getGameWorld().getEntitiesCopy().forEach(com.almasb.fxgl.entity.Entity::removeFromWorld);
+        com.almasb.fxgl.dsl.FXGL.getGameScene().getViewport().unbind();
+        com.almasb.fxgl.dsl.FXGL.getGameScene().getViewport().setX(0);
+        com.almasb.fxgl.dsl.FXGL.getGameScene().getViewport().setY(0);
+        com.almasb.fxgl.dsl.FXGL.getGameScene().getViewport().setZoom(1.0);
+
+        jugador = null;
+        otrosJugadores.clear();
+        esImpostor = false;
+        estoyMuerto = false;
+        sabotajeActivo = false;
+        peticionSabotaje = false;
+        tareasCompletadas = 0;
+        accionDisponible = false;
+        indiceTareaCercana = -1;
+        enMinijuego = false;
+
+        try {
+            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(
+                    AppPrincipal.class.getResource("/ui/menuPrincipal.fxml")
+            );
+            loader.setController(new MenuController());
+            javafx.scene.Parent root = loader.load();
+            com.almasb.fxgl.dsl.FXGL.addUINode(root);
+            com.almasb.fxgl.dsl.FXGL.getInput().setRegisterInput(true);
+        } catch (Exception e) {
+            System.err.println("Error al recargar la interfaz del menú principal");
+            e.printStackTrace();
         }
     }
     public static void main(String[] args) {
