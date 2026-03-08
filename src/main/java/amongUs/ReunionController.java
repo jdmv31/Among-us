@@ -15,29 +15,26 @@ import java.util.Map;
 import com.almasb.fxgl.time.TimerAction;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.control.Button;
-import javafx.scene.layout.VBox;
 
 public class ReunionController {
     public static ReunionController instancia;
+
     @FXML
     private GridPane contenedorVotos;
+    @FXML
+    private TextArea areaChat;
+    @FXML
+    private TextField campoMensaje;
+
     private int tiempoRestante = 180;
     private TimerAction temporizador;
     private Label lblTiempo;
-    private VBox contenedorChat;
-    private TextArea areaChat;
-    private TextField campoMensaje;
 
     @FXML
     public void initialize() {
         instancia = this;
-        contenedorVotos.setHgap(200);
-        contenedorVotos.setVgap(10);
-
         cargarJugadores();
         iniciarTemporizador();
-        crearInterfazChat();
     }
 
     private void iniciarTemporizador() {
@@ -57,42 +54,23 @@ public class ReunionController {
                 cerrarReunion();
         }, javafx.util.Duration.seconds(1.0));
     }
-
-    private void crearInterfazChat() {
-        areaChat = new TextArea();
-        areaChat.setEditable(false);
-        areaChat.setPrefSize(250, 300);
-        areaChat.setStyle("-fx-control-inner-background: #2b2b2b; -fx-text-fill: white; -fx-font-family: Arial;");
-        campoMensaje = new TextField();
-        campoMensaje.setPromptText("Escribe un mensaje...");
-        campoMensaje.setPrefWidth(180);
-        campoMensaje.setOnAction(e -> enviarMensaje());
-        Button btnEnviar = new Button("Enviar");
-        btnEnviar.setStyle("-fx-background-color: #4a4a4a; -fx-text-fill: white; -fx-cursor: hand;");
-        btnEnviar.setOnAction(e -> enviarMensaje());
-        HBox cajaInput = new HBox(5, campoMensaje, btnEnviar);
-        cajaInput.setAlignment(Pos.CENTER);
-        contenedorChat = new VBox(10, areaChat, cajaInput);
-        contenedorChat.setStyle("-fx-background-color: #1e1e1e; -fx-padding: 10; -fx-border-color: #555555; -fx-border-radius: 5;");
-        contenedorChat.setTranslateX(FXGL.getAppWidth() - 300);
-        contenedorChat.setTranslateY((FXGL.getAppHeight() - 400) / 2.0);
-
-        FXGL.addUINode(contenedorChat);
-    }
-
+    @FXML
     private void enviarMensaje() {
         String texto = campoMensaje.getText().trim();
         if (!texto.isEmpty() && AppPrincipal.miCliente != null) {
             MensajeChat msg = new MensajeChat();
             msg.emisor = MenuController.nombreUsuario;
             msg.mensaje = texto;
+            msg.esFantasma = AppPrincipal.estoyMuerto;
+
             AppPrincipal.miCliente.cliente.sendTCP(msg);
             campoMensaje.clear();
         }
     }
 
-    public void agregarMensaje(String emisor, String mensaje) {
-        areaChat.appendText(emisor + ": " + mensaje + "\n");
+    public void agregarMensaje(String emisor, String mensaje, boolean esFantasma) {
+        String prefijo = esFantasma ? "[Fantasma] " : "";
+        areaChat.appendText(prefijo + emisor + ": " + mensaje + "\n");
     }
 
     public void cerrarReunion() {
@@ -104,10 +82,6 @@ public class ReunionController {
 
         if (lblTiempo != null) {
             FXGL.removeUINode(lblTiempo);
-        }
-
-        if (contenedorChat != null) {
-            FXGL.removeUINode(contenedorChat);
         }
 
         if (contenedorVotos != null && contenedorVotos.getParent() != null) {
@@ -126,6 +100,7 @@ public class ReunionController {
         int columna = 0;
         int fila = 0;
         int maxColumnas = 2;
+
         agregarCartaJugador(MenuController.nombreUsuario, AppPrincipal.jugador, columna, fila);
         columna++;
 
@@ -143,12 +118,13 @@ public class ReunionController {
         AnimacionJugador anim = entidad.getComponent(AnimacionJugador.class);
         String color = anim.getColor();
         boolean estaMuerto = anim.estaMuerto;
+
         HBox carta = new HBox(15);
         carta.setAlignment(Pos.CENTER_LEFT);
         carta.setStyle("-fx-background-color: #2b2b2b; -fx-padding: 10; -fx-background-radius: 10; -fx-border-color: #555555; -fx-border-radius: 10;");
-        carta.setPrefWidth(Region.USE_COMPUTED_SIZE);
-        carta.setMinWidth(Region.USE_COMPUTED_SIZE);
-        carta.setMinHeight(60);
+        carta.setPrefWidth(230);
+        carta.setMinHeight(40);
+
         String rutaImagen = estaMuerto ? color + "_muerto.png" : "tripulante_" + color + ".png";
         ImageView icono;
         try {
@@ -158,11 +134,13 @@ public class ReunionController {
             icono = new ImageView();
         }
 
-        icono.setFitWidth(40);
-        icono.setFitHeight(40);
+        icono.setFitWidth(50);
+        icono.setFitHeight(50);
+
         Label labelNombre = new Label(nombre);
         labelNombre.setTextFill(estaMuerto ? Color.RED : Color.WHITE);
-        labelNombre.setStyle("-fx-font-weight: bold; -fx-font-size: 16px;");
+        labelNombre.setStyle("-fx-font-weight: bold; -fx-font-size: 18px;"); // Nombre más grande
+
         Region espaciador = new Region();
         HBox.setHgrow(espaciador, Priority.ALWAYS);
         carta.getChildren().addAll(icono, labelNombre, espaciador);
@@ -170,20 +148,20 @@ public class ReunionController {
         if (estaMuerto) {
             Label lblMuerto = new Label("X");
             lblMuerto.setTextFill(Color.RED);
-            lblMuerto.setStyle("-fx-font-weight: bold; -fx-font-size: 24px;");
+            lblMuerto.setStyle("-fx-font-weight: bold; -fx-font-size: 28px;");
             carta.getChildren().add(lblMuerto);
-
         }
-        else if (!AppPrincipal.estoyMuerto) {
+        else if (!AppPrincipal.estoyMuerto && !nombre.equals(MenuController.nombreUsuario)) {
             ImageView btnVotar = new ImageView(FXGL.image("botonVotar.png"));
-            btnVotar.setFitWidth(30);
-            btnVotar.setFitHeight(30);
+            btnVotar.setFitWidth(35);
+            btnVotar.setFitHeight(35);
             btnVotar.setStyle("-fx-cursor: hand;");
             btnVotar.setOnMouseEntered(e -> btnVotar.setOpacity(0.7));
             btnVotar.setOnMouseExited(e -> btnVotar.setOpacity(1.0));
             btnVotar.setOnMouseClicked(e -> emitirVoto(nombre, carta, btnVotar));
             carta.getChildren().add(btnVotar);
         }
+
         contenedorVotos.add(carta, col, row);
     }
 
@@ -192,6 +170,7 @@ public class ReunionController {
         carta.getChildren().remove(boton);
         Label lblVotado = new Label("Votado");
         lblVotado.setTextFill(Color.LIGHTGREEN);
+        lblVotado.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
         carta.getChildren().add(lblVotado);
     }
 }

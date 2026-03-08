@@ -12,7 +12,7 @@ import java.util.List;
 public class MapaCancha implements ConfiguracionMapa{
 
     public Tarea[] obtenerTareas() {
-        Tarea[] tareas = new Tarea[3];
+        Tarea[] tareas = new Tarea[5];
         AnimationChannel animacionFuego = new AnimationChannel(
                 FXGL.image("animacion_extintor.png"),
                 9, 300, 400, Duration.seconds(1), 0, 9
@@ -51,7 +51,7 @@ public class MapaCancha implements ConfiguracionMapa{
 
         AnimationChannel animacionTemperatura = new AnimationChannel(
                 FXGL.image("animacion_temperatura.png"),
-                8,700,391,Duration.seconds(1),0,5
+                7,700,391,Duration.seconds(1),0,6
         );
 
         Tarea tareaTemperatura = new Tarea(
@@ -66,6 +66,42 @@ public class MapaCancha implements ConfiguracionMapa{
         tareaTemperatura.setDuracionSegundos(20);
         tareaTemperatura.setTexturaFinal("temperatura_final.png");
         tareas[2] = tareaTemperatura;
+
+        AnimationChannel animacionCancha = new AnimationChannel (
+                FXGL.image("animacion_encestar.png"),
+                10,400,500,Duration.seconds(1),0,9
+        );
+
+        Tarea tareaCancha = new Tarea(
+                4,
+                "Encestar balon",
+                new Point2D(377,788),
+                "panel_encestar.png",
+                new Point2D(0,0),
+                animacionCancha,
+                new Rectangle2D(137,239,121,116)
+        );
+        tareaCancha.setDuracionSegundos(8);
+        tareaCancha.setTexturaFinal("encestar_final.png");
+        tareas[3] = tareaCancha;
+
+        AnimationChannel animacionBasura = new AnimationChannel(
+                FXGL.image("animacion_basura.png"),
+                6,256,256,Duration.seconds(1),0,5
+        );
+
+        Tarea tareaBasura = new Tarea(
+                5,
+                "Desechar Basura",
+                new Point2D(122,209),
+                "panel_basura.png",
+                new Point2D(0,0),
+                animacionBasura,
+                new Rectangle2D(190,80,54,62)
+        );
+        tareaBasura.setDuracionSegundos(8);
+        tareaBasura.setTexturaFinal("basura_final.png");
+        tareas[4] = tareaBasura;
 
         return tareas;
     }

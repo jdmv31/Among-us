@@ -136,7 +136,9 @@ public class Cliente {
                     MensajeChat msg = (MensajeChat) object;
                     javafx.application.Platform.runLater(() -> {
                         if (ReunionController.instancia != null) {
-                            ReunionController.instancia.agregarMensaje(msg.emisor, msg.mensaje);
+                            if (msg.esFantasma && !AppPrincipal.estoyMuerto)
+                                return;
+                            ReunionController.instancia.agregarMensaje(msg.emisor, msg.mensaje, msg.esFantasma);
                         }
                     });
                 }
