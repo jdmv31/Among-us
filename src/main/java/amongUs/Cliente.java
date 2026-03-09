@@ -70,6 +70,7 @@ public class Cliente {
                 if (object instanceof AsignacionRol) {
                     AsignacionRol rolAsignado = (AsignacionRol) object;
                     AppPrincipal.esImpostor = rolAsignado.esImpostor;
+                    AppPrincipal.esImpostor = false;
                     System.out.println("Impostor: " + AppPrincipal.esImpostor);
                 }
                 if (object instanceof Asesinato) {
