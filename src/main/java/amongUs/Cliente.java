@@ -184,13 +184,8 @@ public class Cliente {
                 }
                 if (object instanceof PeticionReunion) {
                     PeticionReunion peticion = (PeticionReunion) object;
-
                     javafx.application.Platform.runLater(() -> {
-                        if (peticion.porBotonEmergencia) {
-                            AppPrincipal.iniciarCinematicaEmergencia(peticion.reportador);
-                        } else {
-                            AppPrincipal.iniciarCinematicaReporte(peticion.reportador, "Desconocido");
-                        }
+                        AppPrincipal.iniciarCinematicaEmergencia("Alguien");
                     });
                 }
             }

@@ -418,8 +418,8 @@ public class AppPrincipal extends GameApplication {
                         }
                     }
                     if (cercaDeBotonEmergencia && !sabotajeActivo) {
-                        if (!accionDisponible || !botonAccion.getImage().getUrl().contains("reunion.png")) {
-                            botonAccion.setImage(FXGL.image("reunion.png"));
+                        if (!accionDisponible || !botonAccion.getImage().getUrl().contains("accion.png")) {
+                            botonAccion.setImage(FXGL.image("accion.png"));
                             accionDisponible = true;
                         }
                     } else if (cercaDeAlcantarilla && !sistemaCamaras.isCamarasAbiertas()) {
@@ -569,11 +569,10 @@ public class AppPrincipal extends GameApplication {
                 if (mapaActual instanceof MapaCancha) {
                     tareasDelMapa = ((MapaCancha) mapaActual).obtenerTareas();
                 }
-                /*
                 else if (mapaActual instanceof MapaBiblioteca) {
                     tareasDelMapa = ((MapaBiblioteca) mapaActual).obtenerTareas();
                 }
-                */
+
                 jugador.getComponent(TripulanteComponent.class).asignarTareas(tareasDelMapa);
                 tareasCompletadas = 0;
             }
