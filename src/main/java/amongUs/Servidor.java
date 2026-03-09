@@ -10,6 +10,9 @@ import java.util.Random;
 public class Servidor {
     Server server;
     List<JugadorLobby> jugadoresLobby = new ArrayList<>();
+    private java.util.Map<String, Integer> conteoVotos = new java.util.HashMap<>();
+    private java.util.Set<String> jugadoresQueYaVotaron = new java.util.HashSet<>();
+    private java.util.List<String> jugadoresMuertos = new java.util.ArrayList<>();
 
     private final String[] COLORES_TOTALES = {
             "blanco", "negro", "marron", "azul", "rojo",
@@ -33,6 +36,9 @@ public class Servidor {
         server.getKryo().register(MensajeChat.class);
         server.getKryo().register(FinPartida.class);
         server.getKryo().register(DesconexionJugador.class);
+        server.getKryo().register(VotoEmitido.class);
+        server.getKryo().register(ResultadoVotacion.class);
+        server.getKryo().register(java.util.HashMap.class);
         server.start();
         server.bind(54555, 54556);
 
@@ -126,8 +132,45 @@ public class Servidor {
                 if (object instanceof FinPartida) {
                     server.sendToAllTCP(object);
                 }
+                if (object instanceof VotoEmitido) {
+                    VotoEmitido voto = (VotoEmitido) object;
+                    jugadoresQueYaVotaron.add(voto.votante);
+                    conteoVotos.put(voto.sospechoso, conteoVotos.getOrDefault(voto.sospechoso, 0) + 1);
+                    int vivosEsperados = jugadoresLobby.size() - jugadoresMuertos.size();
+                    if (jugadoresQueYaVotaron.size() >= vivosEsperados) {
+                        calcularResultadoVotacion();
+                    }
+                }
             }
         });
+    }
+
+    private void calcularResultadoVotacion() {
+        String masVotado = "SKIP";
+        int maxVotos = 0;
+        boolean empate = false;
+
+        for (java.util.Map.Entry<String, Integer> entry : conteoVotos.entrySet()) {
+            if (entry.getValue() > maxVotos) {
+                maxVotos = entry.getValue();
+                masVotado = entry.getKey();
+                empate = false;
+            } else if (entry.getValue() == maxVotos) {
+                empate = true;
+            }
+        }
+
+        ResultadoVotacion res = new ResultadoVotacion();
+        if (empate || "SKIP".equals(masVotado)) {
+            res.fueEmpateOSkip = true;
+            res.expulsado = "Nadie";
+        } else {
+            res.fueEmpateOSkip = false;
+            res.expulsado = masVotado;
+            jugadoresMuertos.add(masVotado);
+        }
+        res.votosPorJugador = new java.util.HashMap<>(conteoVotos);
+        server.sendToAllTCP(res);
     }
 
     private String obtenerColorDisponible() {

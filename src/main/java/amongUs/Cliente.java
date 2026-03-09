@@ -27,6 +27,9 @@ public class Cliente {
         cliente.getKryo().register(MensajeChat.class);
         cliente.getKryo().register(FinPartida.class);
         cliente.getKryo().register(DesconexionJugador.class);
+        cliente.getKryo().register(VotoEmitido.class);
+        cliente.getKryo().register(ResultadoVotacion.class);
+        cliente.getKryo().register(java.util.HashMap.class);
         cliente.start();
 
         cliente.addListener(new Listener() {
@@ -168,6 +171,14 @@ public class Cliente {
                     javafx.application.Platform.runLater(() -> {
                         if (!desc.nombreUsuario.equals(MenuController.nombreUsuario)) {
                             AppPrincipal.removerJugador(desc.nombreUsuario);
+                        }
+                    });
+                }
+                if (object instanceof ResultadoVotacion) {
+                    ResultadoVotacion res = (ResultadoVotacion) object;
+                    javafx.application.Platform.runLater(() -> {
+                        if (ReunionController.instancia != null) {
+                            ReunionController.instancia.mostrarResultados(res);
                         }
                     });
                 }

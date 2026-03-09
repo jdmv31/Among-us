@@ -325,6 +325,16 @@ public class AppPrincipal extends GameApplication {
                 oscuridad.setFill(gradienteAlarma);
             }
         }
+        if (enMinijuego) {
+            if (panelMinijuegoActual != null) {
+                FXGL.removeUINode(panelMinijuegoActual);
+                panelMinijuegoActual = null;
+            }
+            enMinijuego = false;
+            if (jugador != null && jugador.hasComponent(TripulanteComponent.class)) {
+                jugador.getComponent(TripulanteComponent.class).setEnMinijuego(false);
+            }
+        }
     }
 
     @Override
@@ -648,6 +658,27 @@ public class AppPrincipal extends GameApplication {
         } catch (Exception e) {
             System.err.println("Error al cargar FXML de la reunión: ");
             e.printStackTrace();
+        }
+    }
+
+    public static void procesarExpulsion(ResultadoVotacion res) {
+        if (res.fueEmpateOSkip) return;
+
+        System.out.println(res.expulsado + " fue expulsado.");
+
+        if (res.expulsado.equals(MenuController.nombreUsuario)) {
+            estoyMuerto = true;
+            jugador.getComponent(AnimacionJugador.class).convertirFantasma();
+            jugador.getViewComponent().setOpacity(0.5);
+        } else {
+            com.almasb.fxgl.entity.Entity expulsadoEntidad = otrosJugadores.get(res.expulsado);
+            if (expulsadoEntidad != null) {
+                expulsadoEntidad.getComponent(AnimacionJugador.class).estaMuerto = true;
+                expulsadoEntidad.getComponent(AnimacionJugador.class).convertirFantasma();
+                if (!estoyMuerto) {
+                    expulsadoEntidad.getViewComponent().setVisible(false);
+                }
+            }
         }
     }
 

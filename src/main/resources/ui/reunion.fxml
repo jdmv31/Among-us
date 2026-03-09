@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.Image?>
@@ -11,6 +12,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
 <AnchorPane maxHeight="600.0" maxWidth="800.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.java.amongUs.ReunionController">
    <children>
@@ -20,7 +22,7 @@
          </image>
       </ImageView>
       
-      <VBox layoutX="536.0" layoutY="60.0" prefHeight="481.0" prefWidth="230.0" spacing="10.0" style="-fx-background-color: rgba(30, 30, 30, 0.8); -fx-padding: 10; -fx-background-radius: 10;">
+      <VBox layoutX="536.0" layoutY="111.0" prefHeight="440.0" prefWidth="230.0" spacing="10.0" style="-fx-background-color: rgba(30, 30, 30, 0.8); -fx-padding: 10; -fx-background-radius: 10;">
          <children>
             <TextArea fx:id="areaChat" editable="false" prefHeight="430.0" prefWidth="210.0" style="-fx-control-inner-background: #2b2b2b; -fx-text-fill: white; -fx-font-family: Arial; -fx-font-size: 14px;" wrapText="true" />
             <HBox alignment="CENTER" spacing="5.0">
@@ -32,7 +34,7 @@
          </children>
       </VBox>
 
-      <GridPane fx:id="contenedorVotos" hgap="20.0" layoutX="26.0" layoutY="59.0" prefHeight="481.0" prefWidth="510.0" vgap="15.0">
+      <GridPane fx:id="contenedorVotos" hgap="10.0" layoutX="26.0" layoutY="59.0" prefHeight="481.0" prefWidth="510.0" vgap="10.0">
         <columnConstraints>
           <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="240.0" />
           <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="240.0" />
@@ -46,10 +48,15 @@
         </rowConstraints>
       </GridPane>
 
-      <ImageView fitHeight="41.0" fitWidth="119.0" layoutX="26.0" layoutY="530.0" pickOnBounds="true" preserveRatio="true" style="-fx-cursor: hand;">
+      <ImageView fitHeight="41.0" fitWidth="119.0" layoutX="26.0" layoutY="530.0" onMouseClicked="#onSaltarVoto" pickOnBounds="true" preserveRatio="true" style="-fx-cursor: hand;">
          <image>
             <Image url="@../images/botonSaltar.png" />
          </image>
       </ImageView>
+      <Label fx:id="lblTiempo" layoutX="593.0" layoutY="59.0" text="TIEMPO">
+         <font>
+            <Font name="SansSerif Regular" size="24.0" />
+         </font>
+      </Label>
    </children>
 </AnchorPane>

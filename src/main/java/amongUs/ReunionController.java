@@ -18,17 +18,15 @@ import javafx.scene.control.TextField;
 
 public class ReunionController {
     public static ReunionController instancia;
-
-    @FXML
-    private GridPane contenedorVotos;
-    @FXML
-    private TextArea areaChat;
-    @FXML
-    private TextField campoMensaje;
-
+    @FXML private GridPane contenedorVotos;
+    @FXML private TextArea areaChat;
+    @FXML private TextField campoMensaje;
+    @FXML private Label lblTiempo;
+    @FXML private Label lblMensajeSistema;
     private int tiempoRestante = 180;
     private TimerAction temporizador;
-    private Label lblTiempo;
+    private boolean haVotado = false;
+    private Map<String, HBox> cartasJugadores = new java.util.HashMap<>();
 
     @FXML
     public void initialize() {
@@ -38,22 +36,31 @@ public class ReunionController {
     }
 
     private void iniciarTemporizador() {
-        lblTiempo = new Label("Tiempo: " + tiempoRestante);
-        lblTiempo.setTextFill(Color.WHITE);
-        lblTiempo.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-background-color: #2b2b2b; -fx-padding: 5; -fx-background-radius: 5; -fx-border-color: red; -fx-border-radius: 5;");
-        lblTiempo.setTranslateX(FXGL.getAppWidth() / 2.0 - 60);
-        lblTiempo.setTranslateY(20);
-        FXGL.addUINode(lblTiempo);
+        if (lblTiempo != null) {
+            lblTiempo.setText("Tiempo: " + tiempoRestante);
+            lblTiempo.setTextFill(Color.WHITE);
+        }
 
         temporizador = FXGL.getGameTimer().runAtInterval(() -> {
             tiempoRestante--;
-            lblTiempo.setText("Tiempo: " + tiempoRestante);
-            if (tiempoRestante <= 10)
-                lblTiempo.setTextFill(Color.RED);
-            if (tiempoRestante <= 0)
-                cerrarReunion();
+
+            if (lblTiempo != null) {
+                lblTiempo.setText("Tiempo: " + tiempoRestante);
+
+                // Cambiar a rojo cuando queden 10 segundos
+                if (tiempoRestante <= 10) {
+                    lblTiempo.setTextFill(Color.RED);
+                }
+            }
+
+            if (tiempoRestante <= 0) {
+                if (!haVotado && !AppPrincipal.estoyMuerto) {
+                    emitirVoto("SKIP", null, null);
+                }
+            }
         }, javafx.util.Duration.seconds(1.0));
     }
+
     @FXML
     private void enviarMensaje() {
         String texto = campoMensaje.getText().trim();
@@ -80,10 +87,6 @@ public class ReunionController {
             temporizador.expire();
         }
 
-        if (lblTiempo != null) {
-            FXGL.removeUINode(lblTiempo);
-        }
-
         if (contenedorVotos != null && contenedorVotos.getParent() != null) {
             FXGL.removeUINode(contenedorVotos.getParent());
         }
@@ -93,7 +96,14 @@ public class ReunionController {
         if (AppPrincipal.botonMatar != null && AppPrincipal.esImpostor) AppPrincipal.botonMatar.setVisible(true);
         if (AppPrincipal.botonReportar != null) AppPrincipal.botonReportar.setVisible(true);
 
-        System.out.println("Reunión finalizada. Volviendo al mapa...");
+        if (AppPrincipal.jugador != null && AppPrincipal.mapaActual != null) {
+            javafx.geometry.Point2D spawn = AppPrincipal.mapaActual.getPuntoAparicionCentral();
+            if (AppPrincipal.jugador.hasComponent(com.almasb.fxgl.physics.PhysicsComponent.class)) {
+                AppPrincipal.jugador.getComponent(com.almasb.fxgl.physics.PhysicsComponent.class).overwritePosition(spawn);
+            } else {
+                AppPrincipal.jugador.setPosition(spawn);
+            }
+        }
     }
 
     private void cargarJugadores() {
@@ -139,7 +149,7 @@ public class ReunionController {
 
         Label labelNombre = new Label(nombre);
         labelNombre.setTextFill(estaMuerto ? Color.RED : Color.WHITE);
-        labelNombre.setStyle("-fx-font-weight: bold; -fx-font-size: 18px;"); // Nombre más grande
+        labelNombre.setStyle("-fx-font-weight: bold; -fx-font-size: 18px;");
 
         Region espaciador = new Region();
         HBox.setHgrow(espaciador, Priority.ALWAYS);
@@ -162,15 +172,64 @@ public class ReunionController {
             carta.getChildren().add(btnVotar);
         }
 
+        cartasJugadores.put(nombre, carta);
         contenedorVotos.add(carta, col, row);
     }
 
+    public void mostrarResultados(ResultadoVotacion res) {
+        if (temporizador != null) {
+            temporizador.expire();
+        }
+        if (lblTiempo != null) {
+            lblTiempo.setText("Votación finalizada");
+            lblTiempo.setTextFill(Color.YELLOW);
+        }
+
+        if (res.votosPorJugador != null) {
+            for (Map.Entry<String, Integer> entry : res.votosPorJugador.entrySet()) {
+                String sospechoso = entry.getKey();
+                int cantidadVotos = entry.getValue();
+                if (!sospechoso.equals("SKIP") && cartasJugadores.containsKey(sospechoso)) {
+                    HBox carta = cartasJugadores.get(sospechoso);
+                    Label lblVotos = new Label(" +" + cantidadVotos + " votos");
+                    lblVotos.setTextFill(Color.ORANGE);
+                    lblVotos.setStyle("-fx-font-weight: bold; -fx-font-size: 16px; -fx-background-color: #444; -fx-padding: 3; -fx-background-radius: 5;");
+
+                    carta.getChildren().add(lblVotos);
+                }
+            }
+            int skips = res.votosPorJugador.getOrDefault("SKIP", 0);
+            if (skips > 0 && lblMensajeSistema != null) {
+                lblMensajeSistema.setText("Votos saltados: " + skips);
+            }
+        }
+        FXGL.getGameTimer().runOnceAfter(() -> {
+            AppPrincipal.procesarExpulsion(res);
+            cerrarReunion();
+        }, javafx.util.Duration.seconds(4.5));
+    }
+
     private void emitirVoto(String sospechoso, HBox carta, ImageView boton) {
-        System.out.println("Has votado por: " + sospechoso);
-        carta.getChildren().remove(boton);
-        Label lblVotado = new Label("Votado");
-        lblVotado.setTextFill(Color.LIGHTGREEN);
-        lblVotado.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
-        carta.getChildren().add(lblVotado);
+        if (haVotado || AppPrincipal.estoyMuerto) return;
+        haVotado = true;
+
+        if (carta != null && boton != null) {
+            carta.getChildren().remove(boton);
+            Label lblVotado = new Label("Votado");
+            lblVotado.setTextFill(Color.LIGHTGREEN);
+            lblVotado.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
+            carta.getChildren().add(lblVotado);
+        }
+
+        VotoEmitido voto = new VotoEmitido();
+        voto.votante = MenuController.nombreUsuario;
+        voto.sospechoso = sospechoso;
+        AppPrincipal.miCliente.cliente.sendTCP(voto);
+    }
+
+    @FXML
+    private void onSaltarVoto() {
+        if (haVotado || AppPrincipal.estoyMuerto) return;
+        emitirVoto("SKIP", null, null);
     }
 }

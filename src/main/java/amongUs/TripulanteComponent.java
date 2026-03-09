@@ -41,6 +41,10 @@ public class TripulanteComponent extends Component {
         FXGL.addUINode(barraTareasUI);
     }
 
+    public void setEnMinijuego(boolean estado){
+        this.enMinijuego = estado;
+    }
+
     @Override
     public void onUpdate(double tpf) {
         if (AppPrincipal.estoyMuerto) {
