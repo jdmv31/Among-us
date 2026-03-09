@@ -8,15 +8,15 @@ import com.almasb.fxgl.entity.SpawnData;
 import com.almasb.fxgl.input.UserAction;
 import com.almasb.fxgl.physics.CollisionHandler;
 import com.almasb.fxgl.physics.PhysicsComponent;
-import com.almasb.fxgl.texture.AnimationChannel;
 import javafx.geometry.Point2D;
 import javafx.scene.Parent;
 import javafx.scene.input.KeyCode;
+
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import com.almasb.fxgl.texture.Texture;
-import javafx.scene.input.MouseButton;
 
 public class AppPrincipal extends GameApplication {
     public static Entity jugador;
@@ -268,13 +268,6 @@ public class AppPrincipal extends GameApplication {
         }
     }
 
-    private final javafx.geometry.Point2D[] coordenadasCamaras = {
-            new javafx.geometry.Point2D(-30, 500), // nicole: camara del pasillo de abajo cerca del cuarto de camaras
-            new javafx.geometry.Point2D(-50, 150),  // camara de arriba, pasillo bomberos
-            new javafx.geometry.Point2D(450, 300),  // camara pasillo de comedor a laboratorio
-            new javafx.geometry.Point2D(500, 500)   // camara de la cantina
-    };
-
     @Override
     protected void initGame(){
         FXGL.getGameWorld().addEntityFactory(new Fabrica());
@@ -462,7 +455,7 @@ public class AppPrincipal extends GameApplication {
             viewport.setZoom(2.5);
 
             redAlcantarillas = mapaActual.getRedAlcantarillas();
-            sistemaCamaras.inicializar(mapaActual.getPosicionMesaCamaras());
+            sistemaCamaras.inicializar(mapaActual.getPosicionMesaCamaras(), mapaActual.getCoordenadasCamaras());
             Point2D spawnCentral = mapaActual.getPuntoAparicionCentral();
 
             otrosJugadores.clear();
@@ -563,17 +556,25 @@ public class AppPrincipal extends GameApplication {
 
                 jugador.getComponent(ImpostorComponent.class).setUISabotaje(botonSabotaje, textoCooldownSabotaje);
             }
-            else{
+            else {
                 jugador.addComponent(new TripulanteComponent());
                 Tarea[] tareasDelMapa = new Tarea[0];
+
                 if (mapaActual instanceof MapaCancha) {
                     tareasDelMapa = ((MapaCancha) mapaActual).obtenerTareas();
                 }
                 else if (mapaActual instanceof MapaBiblioteca) {
                     tareasDelMapa = ((MapaBiblioteca) mapaActual).obtenerTareas();
                 }
+                List<Tarea> listaTareas = java.util.Arrays.asList(tareasDelMapa);
+                Collections.shuffle(listaTareas);
 
-                jugador.getComponent(TripulanteComponent.class).asignarTareas(tareasDelMapa);
+                int cantidadTareas = Math.min(4, listaTareas.size());
+                Tarea[] tareasSeleccionadas = new Tarea[cantidadTareas];
+                for (int i = 0; i < cantidadTareas; i++) {
+                    tareasSeleccionadas[i] = listaTareas.get(i);
+                }
+                jugador.getComponent(TripulanteComponent.class).asignarTareas(tareasSeleccionadas);
                 tareasCompletadas = 0;
             }
 
@@ -702,23 +703,79 @@ public class AppPrincipal extends GameApplication {
     }
 
     public static void procesarExpulsion(ResultadoVotacion res) {
-        if (res.fueEmpateOSkip) return;
+        var cadaveres = FXGL.getGameWorld().getEntitiesByType(TipoEntidad.CADAVER);
+        for (com.almasb.fxgl.entity.Entity cadaver : cadaveres) {
+            cadaver.removeFromWorld();
+        }
+        if (res.expulsado == null || res.expulsado.equals("Nadie") || res.expulsado.equals("SKIP")) {
+            System.out.println("Nadie fue expulsado. Empate o Skip.");
+            return;
+        }
 
-        System.out.println(res.expulsado + " fue expulsado.");
-
+        System.out.println("El jugador " + res.expulsado + " fue expulsado.");
         if (res.expulsado.equals(MenuController.nombreUsuario)) {
             estoyMuerto = true;
-            jugador.getComponent(AnimacionJugador.class).convertirFantasma();
-            jugador.getViewComponent().setOpacity(0.5);
-        } else {
-            com.almasb.fxgl.entity.Entity expulsadoEntidad = otrosJugadores.get(res.expulsado);
-            if (expulsadoEntidad != null) {
-                expulsadoEntidad.getComponent(AnimacionJugador.class).estaMuerto = true;
-                expulsadoEntidad.getComponent(AnimacionJugador.class).convertirFantasma();
-                if (!estoyMuerto) {
-                    expulsadoEntidad.getViewComponent().setVisible(false);
+            if (jugador != null) {
+                jugador.getViewComponent().setOpacity(0.5);
+                AnimacionJugador animacion = jugador.getComponent(AnimacionJugador.class);
+                if (animacion != null) {
+                    animacion.estaMuerto = true;
+                    animacion.convertirFantasma();
                 }
             }
+        }
+        else {
+            com.almasb.fxgl.entity.Entity entidadExpulsado = otrosJugadores.get(res.expulsado);
+            if (entidadExpulsado != null) {
+                AnimacionJugador animacion = entidadExpulsado.getComponent(AnimacionJugador.class);
+                if (animacion != null) {
+                    animacion.estaMuerto = true;
+                }
+                if (!estoyMuerto) {
+                    entidadExpulsado.getViewComponent().setVisible(false);
+                    entidadExpulsado.getViewComponent().setOpacity(0.0);
+                } else {
+                    entidadExpulsado.getViewComponent().setVisible(true);
+                    entidadExpulsado.getViewComponent().setOpacity(0.5);
+                }
+                if (entidadExpulsado.hasComponent(com.almasb.fxgl.physics.PhysicsComponent.class)) {
+                    entidadExpulsado.getComponent(com.almasb.fxgl.physics.PhysicsComponent.class).setVelocityX(0);
+                    entidadExpulsado.getComponent(com.almasb.fxgl.physics.PhysicsComponent.class).setVelocityY(0);
+                }
+            }
+        }
+        if (estoyMuerto) {
+            for (com.almasb.fxgl.entity.Entity otro : otrosJugadores.values()) {
+                AnimacionJugador animOtro = otro.getComponent(AnimacionJugador.class);
+                if (animOtro != null && animOtro.estaMuerto) {
+                    otro.getViewComponent().setVisible(true);
+                    otro.getViewComponent().setOpacity(0.5);
+                }
+            }
+        }
+
+        // --- CÓDIGO A AÑADIR AL FINAL DE procesarExpulsion() ---
+
+        // Contar tripulantes vivos tras la expulsión
+        int vivos = 0;
+        if (!estoyMuerto) vivos++;
+
+        for (com.almasb.fxgl.entity.Entity otro : otrosJugadores.values()) {
+            AnimacionJugador animOtro = otro.getComponent(AnimacionJugador.class);
+            if (animOtro != null && !animOtro.estaMuerto) vivos++;
+        }
+
+        // Condición 1: Si yo era el Impostor y me expulsaron, ganan los Tripulantes
+        if (esImpostor && estoyMuerto) {
+            FinPartida fin = new FinPartida();
+            fin.ganador = "TRIPULANTES";
+            miCliente.cliente.sendTCP(fin);
+        }
+        // Condición 2: Si yo soy el Impostor, sigo vivo, y los tripulantes son <= 1 (Ganan Impostores)
+        else if (esImpostor && !estoyMuerto && vivos <= 2) { // 2 porque vivos te incluye a ti (1 impostor + 1 tripulante = gana el impostor)
+            FinPartida fin = new FinPartida();
+            fin.ganador = "IMPOSTORES";
+            miCliente.cliente.sendTCP(fin);
         }
     }
 

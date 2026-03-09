@@ -2,6 +2,7 @@ package main.java.amongUs;
 
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.texture.AnimationChannel;
+import javafx.animation.Animation;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.util.Duration;
@@ -12,7 +13,7 @@ import java.util.List;
 public class MapaCancha implements ConfiguracionMapa{
 
     public Tarea[] obtenerTareas() {
-        Tarea[] tareas = new Tarea[5];
+        Tarea[] tareas = new Tarea[6];
         AnimationChannel animacionFuego = new AnimationChannel(
                 FXGL.image("animacion_extintor.png"),
                 9, 300, 400, Duration.seconds(1), 0, 9
@@ -103,9 +104,27 @@ public class MapaCancha implements ConfiguracionMapa{
         tareaBasura.setTexturaFinal("basura_final.png");
         tareas[4] = tareaBasura;
 
+        AnimationChannel animacionTarjeta = new AnimationChannel(
+                FXGL.image("animacion_tarjeta.png"),
+                10,415,300,Duration.seconds(1),0,9
+        );
+
+        Tarea tareaTarjeta = new Tarea(
+                6,
+                "Escanear Tarjeta",
+                new Point2D(895,442),
+                "panel_tarjeta.png",
+                new Point2D(0,0),
+                animacionTarjeta,
+                new Rectangle2D(181,50,186,177)
+
+        );
+        tareaTarjeta.setDuracionSegundos(5);
+        tareaTarjeta.setTexturaFinal("tarjeta_final.png");
+        tareas[5] = tareaTarjeta;
+
         return tareas;
     }
-
 
     @Override
     public String getArchivoTMX() {
@@ -133,6 +152,16 @@ public class MapaCancha implements ConfiguracionMapa{
 
         return red;
     }
+    @Override
+    // nicole: esto representa las coordenadas de las camaras en el mapa
+    public Point2D[] getCoordenadasCamaras() {
+        return new Point2D[] {
+                new Point2D(216, 713),  // camara del pasillo de abajo
+                new Point2D(168, 352),  // camara de arriba, pasillo bomberos
+                new Point2D(690, 506),  // camara pasillo de comedor a laboratorio
+                new Point2D(799, 689)   // camara de la cantina
+        };
+    }
 
     @Override
     public Point2D getPosicionMesaCamaras() {
@@ -141,7 +170,7 @@ public class MapaCancha implements ConfiguracionMapa{
 
     @Override
     public Point2D getPosicionBotonEmergencia() {
-        return new Point2D(453, 475);
+        return new Point2D(457, 397);
     }
 
 }

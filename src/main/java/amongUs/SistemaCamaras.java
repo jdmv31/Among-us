@@ -14,17 +14,11 @@ public class SistemaCamaras {
     private Texture btnDer;
     private int indiceCamaraActual = 0;
     private Point2D ubicacionMesaCamaras;
+    private Point2D[] coordenadasCamaras;
 
-    // nicole: esto representa las coordenadas de las camaras en el mapa
-    private final Point2D[] coordenadasCamaras = {
-            new Point2D(-30, 500),  // Cámara del pasillo de abajo
-            new Point2D(-50, 150),  // Cámara de arriba, pasillo bomberos
-            new Point2D(450, 300),  // Cámara pasillo de comedor a laboratorio
-            new Point2D(500, 500)   // Cámara de la cantina
-    };
-
-    public void inicializar(Point2D ubicacionMesa) {
+    public void inicializar(Point2D ubicacionMesa, Point2D[] coordenadas) {
         this.ubicacionMesaCamaras = ubicacionMesa;
+        this.coordenadasCamaras = coordenadas;
 
         uiCamaras = FXGL.texture("MonitorDeCamaras.png");
         btnIzq = FXGL.texture("flechaAmarillaIzq.png");
@@ -98,8 +92,10 @@ public class SistemaCamaras {
 
     private void actualizarVistaCamara(Viewport viewport) {
         Point2D coord = coordenadasCamaras[indiceCamaraActual];
-        viewport.setX(coord.getX());
-        viewport.setY(coord.getY());
+        double anchoVisible = FXGL.getAppWidth() / 1.5;
+        double altoVisible = FXGL.getAppHeight() / 1.5;
+        viewport.setX(coord.getX() - (anchoVisible / 2));
+        viewport.setY(coord.getY() - (altoVisible / 2));
     }
 
     public void forzarCierre(Entity jugador) {

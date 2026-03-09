@@ -47,13 +47,14 @@ public class ReunionController {
             if (lblTiempo != null) {
                 lblTiempo.setText("Tiempo: " + tiempoRestante);
 
-                // Cambiar a rojo cuando queden 10 segundos
+                // angelo: cambia a rojo cuando queden 10 segundos
                 if (tiempoRestante <= 10) {
                     lblTiempo.setTextFill(Color.RED);
                 }
             }
 
             if (tiempoRestante <= 0) {
+                temporizador.expire();
                 if (!haVotado && !AppPrincipal.estoyMuerto) {
                     emitirVoto("SKIP", null, null);
                 }
@@ -97,15 +98,33 @@ public class ReunionController {
 
         FXGL.getInput().setRegisterInput(true);
         if (AppPrincipal.botonAccion != null) AppPrincipal.botonAccion.setVisible(true);
-        if (AppPrincipal.botonMatar != null && AppPrincipal.esImpostor) AppPrincipal.botonMatar.setVisible(true);
-        if (AppPrincipal.botonReportar != null) AppPrincipal.botonReportar.setVisible(true);
 
-        if (AppPrincipal.jugador != null && AppPrincipal.mapaActual != null) {
+        if (AppPrincipal.botonMatar != null && AppPrincipal.esImpostor) {
+            AppPrincipal.botonMatar.setVisible(!AppPrincipal.estoyMuerto);
+        }
+        if (AppPrincipal.botonReportar != null) {
+            AppPrincipal.botonReportar.setVisible(!AppPrincipal.estoyMuerto);
+        }
+
+        if (AppPrincipal.mapaActual != null) {
             javafx.geometry.Point2D spawn = AppPrincipal.mapaActual.getPuntoAparicionCentral();
-            if (AppPrincipal.jugador.hasComponent(com.almasb.fxgl.physics.PhysicsComponent.class)) {
-                AppPrincipal.jugador.getComponent(com.almasb.fxgl.physics.PhysicsComponent.class).overwritePosition(spawn);
-            } else {
-                AppPrincipal.jugador.setPosition(spawn);
+
+            // 1. Teletransportar a tu jugador
+            if (AppPrincipal.jugador != null) {
+                if (AppPrincipal.jugador.hasComponent(com.almasb.fxgl.physics.PhysicsComponent.class)) {
+                    AppPrincipal.jugador.getComponent(com.almasb.fxgl.physics.PhysicsComponent.class).overwritePosition(spawn);
+                } else {
+                    AppPrincipal.jugador.setPosition(spawn);
+                }
+            }
+
+            // 2. Teletransportar a todos los demás jugadores localmente
+            for (com.almasb.fxgl.entity.Entity otro : AppPrincipal.otrosJugadores.values()) {
+                if (otro.hasComponent(com.almasb.fxgl.physics.PhysicsComponent.class)) {
+                    otro.getComponent(com.almasb.fxgl.physics.PhysicsComponent.class).overwritePosition(spawn);
+                } else {
+                    otro.setPosition(spawn);
+                }
             }
         }
     }
@@ -210,6 +229,37 @@ public class ReunionController {
         FXGL.getGameTimer().runOnceAfter(() -> {
             AppPrincipal.procesarExpulsion(res);
             cerrarReunion();
+            FXGL.getInput().setRegisterInput(false);
+
+            try {
+                javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(getClass().getResource("/ui/expulsion.fxml"));
+                javafx.scene.layout.AnchorPane expulsionUI = loader.load();
+                ExpulsionController controlador = loader.getController();
+
+                FXGL.addUINode(expulsionUI);
+                String expulsado = res.expulsado;
+                String color = "rojo";
+                boolean eraImpostor = false;
+
+                if (expulsado != null && !expulsado.equals("Nadie")) {
+                    if (expulsado.equals(MenuController.nombreUsuario)) {
+                        color = AppPrincipal.jugador.getComponent(AnimacionJugador.class).getColor();
+                        eraImpostor = AppPrincipal.esImpostor;
+                    } else {
+                        com.almasb.fxgl.entity.Entity ent = AppPrincipal.otrosJugadores.get(expulsado);
+                        if (ent != null) {
+                            color = ent.getComponent(AnimacionJugador.class).getColor();
+                            eraImpostor = ent.hasComponent(ImpostorComponent.class);
+                        }
+                    }
+                }
+                controlador.iniciarCinematica(expulsado, color, eraImpostor);
+            } catch (Exception e) {
+                System.err.println("Error al cargar la cinemática de expulsión:");
+                e.printStackTrace();
+                FXGL.getInput().setRegisterInput(true);
+            }
+
         }, javafx.util.Duration.seconds(4.5));
     }
 

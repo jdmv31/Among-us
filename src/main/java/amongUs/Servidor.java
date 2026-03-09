@@ -64,6 +64,13 @@ public class Servidor {
                     desc.nombreUsuario = nombreDesconectado;
                     server.sendToAllTCP(desc);
                 }
+
+                if (!jugadoresQueYaVotaron.isEmpty()) {
+                    int vivosEsperados = jugadoresLobby.size() - jugadoresMuertos.size();
+                    if (vivosEsperados > 0 && jugadoresQueYaVotaron.size() >= vivosEsperados) {
+                        calcularResultadoVotacion();
+                    }
+                }
             }
 
             @Override

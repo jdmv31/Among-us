@@ -86,18 +86,34 @@ public class Cliente {
                             if (AppPrincipal.jugador != null) {
                                 String miColor = AppPrincipal.jugador.getComponent(AnimacionJugador.class).getColor();
                                 com.almasb.fxgl.dsl.FXGL.entityBuilder()
+                                        .type(TipoEntidad.CADAVER)
                                         .at(AppPrincipal.jugador.getX(), AppPrincipal.jugador.getY())
                                         .view(miColor + "_muerto.png")
                                         .scale(1.6, 1.6)
                                         .zIndex((int) (AppPrincipal.jugador.getY() + (32 * 1.8)))
                                         .buildAndAttach();
+
                                 AppPrincipal.jugador.getComponent(AnimacionJugador.class).convertirFantasma();
                                 AppPrincipal.jugador.getViewComponent().setOpacity(0.5);
                             }
                         } else {
                             com.almasb.fxgl.entity.Entity victima = AppPrincipal.otrosJugadores.get(paquete.victima);
                             if (victima != null) {
-                                victima.getComponent(AnimacionJugador.class).morir();
+                                String colorVictima = victima.getComponent(AnimacionJugador.class).getColor();
+                                com.almasb.fxgl.dsl.FXGL.entityBuilder()
+                                        .type(TipoEntidad.CADAVER)
+                                        .at(victima.getX(), victima.getY())
+                                        .view(colorVictima + "_muerto.png")
+                                        .scale(1.6, 1.6)
+                                        .zIndex((int) (victima.getY() + (32 * 1.8)))
+                                        .buildAndAttach();
+                                victima.getComponent(AnimacionJugador.class).convertirFantasma();
+                                if (!AppPrincipal.estoyMuerto) {
+                                    victima.getViewComponent().setOpacity(0.0);
+                                } else {
+                                    victima.getViewComponent().setOpacity(0.5);
+                                }
+
                                 if (victima.hasComponent(com.almasb.fxgl.physics.PhysicsComponent.class)) {
                                     victima.getComponent(com.almasb.fxgl.physics.PhysicsComponent.class).setVelocityX(0);
                                     victima.getComponent(com.almasb.fxgl.physics.PhysicsComponent.class).setVelocityY(0);
@@ -105,6 +121,7 @@ public class Cliente {
                             }
                         }
                     });
+
                     int vivos = 0;
                     if (!AppPrincipal.estoyMuerto) vivos++;
 
@@ -147,7 +164,11 @@ public class Cliente {
                         if (AppPrincipal.sistemaCamaras != null && AppPrincipal.sistemaCamaras.isCamarasAbiertas()) {
                             AppPrincipal.sistemaCamaras.forzarCierre(AppPrincipal.jugador);
                         }
-                        AppPrincipal.iniciarCinematicaReporte(peticion.reportador, peticion.cadaver);
+                        if (peticion.cadaver != null && !peticion.cadaver.isEmpty()) {
+                            AppPrincipal.iniciarCinematicaReporte(peticion.reportador, peticion.cadaver);
+                        } else {
+                            AppPrincipal.iniciarCinematicaEmergencia(peticion.reportador);
+                        }
                     });
                 }
                 if (object instanceof MensajeChat) {
@@ -180,12 +201,6 @@ public class Cliente {
                         if (ReunionController.instancia != null) {
                             ReunionController.instancia.mostrarResultados(res);
                         }
-                    });
-                }
-                if (object instanceof PeticionReunion) {
-                    PeticionReunion peticion = (PeticionReunion) object;
-                    javafx.application.Platform.runLater(() -> {
-                        AppPrincipal.iniciarCinematicaEmergencia("Alguien");
                     });
                 }
             }

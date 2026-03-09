@@ -7,7 +7,6 @@ import java.util.List;
 public class MapaBiblioteca implements ConfiguracionMapa {
 
     public Tarea[] obtenerTareas() {
-        // Aquí puedes definir las tareas específicas para la biblioteca, similar a como lo hiciste en MapaCancha
         return new Tarea[0];
     }
 
@@ -23,7 +22,7 @@ public class MapaBiblioteca implements ConfiguracionMapa {
 
     @Override
     public Point2D getPuntoAparicionCentral() {
-        return new Point2D(400, 300);
+        return new Point2D(578, 415);
     }
 
     @Override
@@ -34,11 +33,21 @@ public class MapaBiblioteca implements ConfiguracionMapa {
 
     @Override
     public Point2D getPosicionMesaCamaras() {
-        return new Point2D(200, 200);
+        return new Point2D(99, 486);
     }
 
     @Override
     public Point2D getPosicionBotonEmergencia() {
-        return new Point2D(453, 475);
+        return new Point2D(587, 268);
+    }
+
+    @Override
+    public Point2D[] getCoordenadasCamaras() {
+        return new Point2D[] {
+                new Point2D(679, 175), // camara 1
+                new Point2D(395, 255), // camara 2
+                new Point2D(249, 542), // camara 3
+                new Point2D(466, 738)  // camara 4
+        };
     }
 }
