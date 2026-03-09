@@ -87,8 +87,12 @@ public class ReunionController {
             temporizador.expire();
         }
 
-        if (contenedorVotos != null && contenedorVotos.getParent() != null) {
-            FXGL.removeUINode(contenedorVotos.getParent());
+        if (contenedorVotos != null) {
+            javafx.scene.Node raiz = contenedorVotos;
+            while (raiz.getParent() != null && !(raiz.getParent() instanceof javafx.scene.Group)) {
+                raiz = raiz.getParent();
+            }
+            FXGL.removeUINode(raiz);
         }
 
         FXGL.getInput().setRegisterInput(true);

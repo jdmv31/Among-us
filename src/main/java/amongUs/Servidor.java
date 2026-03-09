@@ -116,6 +116,8 @@ public class Servidor {
                     server.sendToAllExceptTCP(connection.getID(),object);
                 }
                 if (object instanceof Asesinato){
+                    Asesinato asesinato = (Asesinato) object;
+                    jugadoresMuertos.add(asesinato.victima);
                     server.sendToAllTCP(object);
                 }
                 if (object instanceof Sabotaje){
@@ -171,6 +173,8 @@ public class Servidor {
         }
         res.votosPorJugador = new java.util.HashMap<>(conteoVotos);
         server.sendToAllTCP(res);
+        conteoVotos.clear();
+        jugadoresQueYaVotaron.clear();
     }
 
     private String obtenerColorDisponible() {
