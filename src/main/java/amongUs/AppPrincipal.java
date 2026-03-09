@@ -42,6 +42,7 @@ public class AppPrincipal extends GameApplication {
     public static int indiceTareaCercana = -1;
     public static boolean enMinijuego = false;
     public static Texture panelMinijuegoActual;
+    public static boolean cercaDeBotonEmergencia = false;
 
     @Override
     protected void initInput() {
@@ -372,18 +373,27 @@ public class AppPrincipal extends GameApplication {
             jugador.setZIndex((int) (jugador.getY() + (32 * 1.8)));
 
             if (botonAccion != null) {
+                cercaDeBotonEmergencia = mapaActual.getPosicionBotonEmergencia() != null &&
+                        jugador.getPosition().distance(mapaActual.getPosicionBotonEmergencia()) < 60;
+
                 if (!esImpostor) {
                     boolean cercaDeCamaras = sistemaCamaras.getUbicacionMesaCamaras() != null &&
                             jugador.getPosition().distance(sistemaCamaras.getUbicacionMesaCamaras()) < 50;
                     if (estoyMuerto) {
                         cercaDeCamaras = false;
+                        cercaDeBotonEmergencia = false;
                     }
                     TripulanteComponent tripComp = jugador.getComponent(TripulanteComponent.class);
                     boolean cercaDeTarea = tripComp != null && tripComp.hayTareaCercana();
                     boolean enMinijuego = tripComp != null && tripComp.isEnMinijuego();
 
-                    if ((cercaDeCamaras || cercaDeTarea) && !sistemaCamaras.isCamarasAbiertas() && !enMinijuego) {
-                        if (!accionDisponible) {
+                    if (cercaDeBotonEmergencia && !estoyMuerto && !sabotajeActivo) {
+                        if (!accionDisponible || !botonAccion.getImage().getUrl().contains("accion.png")) {
+                            botonAccion.setImage(FXGL.image("accion.png"));
+                            accionDisponible = true;
+                        }
+                    } else if ((cercaDeCamaras || cercaDeTarea) && !sistemaCamaras.isCamarasAbiertas() && !enMinijuego) {
+                        if (!accionDisponible || !botonAccion.getImage().getUrl().contains("accion.png")) {
                             botonAccion.setImage(FXGL.image("accion.png"));
                             accionDisponible = true;
                         }
@@ -407,9 +417,13 @@ public class AppPrincipal extends GameApplication {
                             }
                         }
                     }
-
-                    if (cercaDeAlcantarilla && !sistemaCamaras.isCamarasAbiertas()) {
-                        if (!accionDisponible) {
+                    if (cercaDeBotonEmergencia && !sabotajeActivo) {
+                        if (!accionDisponible || !botonAccion.getImage().getUrl().contains("reunion.png")) {
+                            botonAccion.setImage(FXGL.image("reunion.png"));
+                            accionDisponible = true;
+                        }
+                    } else if (cercaDeAlcantarilla && !sistemaCamaras.isCamarasAbiertas()) {
+                        if (!accionDisponible || !botonAccion.getImage().getUrl().contains("accion.png")) {
                             botonAccion.setImage(FXGL.image("accion.png"));
                             accionDisponible = true;
                         }
@@ -569,12 +583,19 @@ public class AppPrincipal extends GameApplication {
 
             botonAccion.setOnMouseClicked(e -> {
                 if (accionDisponible) {
-                    if (esImpostor) {
+                    if (cercaDeBotonEmergencia && !sabotajeActivo && !estoyMuerto) {
+                        System.out.println("Solicitando Reunión de Emergencia");
+                        PeticionReunion peticion = new PeticionReunion();
+
+                        if (miCliente != null && miCliente.cliente != null && miCliente.cliente.isConnected()) {
+                            miCliente.cliente.sendTCP(peticion);
+                        }
+                    }
+                    else if (esImpostor) {
                         FXGL.getInput().mockKeyPress(javafx.scene.input.KeyCode.SPACE);
                         FXGL.getInput().mockKeyRelease(javafx.scene.input.KeyCode.SPACE);
                     } else {
                         TripulanteComponent tripComp = jugador.getComponent(TripulanteComponent.class);
-
                         if (tripComp.hayTareaCercana()) {
                             tripComp.intentarUsarTarea();
                         } else {
@@ -591,6 +612,26 @@ public class AppPrincipal extends GameApplication {
             System.err.println("Error cargando el mapa: " + e.getMessage());
         }
     }
+
+    public static void iniciarCinematicaEmergencia(String solicitante) {
+        if (jugador != null && jugador.hasComponent(com.almasb.fxgl.physics.PhysicsComponent.class)) {
+            jugador.getComponent(com.almasb.fxgl.physics.PhysicsComponent.class).setVelocityX(0);
+            jugador.getComponent(com.almasb.fxgl.physics.PhysicsComponent.class).setVelocityY(0);
+        }
+        FXGL.getInput().setRegisterInput(false);
+        com.almasb.fxgl.texture.Texture imagenEmergencia = FXGL.texture("reunion.png");
+        imagenEmergencia.setTranslateX((FXGL.getAppWidth() / 2.0) - (imagenEmergencia.getWidth() / 2.0));
+        imagenEmergencia.setTranslateY((FXGL.getAppHeight() / 2.0) - (imagenEmergencia.getHeight() / 2.0));
+
+        javafx.scene.Group grupoCinematica = new javafx.scene.Group(imagenEmergencia);
+        FXGL.addUINode(grupoCinematica);
+
+        FXGL.getGameTimer().runOnceAfter(() -> {
+            FXGL.removeUINode(grupoCinematica);
+            cargarInterfazVotacion();
+        }, javafx.util.Duration.seconds(3.5));
+    }
+
     public static void iniciarCinematicaReporte(String reportador, String cadaver) {
         if (jugador != null && jugador.hasComponent(com.almasb.fxgl.physics.PhysicsComponent.class)) {
             jugador.getComponent(com.almasb.fxgl.physics.PhysicsComponent.class).setVelocityX(0);

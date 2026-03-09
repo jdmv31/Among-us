@@ -139,4 +139,9 @@ public class MapaCancha implements ConfiguracionMapa{
         return new Point2D(110, 750);
     }
 
+    @Override
+    public Point2D getPosicionBotonEmergencia() {
+        return new Point2D(453, 475);
+    }
+
 }

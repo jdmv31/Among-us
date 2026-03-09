@@ -9,4 +9,5 @@ public interface ConfiguracionMapa {
     Point2D getPuntoAparicionCentral();
     List<NodoAlcantarilla> getRedAlcantarillas();
     Point2D getPosicionMesaCamaras();
+    Point2D getPosicionBotonEmergencia(); // Nuevo método
 }
