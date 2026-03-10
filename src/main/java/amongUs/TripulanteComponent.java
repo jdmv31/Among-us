@@ -28,17 +28,46 @@ public class TripulanteComponent extends Component {
     private TimerAction timerAnimacion;
     private TimerAction timerFinalizacion;
     private TimerAction timerCierre;
+    private javafx.scene.layout.VBox listaTareasUI;
+    private javafx.scene.layout.StackPane contenedorTareas;
 
     public void asignarTareas(Tarea[] tareas) {
         this.tareasAsignadas = tareas;
         this.tareasCompletadas = 0;
 
+        // Crear la barra de progreso
         barraTareasUI = FXGL.texture("barra_0.png");
         barraTareasUI.setFitWidth(250);
         barraTareasUI.setPreserveRatio(true);
         barraTareasUI.setTranslateX(10);
         barraTareasUI.setTranslateY(10);
         FXGL.addUINode(barraTareasUI);
+
+        //lista de tareas
+        listaTareasUI = new javafx.scene.layout.VBox(5); // 5px de separación
+
+        for (Tarea t : tareas) {
+            javafx.scene.text.Text textoTarea = new javafx.scene.text.Text(t.getNombre());
+            textoTarea.setFill(Color.rgb(255, 255, 255, 0.6));
+            textoTarea.setFont(javafx.scene.text.Font.font("Arial", javafx.scene.text.FontWeight.BOLD, 13));
+            listaTareasUI.getChildren().add(textoTarea);
+        }
+
+        // Crear el recuadro negro semitransparente
+        double altoFondo = Math.max(30, tareas.length * 20 + 10);
+        Rectangle fondoTareas = new Rectangle(210, altoFondo);
+        fondoTareas.setFill(Color.rgb(100, 100, 100, 0.5));
+        fondoTareas.setArcWidth(10); // Bordes redondeados
+        fondoTareas.setArcHeight(10);
+
+        // Agrupar el fondo y los textos
+        contenedorTareas = new javafx.scene.layout.StackPane(fondoTareas, listaTareasUI);
+        contenedorTareas.setTranslateX(18);
+        contenedorTareas.setTranslateY(120); // Justo debajo de la barra
+        javafx.scene.layout.StackPane.setAlignment(listaTareasUI, javafx.geometry.Pos.TOP_LEFT);
+        listaTareasUI.setPadding(new javafx.geometry.Insets(5, 5, 5, 10));
+
+        FXGL.addUINode(contenedorTareas);
     }
 
     public void setEnMinijuego(boolean estado){
@@ -188,18 +217,21 @@ public class TripulanteComponent extends Component {
     private void completarTarea(int indice) {
         if (!tareasAsignadas[indice].tareaCompletada()) {
             tareasAsignadas[indice].completar();
-            if (AppPrincipal.esImpostor) return;
-
             tareasCompletadas++;
 
             if (barraTareasUI != null) {
                 barraTareasUI.setImage(FXGL.image("barra_" + tareasCompletadas + ".png"));
             }
 
-            if (tareasCompletadas == 4) {
-                FinPartida fin = new FinPartida();
-                fin.ganador = "TRIPULANTES";
-                AppPrincipal.miCliente.cliente.sendTCP(fin);
+            // PINTAR EL TEXTO DE VERDE Y TACHADO
+            if (listaTareasUI != null && indice < listaTareasUI.getChildren().size()) {
+                javafx.scene.text.Text texto = (javafx.scene.text.Text) listaTareasUI.getChildren().get(indice);
+                texto.setFill(Color.LIMEGREEN);
+                texto.setStrikethrough(true);
+            }
+
+            if (tareasCompletadas >= tareasAsignadas.length) {
+                System.out.println("¡Todas las tareas listas! Enviar aviso al servidor.");
             }
         }
     }
@@ -226,5 +258,9 @@ public class TripulanteComponent extends Component {
             contenedorMinijuego = null;
         }
         enMinijuego = false;
+    }
+
+    public javafx.scene.layout.StackPane getContenedorTareas() {
+        return contenedorTareas;
     }
 }

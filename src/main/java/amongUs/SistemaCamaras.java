@@ -42,7 +42,7 @@ public class SistemaCamaras {
     }
 
     public void alternarCamaras(Entity jugador) {
-        Viewport viewport = FXGL.getGameScene().getViewport();
+        com.almasb.fxgl.app.scene.Viewport viewport = FXGL.getGameScene().getViewport();
 
         if (camarasAbiertas) {
             FXGL.removeUINode(uiCamaras);
@@ -54,6 +54,7 @@ public class SistemaCamaras {
 
             if (jugador.hasComponent(TripulanteComponent.class)) {
                 jugador.getComponent(TripulanteComponent.class).getBarraTareasUI().setVisible(true);
+                jugador.getComponent(TripulanteComponent.class).getContenedorTareas().setVisible(true);
             }
             viewport.setZoom(2.5);
             viewport.bindToEntity(jugador, FXGL.getAppWidth() / 2.0, FXGL.getAppHeight() / 2.0);
@@ -65,12 +66,17 @@ public class SistemaCamaras {
             camarasAbiertas = true;
 
             if (AppPrincipal.oscuridad != null) AppPrincipal.oscuridad.setVisible(false);
+
+            // Aquí ocultamos ambas cosas de la UI
             if (jugador.hasComponent(TripulanteComponent.class)) {
                 jugador.getComponent(TripulanteComponent.class).getBarraTareasUI().setVisible(false);
+                jugador.getComponent(TripulanteComponent.class).getContenedorTareas().setVisible(false);
             }
-            if (jugador != null && jugador.hasComponent(PhysicsComponent.class)) {
-                jugador.getComponent(PhysicsComponent.class).setVelocityX(0);
-                jugador.getComponent(PhysicsComponent.class).setVelocityY(0);
+
+            // ¡No olvides esto para que el personaje no se resbale!
+            if (jugador != null && jugador.hasComponent(com.almasb.fxgl.physics.PhysicsComponent.class)) {
+                jugador.getComponent(com.almasb.fxgl.physics.PhysicsComponent.class).setVelocityX(0);
+                jugador.getComponent(com.almasb.fxgl.physics.PhysicsComponent.class).setVelocityY(0);
             }
 
             viewport.unbind();
