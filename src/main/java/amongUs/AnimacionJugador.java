@@ -47,14 +47,14 @@ public class AnimacionJugador extends Component {
         textura.loop();
     }
 
+    public String getColor(){
+        return color;
+    }
+
     public void convertirFantasma() {
         esFantasma = true;
         estaMuerto = false;
         textura.loopAnimationChannel(animFantasma);
-    }
-
-    public String getColor(){
-        return color;
     }
 
     public void morir() {
