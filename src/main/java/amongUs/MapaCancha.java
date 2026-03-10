@@ -150,7 +150,7 @@ public class MapaCancha implements ConfiguracionMapa{
 
     @Override
     public Point2D getPuntoAparicionCentral() {
-        return new Point2D(300, 200);
+        return new Point2D(457, 478);
     }
 
     @Override

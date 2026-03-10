@@ -133,7 +133,7 @@ public class MapaBiblioteca implements ConfiguracionMapa {
 
     @Override
     public Point2D getPuntoAparicionCentral() {
-        return new Point2D(578, 415);
+        return new Point2D(585, 353);
     }
 
     @Override
