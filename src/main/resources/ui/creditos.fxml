@@ -16,9 +16,9 @@
             <Image url="@../images/creditos.png" />
          </image>
       </ImageView>
-      <ImageView fitHeight="317.0" fitWidth="290.0" layoutX="405.0" layoutY="225.0" pickOnBounds="true" preserveRatio="true">
+      <ImageView fitHeight="289.0" fitWidth="408.0" layoutX="400.0" layoutY="341.0" pickOnBounds="true" preserveRatio="true">
          <image>
-            <Image url="@../images/creditos.gif" />
+            <Image url="@../images/detalles.png" />
          </image>
       </ImageView>
       <ImageView fitHeight="90.0" fitWidth="96.0" layoutX="696.0" layoutY="43.0" onMouseClicked="#onVolverMenu" pickOnBounds="true" preserveRatio="true">
@@ -26,9 +26,14 @@
             <Image url="@../images/botonVolver.png" />
          </image>
       </ImageView>
-      <ImageView fitHeight="375.0" fitWidth="448.0" layoutY="186.0" pickOnBounds="true" preserveRatio="true">
+      <ImageView fitHeight="391.0" fitWidth="552.0" layoutX="-74.0" layoutY="195.0" pickOnBounds="true" preserveRatio="true">
          <image>
-            <Image url="@../images/integrantes.png" />
+            <Image url="@../images/devs.png" />
+         </image>
+      </ImageView>
+      <ImageView fitHeight="210.0" fitWidth="247.0" layoutX="496.0" layoutY="146.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../images/creditos.gif" />
          </image>
       </ImageView>
    </children>
