@@ -91,71 +91,96 @@ public class TripulanteComponent extends Component {
 
         try {
             Texture fondo = FXGL.texture(tarea.getTexturaFondo());
-            com.almasb.fxgl.texture.AnimationChannel channel = tarea.getCanalAnimacion();
-            double frameW = channel.getFrameWidth(0);
-            double frameH = channel.getFrameHeight(0);
-            double duracionTarea = tarea.getDuracionSegundos();
-
-            javafx.scene.image.ImageView animacionUI = new javafx.scene.image.ImageView(channel.getImage());
-            animacionUI.setViewport(new javafx.geometry.Rectangle2D(0, 0, frameW, frameH));
-            animacionUI.setTranslateX(tarea.getPosicionBoton().getX());
-            animacionUI.setTranslateY(tarea.getPosicionBoton().getY());
-
-            javafx.geometry.Rectangle2D limites = tarea.getHitboxClic();
-            javafx.scene.control.Button hitboxUI = new javafx.scene.control.Button();
-            hitboxUI.setPrefSize(limites.getWidth(), limites.getHeight());
-            hitboxUI.setTranslateX(limites.getMinX());
-            hitboxUI.setTranslateY(limites.getMinY());
-            hitboxUI.setStyle("-fx-background-color: transparent; -fx-cursor: hand;");
-
             javafx.scene.text.Text btnCerrar = new javafx.scene.text.Text("X");
             btnCerrar.setFill(Color.RED);
             btnCerrar.setFont(javafx.scene.text.Font.font("Arial", javafx.scene.text.FontWeight.BOLD, 40));
             btnCerrar.setTranslateX(fondo.getWidth() - 40);
             btnCerrar.setTranslateY(40);
             btnCerrar.setOnMouseClicked(e -> cerrarMinijuego());
-            contenedorMinijuego.getChildren().addAll(fondo, animacionUI, hitboxUI, btnCerrar);
+            btnCerrar.setStyle("-fx-cursor: hand;");
+            if (tarea instanceof TareaReactor) {
+                TareaReactor tareaReactor = (TareaReactor) tarea;
+                fondo.setOnMouseClicked(e -> {
+                    int resultado = tareaReactor.intentarPulsarTecla(e.getX(), e.getY());
+
+                    if (resultado == 1) {
+                        fondo.setImage(FXGL.image(tareaReactor.getTexturaFinal()));
+                        timerCierre = FXGL.getGameTimer().runOnceAfter(() -> {
+                            completarTarea(indice);
+                            cerrarMinijuego();
+                        }, Duration.seconds(1));
+
+                    } else if (resultado == -1) {
+                        fondo.setImage(FXGL.image(tareaReactor.getTexturaError()));
+                        FXGL.getGameTimer().runOnceAfter(() -> {
+                            if (enMinijuego) {
+                                fondo.setImage(FXGL.image(tareaReactor.getTexturaFondo()));
+                            }
+                        }, Duration.seconds(0.5));
+                    }
+                });
+
+                contenedorMinijuego.getChildren().addAll(fondo, btnCerrar);
+
+            }
+            else {
+                com.almasb.fxgl.texture.AnimationChannel channel = tarea.getCanalAnimacion();
+                double frameW = channel.getFrameWidth(0);
+                double frameH = channel.getFrameHeight(0);
+                double duracionTarea = tarea.getDuracionSegundos();
+                javafx.scene.image.ImageView animacionUI = new javafx.scene.image.ImageView(channel.getImage());
+                animacionUI.setViewport(new javafx.geometry.Rectangle2D(0, 0, frameW, frameH));
+                animacionUI.setTranslateX(tarea.getPosicionBoton().getX());
+                animacionUI.setTranslateY(tarea.getPosicionBoton().getY());
+                javafx.geometry.Rectangle2D limites = tarea.getHitboxClic();
+                javafx.scene.control.Button hitboxUI = new javafx.scene.control.Button();
+                hitboxUI.setPrefSize(limites.getWidth(), limites.getHeight());
+                hitboxUI.setTranslateX(limites.getMinX());
+                hitboxUI.setTranslateY(limites.getMinY());
+                hitboxUI.setStyle("-fx-background-color: transparent; -fx-cursor: hand;");
+                hitboxUI.setOnAction(e -> {
+                    hitboxUI.setDisable(true);
+                    contenedorMinijuego.getChildren().remove(fondo);
+                    contenedorMinijuego.getChildren().remove(btnCerrar);
+                    contenedorMinijuego.getChildren().remove(hitboxUI);
+
+                    int totalFrames = (int) (channel.getImage().getWidth() / frameW);
+                    double duracionPorFrame = duracionTarea / Math.max(1, totalFrames);
+
+                    java.util.concurrent.atomic.AtomicInteger frameActual = new java.util.concurrent.atomic.AtomicInteger(0);
+
+                    timerAnimacion = FXGL.getGameTimer().runAtInterval(() -> {
+                        int idx = frameActual.getAndIncrement();
+                        if (idx < totalFrames) {
+                            animacionUI.setViewport(new javafx.geometry.Rectangle2D(idx * frameW, 0, frameW, frameH));
+                        }
+                    }, Duration.seconds(duracionPorFrame));
+
+                    timerFinalizacion = FXGL.getGameTimer().runOnceAfter(() -> {
+                        if (timerAnimacion != null) timerAnimacion.expire();
+                        contenedorMinijuego.getChildren().remove(animacionUI);
+                        Texture imagenFinal = FXGL.texture(tarea.getTexturaFinal());
+                        imagenFinal.setTranslateX(tarea.getPosicionBoton().getX());
+                        imagenFinal.setTranslateY(tarea.getPosicionBoton().getY());
+                        contenedorMinijuego.getChildren().add(imagenFinal);
+
+                        timerCierre = FXGL.getGameTimer().runOnceAfter(() -> {
+                            completarTarea(indice);
+                            cerrarMinijuego();
+                        }, Duration.seconds(1));
+
+                    }, Duration.seconds(duracionTarea));
+                });
+
+                contenedorMinijuego.getChildren().addAll(fondo, animacionUI, hitboxUI, btnCerrar);
+            }
             contenedorMinijuego.setTranslateX((FXGL.getAppWidth() / 2.0) - (fondo.getWidth() / 2.0));
             contenedorMinijuego.setTranslateY((FXGL.getAppHeight() / 2.0) - (fondo.getHeight() / 2.0));
-
-            hitboxUI.setOnAction(e -> {
-                hitboxUI.setDisable(true);
-                contenedorMinijuego.getChildren().remove(fondo);
-                contenedorMinijuego.getChildren().remove(btnCerrar);
-                contenedorMinijuego.getChildren().remove(hitboxUI);
-
-                int totalFrames = (int) (channel.getImage().getWidth() / frameW);
-                double duracionPorFrame = duracionTarea / Math.max(1, totalFrames);
-
-                java.util.concurrent.atomic.AtomicInteger frameActual = new java.util.concurrent.atomic.AtomicInteger(0);
-
-                timerAnimacion = FXGL.getGameTimer().runAtInterval(() -> {
-                    int idx = frameActual.getAndIncrement();
-                    if (idx < totalFrames) {
-                        animacionUI.setViewport(new javafx.geometry.Rectangle2D(idx * frameW, 0, frameW, frameH));
-                    }
-                }, Duration.seconds(duracionPorFrame));
-
-                timerFinalizacion = FXGL.getGameTimer().runOnceAfter(() -> {
-                    if (timerAnimacion != null) timerAnimacion.expire();
-                    contenedorMinijuego.getChildren().remove(animacionUI);
-                    Texture imagenFinal = FXGL.texture(tarea.getTexturaFinal());
-                    imagenFinal.setTranslateX(tarea.getPosicionBoton().getX());
-                    imagenFinal.setTranslateY(tarea.getPosicionBoton().getY());
-                    contenedorMinijuego.getChildren().add(imagenFinal);
-
-                    timerCierre = FXGL.getGameTimer().runOnceAfter(() -> {
-                        completarTarea(indice);
-                        cerrarMinijuego();
-                    }, Duration.seconds(1));
-
-                }, Duration.seconds(duracionTarea));
-            });
-
             FXGL.addUINode(contenedorMinijuego);
 
         } catch (Exception e) {
             System.err.println("Error al cargar la tarea: " + e.getMessage());
+            e.printStackTrace();
             enMinijuego = false;
         }
     }
@@ -163,6 +188,8 @@ public class TripulanteComponent extends Component {
     private void completarTarea(int indice) {
         if (!tareasAsignadas[indice].tareaCompletada()) {
             tareasAsignadas[indice].completar();
+            if (AppPrincipal.esImpostor) return;
+
             tareasCompletadas++;
 
             if (barraTareasUI != null) {

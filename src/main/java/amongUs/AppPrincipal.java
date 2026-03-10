@@ -11,7 +11,6 @@ import com.almasb.fxgl.physics.PhysicsComponent;
 import javafx.geometry.Point2D;
 import javafx.scene.Parent;
 import javafx.scene.input.KeyCode;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -400,6 +399,12 @@ public class AppPrincipal extends GameApplication {
                     boolean cercaDeAlcantarilla = false;
                     ImpostorComponent impComp = jugador.getComponent(ImpostorComponent.class);
 
+                    TripulanteComponent tripComp = jugador.getComponent(TripulanteComponent.class);
+                    boolean cercaDeTarea = tripComp != null && tripComp.hayTareaCercana();
+                    boolean enMinijuego = tripComp != null && tripComp.isEnMinijuego();
+                    boolean cercaDeCamaras = sistemaCamaras.getUbicacionMesaCamaras() != null &&
+                            jugador.getPosition().distance(sistemaCamaras.getUbicacionMesaCamaras()) < 50;
+
                     if (impComp.estaEnAlcantarilla()) {
                         cercaDeAlcantarilla = true;
                     } else {
@@ -420,7 +425,12 @@ public class AppPrincipal extends GameApplication {
                             botonAccion.setImage(FXGL.image("accion.png"));
                             accionDisponible = true;
                         }
-                    } else {
+                    } else if (cercaDeTarea && !sistemaCamaras.isCamarasAbiertas() && !enMinijuego) {
+                        if (!accionDisponible || !botonAccion.getImage().getUrl().contains("accion.png")) {
+                            botonAccion.setImage(FXGL.image("accion.png"));
+                            accionDisponible = true;
+                        }
+                    }else {
                         if (accionDisponible) {
                             botonAccion.setImage(FXGL.image("accionNegada.png"));
                             accionDisponible = false;
@@ -556,27 +566,26 @@ public class AppPrincipal extends GameApplication {
 
                 jugador.getComponent(ImpostorComponent.class).setUISabotaje(botonSabotaje, textoCooldownSabotaje);
             }
-            else {
-                jugador.addComponent(new TripulanteComponent());
-                Tarea[] tareasDelMapa = new Tarea[0];
 
-                if (mapaActual instanceof MapaCancha) {
-                    tareasDelMapa = ((MapaCancha) mapaActual).obtenerTareas();
-                }
-                else if (mapaActual instanceof MapaBiblioteca) {
-                    tareasDelMapa = ((MapaBiblioteca) mapaActual).obtenerTareas();
-                }
-                List<Tarea> listaTareas = java.util.Arrays.asList(tareasDelMapa);
-                Collections.shuffle(listaTareas);
+            jugador.addComponent(new TripulanteComponent());
+            Tarea[] tareasDelMapa = new Tarea[0];
 
-                int cantidadTareas = Math.min(4, listaTareas.size());
-                Tarea[] tareasSeleccionadas = new Tarea[cantidadTareas];
-                for (int i = 0; i < cantidadTareas; i++) {
-                    tareasSeleccionadas[i] = listaTareas.get(i);
-                }
-                jugador.getComponent(TripulanteComponent.class).asignarTareas(tareasSeleccionadas);
-                tareasCompletadas = 0;
+            if (mapaActual instanceof MapaCancha) {
+                tareasDelMapa = ((MapaCancha) mapaActual).obtenerTareas();
             }
+            else if (mapaActual instanceof MapaBiblioteca) {
+                tareasDelMapa = ((MapaBiblioteca) mapaActual).obtenerTareas();
+            }
+            List<Tarea> listaTareas = java.util.Arrays.asList(tareasDelMapa);
+            Collections.shuffle(listaTareas);
+
+            int cantidadTareas = Math.min(4, listaTareas.size());
+            Tarea[] tareasSeleccionadas = new Tarea[cantidadTareas];
+            for (int i = 0; i < cantidadTareas; i++) {
+                tareasSeleccionadas[i] = listaTareas.get(i);
+            }
+            jugador.getComponent(TripulanteComponent.class).asignarTareas(tareasSeleccionadas);
+            tareasCompletadas = 0;
 
             FXGL.addUINode(botonAccion);
             accionDisponible = false;
@@ -592,8 +601,26 @@ public class AppPrincipal extends GameApplication {
                         }
                     }
                     else if (esImpostor) {
-                        FXGL.getInput().mockKeyPress(javafx.scene.input.KeyCode.SPACE);
-                        FXGL.getInput().mockKeyRelease(javafx.scene.input.KeyCode.SPACE);
+                        boolean cercaDeAlcantarilla = false;
+                        ImpostorComponent impComp = jugador.getComponent(ImpostorComponent.class);
+                        if (impComp.estaEnAlcantarilla()) cercaDeAlcantarilla = true;
+                        else {
+                            for (NodoAlcantarilla nodo : redAlcantarillas) {
+                                if (jugador.getPosition().distance(nodo.x, nodo.y) < 20.0) { cercaDeAlcantarilla = true; break; }
+                            }
+                        }
+                        if (cercaDeAlcantarilla) {
+                            FXGL.getInput().mockKeyPress(javafx.scene.input.KeyCode.SPACE);
+                            FXGL.getInput().mockKeyRelease(javafx.scene.input.KeyCode.SPACE);
+                        } else {
+                            TripulanteComponent tripComp = jugador.getComponent(TripulanteComponent.class);
+                            if (tripComp != null && tripComp.hayTareaCercana()) {
+                                tripComp.intentarUsarTarea();
+                            } else {
+                                FXGL.getInput().mockKeyPress(javafx.scene.input.KeyCode.C);
+                                FXGL.getInput().mockKeyRelease(javafx.scene.input.KeyCode.C);
+                            }
+                        }
                     } else {
                         TripulanteComponent tripComp = jugador.getComponent(TripulanteComponent.class);
                         if (tripComp.hayTareaCercana()) {

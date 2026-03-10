@@ -108,8 +108,6 @@ public class ReunionController {
 
         if (AppPrincipal.mapaActual != null) {
             javafx.geometry.Point2D spawn = AppPrincipal.mapaActual.getPuntoAparicionCentral();
-
-            // 1. Teletransportar a tu jugador
             if (AppPrincipal.jugador != null) {
                 if (AppPrincipal.jugador.hasComponent(com.almasb.fxgl.physics.PhysicsComponent.class)) {
                     AppPrincipal.jugador.getComponent(com.almasb.fxgl.physics.PhysicsComponent.class).overwritePosition(spawn);
@@ -117,8 +115,6 @@ public class ReunionController {
                     AppPrincipal.jugador.setPosition(spawn);
                 }
             }
-
-            // 2. Teletransportar a todos los demás jugadores localmente
             for (com.almasb.fxgl.entity.Entity otro : AppPrincipal.otrosJugadores.values()) {
                 if (otro.hasComponent(com.almasb.fxgl.physics.PhysicsComponent.class)) {
                     otro.getComponent(com.almasb.fxgl.physics.PhysicsComponent.class).overwritePosition(spawn);
@@ -205,7 +201,7 @@ public class ReunionController {
         }
         if (lblTiempo != null) {
             lblTiempo.setText("Votación finalizada");
-            lblTiempo.setTextFill(Color.YELLOW);
+            lblTiempo.setTextFill(Color.DARKRED);
         }
 
         if (res.votosPorJugador != null) {

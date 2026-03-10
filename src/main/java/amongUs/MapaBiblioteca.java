@@ -12,7 +12,7 @@ import javafx.util.Duration;
 public class MapaBiblioteca implements ConfiguracionMapa {
 
     public Tarea[] obtenerTareas() {
-        Tarea[] tareas = new Tarea[4];
+        Tarea[] tareas = new Tarea[5];
         AnimationChannel animacionCodigo = new AnimationChannel(
                 FXGL.image("animacion_codigo.png"),
                 10,350,300,Duration.seconds(1),0,9
@@ -86,6 +86,37 @@ public class MapaBiblioteca implements ConfiguracionMapa {
         tareaBasura.setDuracionSegundos(8);
         tareaBasura.setTexturaFinal("basura_final.png");
         tareas[3] = tareaBasura;
+
+        AnimationChannel animacionReactor = new AnimationChannel(
+                FXGL.image("animacion_reactor.png"),
+                6,1,1,Duration.seconds(1),0,5
+        );
+
+        int num = TareaReactor.generarCodigoAleatorio();
+        String panel = "panel_codigo";
+        String error = "error_codigo";
+        String ultimo = "final_codigo";
+        panel+= num;
+        error+= num;
+        ultimo+= num;
+
+        panel+= ".png";
+        error+= ".png";
+        ultimo+= ".png";
+
+        TareaReactor tareaReactor = new TareaReactor(6,
+                "Introducir Codigo",
+                new Point2D(162,116),
+                panel,
+                new Point2D(0,0),
+                animacionReactor,
+                new Rectangle2D(49,106,237,320),
+                error
+        );
+        tareaReactor.asignarCodigo(num);
+        tareaReactor.setDuracionSegundos(2);
+        tareaReactor.setTexturaFinal(ultimo);
+        tareas[4] = tareaReactor;
 
         return tareas;
     }

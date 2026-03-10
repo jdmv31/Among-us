@@ -9,7 +9,7 @@ public class Cliente {
     public Client cliente;
     public String username;
 
-    public Cliente(String ip, String username) {
+    public Cliente(String ip, String username) throws IpInexistenteException{
         this.username = username;
         cliente = new Client();
         cliente.getKryo().register(Movimiento.class);
@@ -70,7 +70,6 @@ public class Cliente {
                 if (object instanceof AsignacionRol) {
                     AsignacionRol rolAsignado = (AsignacionRol) object;
                     AppPrincipal.esImpostor = rolAsignado.esImpostor;
-                    AppPrincipal.esImpostor = false;
                     System.out.println("Impostor: " + AppPrincipal.esImpostor);
                 }
                 if (object instanceof Asesinato) {
@@ -212,7 +211,7 @@ public class Cliente {
             peticion.nombre = this.username;
             cliente.sendTCP(peticion);
         } catch(IOException e) {
-            System.err.println("Error al conectar al servidor: " + e.getMessage());
+            throw new IpInexistenteException("La IP " + ip + " no existe o la sala no ha sido creada.");
         }
     }
 }

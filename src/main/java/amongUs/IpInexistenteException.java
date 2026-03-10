@@ -1,7 +1,7 @@
 package main.java.amongUs;
 
-public class IpInexistenteException extends RuntimeException {
-  public IpInexistenteException(String message) {
-    super(message);
-  }
+public class IpInexistenteException extends Exception {
+    public IpInexistenteException(String msj) {
+        super(msj);
+    }
 }

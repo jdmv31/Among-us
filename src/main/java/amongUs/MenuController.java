@@ -43,6 +43,7 @@ public class MenuController implements UIController {
     @FXML private Button boton1,boton2,boton3,boton4,boton5,boton6,boton7,boton8,boton9,boton10;
     @FXML private ImageView start;
     @FXML private javafx.scene.layout.TilePane panelJugadores;
+    @FXML private Label lblErrorConexion;
 
 
     private HBox[] slots;
@@ -228,13 +229,33 @@ public class MenuController implements UIController {
 
     @FXML
     private void unirseSala() {
-        if (txtNombre2.getText().isEmpty()) return;
-        if (txtIp.getText().isEmpty()) return;
-        String ip = txtIp.getText();
+        if (txtIp == null || txtIp.getText().trim().isEmpty()) return;
+        String ip = txtIp.getText().trim();
         ipSala = ip;
-        nombreUsuario = txtNombre2.getText();
-        cambiarEscena("/ui/lobby.fxml");
-        cliente = new Cliente(ip, nombreUsuario);
+
+        if (txtNombre2 != null && !txtNombre2.getText().trim().isEmpty()) {
+            String nombreTemp = txtNombre2.getText().trim();
+            nombreUsuario = nombreTemp.length() > 10 ? nombreTemp.substring(0, 10) : nombreTemp;
+        } else {
+            int numeroID = (int) (Math.random() * 999) + 1;
+            nombreUsuario = "Tripulante " + numeroID;
+        }
+
+        try {
+            cliente = new Cliente(ip, nombreUsuario);
+            if (lblErrorConexion != null) lblErrorConexion.setVisible(false);
+                cambiarEscena("/ui/lobby.fxml");
+
+        } catch (IpInexistenteException e) {
+            System.err.println(e.getMessage());
+            if (lblErrorConexion != null) {
+                lblErrorConexion.setText("Error: IP incorrecta o no disponible");
+                lblErrorConexion.setVisible(true);
+            } else {
+                // Si se te olvida poner el Label en el FXML, usamos una ventana emergente de FXGL como respaldo de seguridad
+                com.almasb.fxgl.dsl.FXGL.getDialogService().showMessageBox("No se pudo conectar. Verifica que la IP sea correcta y la sala esté creada.");
+            }
+        }
     }
 
     @FXML
@@ -263,10 +284,11 @@ public class MenuController implements UIController {
         botonPresionado();
         try {
             if (txtNombre != null && !txtNombre.getText().trim().isEmpty()) {
-                nombreUsuario = txtNombre.getText().trim();
+                String nombreTemp = txtNombre.getText().trim();
+                nombreUsuario = nombreTemp.length() > 10 ? nombreTemp.substring(0, 10) : nombreTemp;
             } else {
-                int numeroID = (int) (Math.random() * 999) + 1;
-                nombreUsuario = "Tripulante " + numeroID;
+                int numeroID = (int) (Math.random() * 9999) + 1;
+                nombreUsuario = "Player" + numeroID;
             }
             cambiarEscena("/ui/lobby.fxml");
             ipSala = obtenerIp();
