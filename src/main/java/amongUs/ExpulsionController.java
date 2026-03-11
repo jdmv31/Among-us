@@ -1,60 +1,37 @@
 package main.java.amongUs;
 
 import com.almasb.fxgl.dsl.FXGL;
-import com.almasb.fxgl.texture.AnimatedTexture;
-import com.almasb.fxgl.texture.AnimationChannel;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import javafx.util.Duration;
+import javafx.scene.text.TextAlignment;
+import javafx.geometry.Pos;
 
 public class ExpulsionController {
     @FXML private AnchorPane rootPane;
     @FXML private Label lblExpulsion;
 
-    public void iniciarCinematica(String nombreExpulsado, String colorExpulsado, boolean eraImpostor) {
+    public void iniciarCinematica(String nombreExpulsado, String colorExpulsado, boolean eraImpostor, int jugadoresRestantes) {
+        lblExpulsion.setTextAlignment(TextAlignment.CENTER);
+        lblExpulsion.setAlignment(Pos.CENTER);
+
         lblExpulsion.setText("");
 
         String textoMostrar;
-        boolean mostrarAnimacion = true;
 
-        if (nombreExpulsado.equals("Nadie")) {
-            textoMostrar = "Nadie fue expulsado.";
-            mostrarAnimacion = false;
+        if (nombreExpulsado == null || nombreExpulsado.equals("Nadie") || nombreExpulsado.equals("SKIP")) {
+            textoMostrar = "Nadie fue expulsado.\n(" + jugadoresRestantes + " jugadores restantes)";
         } else {
-            textoMostrar = nombreExpulsado + (eraImpostor ? " era un Impostor." : " no era un Impostor.");
-        }
-        if (mostrarAnimacion) {
-            int numeroDeFrames = 8;
-            int anchoFrame = 32;
-            int altoFrame = 32;
-            AnimationChannel channel = new AnimationChannel(
-                    FXGL.image("expulsion_"+colorExpulsado+ ".png"),
-                    numeroDeFrames,
-                    anchoFrame,
-                    altoFrame,
-                    Duration.seconds(1),
-                    0,
-                    numeroDeFrames - 1
-            );
-
-            AnimatedTexture texture = new AnimatedTexture(channel);
-            texture.loop();
-            texture.setLayoutY(250);
-            texture.setLayoutX(-150);
-
-            rootPane.getChildren().add(texture);
-            TranslateTransition tt = new TranslateTransition(Duration.seconds(6), texture);
-            tt.setFromX(0);
-            tt.setToX(1000);
-            tt.play();
+            textoMostrar = nombreExpulsado + (eraImpostor ? " era un Impostor." : " no era un Impostor.")
+                    + "\n(" + jugadoresRestantes + " jugadores restantes)";
         }
         escribirTexto(textoMostrar);
-        Timeline cierreTimer = new Timeline(new KeyFrame(Duration.seconds(7), e -> finalizarCinematica()));
+
+        Timeline cierreTimer = new Timeline(new KeyFrame(Duration.seconds(5), e -> finalizarCinematica()));
         cierreTimer.play();
     }
 
@@ -62,10 +39,10 @@ public class ExpulsionController {
         Timeline timeline = new Timeline();
         for (int i = 0; i < texto.length(); i++) {
             final String sub = texto.substring(0, i + 1);
-            KeyFrame kf = new KeyFrame(Duration.millis(50 * i), e -> lblExpulsion.setText(sub));
+            KeyFrame kf = new KeyFrame(Duration.millis(45 * i), e -> lblExpulsion.setText(sub));
             timeline.getKeyFrames().add(kf);
         }
-        timeline.setDelay(Duration.seconds(1.5));
+        timeline.setDelay(Duration.seconds(0.5));
         timeline.play();
     }
 

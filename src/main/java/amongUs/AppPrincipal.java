@@ -742,9 +742,9 @@ public class AppPrincipal extends GameApplication {
 
     /**
      * cuando se cumple alguna condicion de victoria procede a cargarse una pantalla indicando los ganadores
-     * @param ganador contiene el username de la persona que gano la partida
+     * @param fin contiene los datos del fin de partida
      */
-    public static void mostrarPantallaFin(String ganador) {
+    public static void mostrarPantallaFin(FinPartida fin) {
         FXGL.getInput().setRegisterInput(false);
 
         if (jugador != null && jugador.hasComponent(com.almasb.fxgl.physics.PhysicsComponent.class)) {
@@ -752,8 +752,9 @@ public class AppPrincipal extends GameApplication {
             jugador.getComponent(com.almasb.fxgl.physics.PhysicsComponent.class).setVelocityY(0);
         }
         limpiarTodosLosJugadores();
+
         String imagenFin = "";
-        if (ganador.equals("TRIPULANTES")) {
+        if (fin.ganador.equals("TRIPULANTES")) {
             imagenFin = esImpostor ? "derrota_impostor.png" : "victoria_tripulante.png";
         } else { // Ganaron IMPOSTORES
             imagenFin = esImpostor ? "victoria_impostor.png" : "derrota_tripulante.png";
@@ -763,10 +764,43 @@ public class AppPrincipal extends GameApplication {
             com.almasb.fxgl.texture.Texture texturaFin = FXGL.texture(imagenFin);
             texturaFin.setTranslateX((FXGL.getAppWidth() / 2.0) - (texturaFin.getWidth() / 2.0));
             texturaFin.setTranslateY((FXGL.getAppHeight() / 2.0) - (texturaFin.getHeight() / 2.0));
-            FXGL.addUINode(texturaFin);
+
+            javafx.scene.Group grupoFinal = new javafx.scene.Group(texturaFin);
+
+            if (fin.nombresCSV != null && !fin.nombresCSV.isEmpty()) {
+                String[] nombres = fin.nombresCSV.split(",");
+                String[] colores = fin.coloresCSV.split(",");
+
+                javafx.scene.layout.HBox contenedorSprites = new javafx.scene.layout.HBox(40);
+                contenedorSprites.setAlignment(javafx.geometry.Pos.CENTER);
+
+                for (int i = 0; i < nombres.length; i++) {
+                    if (nombres[i].isEmpty()) continue;
+
+                    String colorStr = (i < colores.length && !colores[i].isEmpty()) ? colores[i] : "rojo";
+
+                    try {
+                        com.almasb.fxgl.texture.Texture sprite = FXGL.texture("tripulante_" + colorStr + ".png");
+                        sprite.setScaleX(3.5);
+                        sprite.setScaleY(3.5);
+                        contenedorSprites.getChildren().add(sprite);
+                    } catch (Exception ex) {
+                        System.err.println("No se pudo cargar sprite para el ganador");
+                    }
+                }
+                contenedorSprites.layoutBoundsProperty().addListener((obs, old, bounds) -> {
+                    contenedorSprites.setTranslateX((FXGL.getAppWidth() / 2.0) - (bounds.getWidth() / 2.0));
+                });
+                contenedorSprites.setTranslateY((FXGL.getAppHeight() / 2.0) + 10);
+
+                grupoFinal.getChildren().add(contenedorSprites);
+            }
+
+            FXGL.addUINode(grupoFinal);
+
             FXGL.getGameTimer().runOnceAfter(() -> {
                 volverAlMenuPrincipal();
-            }, javafx.util.Duration.seconds(5));
+            }, javafx.util.Duration.seconds(6));
 
         } catch (Exception e) {
             System.err.println("Error cargando pantalla de fin: " + e.getMessage());
@@ -818,8 +852,8 @@ public class AppPrincipal extends GameApplication {
             estoyMuerto = true;
             if (jugador != null) {
                 jugador.getViewComponent().setOpacity(0.5);
-                AnimacionJugador animacion = jugador.getComponent(AnimacionJugador.class);
-                if (animacion != null) {
+                if (jugador.hasComponent(AnimacionJugador.class)) {
+                    AnimacionJugador animacion = jugador.getComponent(AnimacionJugador.class);
                     animacion.estaMuerto = true;
                     animacion.convertirFantasma();
                 }
@@ -828,10 +862,11 @@ public class AppPrincipal extends GameApplication {
         else {
             com.almasb.fxgl.entity.Entity entidadExpulsado = otrosJugadores.get(res.expulsado);
             if (entidadExpulsado != null) {
-                AnimacionJugador animacion = entidadExpulsado.getComponent(AnimacionJugador.class);
-                if (animacion != null) {
+                if (entidadExpulsado.hasComponent(AnimacionJugador.class)) {
+                    AnimacionJugador animacion = entidadExpulsado.getComponent(AnimacionJugador.class);
                     animacion.estaMuerto = true;
                 }
+
                 if (!estoyMuerto) {
                     entidadExpulsado.getViewComponent().setVisible(false);
                     entidadExpulsado.getViewComponent().setOpacity(0.0);
@@ -845,38 +880,17 @@ public class AppPrincipal extends GameApplication {
                 }
             }
         }
+
         if (estoyMuerto) {
             for (com.almasb.fxgl.entity.Entity otro : otrosJugadores.values()) {
-                AnimacionJugador animOtro = otro.getComponent(AnimacionJugador.class);
-                if (animOtro != null && animOtro.estaMuerto) {
-                    otro.getViewComponent().setVisible(true);
-                    otro.getViewComponent().setOpacity(0.5);
+                if (otro.hasComponent(AnimacionJugador.class)) {
+                    AnimacionJugador animOtro = otro.getComponent(AnimacionJugador.class);
+                    if (animOtro.estaMuerto) {
+                        otro.getViewComponent().setVisible(true);
+                        otro.getViewComponent().setOpacity(0.5);
+                    }
                 }
             }
-        }
-
-        // --- CÓDIGO A AÑADIR AL FINAL DE procesarExpulsion() ---
-
-        // Contar tripulantes vivos tras la expulsión
-        int vivos = 0;
-        if (!estoyMuerto) vivos++;
-
-        for (com.almasb.fxgl.entity.Entity otro : otrosJugadores.values()) {
-            AnimacionJugador animOtro = otro.getComponent(AnimacionJugador.class);
-            if (animOtro != null && !animOtro.estaMuerto) vivos++;
-        }
-
-        // Condición 1: Si yo era el Impostor y me expulsaron, ganan los Tripulantes
-        if (esImpostor && estoyMuerto) {
-            FinPartida fin = new FinPartida();
-            fin.ganador = "TRIPULANTES";
-            miCliente.cliente.sendTCP(fin);
-        }
-        // Condición 2: Si yo soy el Impostor, sigo vivo, y los tripulantes son <= 1 (Ganan Impostores)
-        else if (esImpostor && !estoyMuerto && vivos <= 2) { // 2 porque vivos te incluye a ti (1 impostor + 1 tripulante = gana el impostor)
-            FinPartida fin = new FinPartida();
-            fin.ganador = "IMPOSTORES";
-            miCliente.cliente.sendTCP(fin);
         }
     }
 

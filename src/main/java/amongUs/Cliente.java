@@ -26,6 +26,7 @@ public class Cliente {
      * @param username es el nombre del jugador que entrara a la sala
      * @throws IpInexistenteException excepcion personalizada creada en caso de que la IP sea incorrecta o no se pueda conectar al servidor
      */
+
     public Cliente(String ip, String username) throws IpInexistenteException{
         this.username = username;
         cliente = new Client();
@@ -138,20 +139,6 @@ public class Cliente {
                             }
                         }
                     });
-
-                    int vivos = 0;
-                    if (!AppPrincipal.estoyMuerto) vivos++;
-
-                    for (com.almasb.fxgl.entity.Entity otro : AppPrincipal.otrosJugadores.values()) {
-                        AnimacionJugador anim = otro.getComponent(AnimacionJugador.class);
-                        if (anim != null && !anim.estaMuerto) vivos++;
-                    }
-
-                    if (vivos <= 1 && AppPrincipal.esImpostor) {
-                        FinPartida fin = new FinPartida();
-                        fin.ganador = "IMPOSTORES";
-                        AppPrincipal.miCliente.cliente.sendTCP(fin);
-                    }
                 }
                 if (object instanceof MovimientoAlcantarilla){
                     MovimientoAlcantarilla movAlcantarilla = (MovimientoAlcantarilla) object;
@@ -201,7 +188,7 @@ public class Cliente {
                 if (object instanceof FinPartida) {
                     FinPartida fin = (FinPartida) object;
                     javafx.application.Platform.runLater(() -> {
-                        AppPrincipal.mostrarPantallaFin(fin.ganador);
+                        AppPrincipal.mostrarPantallaFin(fin);
                     });
                 }
                 if (object instanceof DesconexionJugador) {

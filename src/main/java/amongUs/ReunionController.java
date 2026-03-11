@@ -12,6 +12,8 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import java.util.Map;
+import java.util.List;
+import java.util.ArrayList;
 import com.almasb.fxgl.time.TimerAction;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -23,10 +25,14 @@ public class ReunionController {
     @FXML private TextField campoMensaje;
     @FXML private Label lblTiempo;
     @FXML private Label lblMensajeSistema;
+
     private int tiempoRestante = 180;
     private TimerAction temporizador;
     private boolean haVotado = false;
     private Map<String, HBox> cartasJugadores = new java.util.HashMap<>();
+
+    // Lista para guardar y administrar todos los botones de votar
+    private List<ImageView> botonesVoto = new ArrayList<>();
 
     @FXML
     public void initialize() {
@@ -47,7 +53,6 @@ public class ReunionController {
             if (lblTiempo != null) {
                 lblTiempo.setText("Tiempo: " + tiempoRestante);
 
-                // angelo: cambia a rojo cuando queden 10 segundos
                 if (tiempoRestante <= 10) {
                     lblTiempo.setTextFill(Color.RED);
                 }
@@ -56,7 +61,7 @@ public class ReunionController {
             if (tiempoRestante <= 0) {
                 temporizador.expire();
                 if (!haVotado && !AppPrincipal.estoyMuerto) {
-                    emitirVoto("SKIP", null, null);
+                    emitirVoto("SKIP");
                 }
             }
         }, javafx.util.Duration.seconds(1.0));
@@ -83,6 +88,7 @@ public class ReunionController {
 
     public void cerrarReunion() {
         instancia = null;
+        botonesVoto.clear(); // Limpiamos la lista de botones al cerrar
 
         if (temporizador != null) {
             temporizador.expire();
@@ -144,9 +150,16 @@ public class ReunionController {
     }
 
     private void agregarCartaJugador(String nombre, Entity entidad, int col, int row) {
-        AnimacionJugador anim = entidad.getComponent(AnimacionJugador.class);
-        String color = anim.getColor();
-        boolean estaMuerto = anim.estaMuerto;
+        String color = "rojo";
+        boolean estaMuerto = false;
+
+        if (entidad.hasComponent(AnimacionJugador.class)) {
+            AnimacionJugador anim = entidad.getComponent(AnimacionJugador.class);
+            color = anim.getColor();
+            estaMuerto = anim.estaMuerto;
+        } else if (AppPrincipal.estoyMuerto && nombre.equals(MenuController.nombreUsuario)) {
+            estaMuerto = true;
+        }
 
         HBox carta = new HBox(15);
         carta.setAlignment(Pos.CENTER_LEFT);
@@ -187,8 +200,10 @@ public class ReunionController {
             btnVotar.setStyle("-fx-cursor: hand;");
             btnVotar.setOnMouseEntered(e -> btnVotar.setOpacity(0.7));
             btnVotar.setOnMouseExited(e -> btnVotar.setOpacity(1.0));
-            btnVotar.setOnMouseClicked(e -> emitirVoto(nombre, carta, btnVotar));
+            btnVotar.setOnMouseClicked(e -> emitirVoto(nombre));
             carta.getChildren().add(btnVotar);
+
+            botonesVoto.add(btnVotar);
         }
 
         cartasJugadores.put(nombre, carta);
@@ -210,16 +225,25 @@ public class ReunionController {
                 int cantidadVotos = entry.getValue();
                 if (!sospechoso.equals("SKIP") && cartasJugadores.containsKey(sospechoso)) {
                     HBox carta = cartasJugadores.get(sospechoso);
-                    Label lblVotos = new Label(" +" + cantidadVotos + " votos");
+                    for (javafx.scene.Node nodo : carta.getChildren()) {
+                        if (nodo instanceof Label && ((Label)nodo).getText().equals(sospechoso)) {
+                            ((Label)nodo).setText("");
+                            break;
+                        }
+                    }
+                    Label lblVotos = new Label(cantidadVotos + " votos");
                     lblVotos.setTextFill(Color.ORANGE);
                     lblVotos.setStyle("-fx-font-weight: bold; -fx-font-size: 16px; -fx-background-color: #444; -fx-padding: 3; -fx-background-radius: 5;");
-
                     carta.getChildren().add(lblVotos);
                 }
             }
             int skips = res.votosPorJugador.getOrDefault("SKIP", 0);
-            if (skips > 0 && lblMensajeSistema != null) {
-                lblMensajeSistema.setText("Votos saltados: " + skips);
+            if (skips > 0) {
+                String plural = (skips == 1) ? "persona ha" : "personas han";
+                areaChat.appendText("\n[SISTEMA]: " + skips + " " + plural + " votado a skip.\n");
+            }
+            if (lblMensajeSistema != null) {
+                lblMensajeSistema.setText("");
             }
         }
         FXGL.getGameTimer().runOnceAfter(() -> {
@@ -233,23 +257,22 @@ public class ReunionController {
                 ExpulsionController controlador = loader.getController();
 
                 FXGL.addUINode(expulsionUI);
+
                 String expulsado = res.expulsado;
                 String color = "rojo";
-                boolean eraImpostor = false;
+                boolean eraImpostor = res.expulsadoEraImpostor;
+                int vivos = 0;
+                if (!AppPrincipal.estoyMuerto) vivos++;
 
-                if (expulsado != null && !expulsado.equals("Nadie")) {
-                    if (expulsado.equals(MenuController.nombreUsuario)) {
-                        color = AppPrincipal.jugador.getComponent(AnimacionJugador.class).getColor();
-                        eraImpostor = AppPrincipal.esImpostor;
-                    } else {
-                        com.almasb.fxgl.entity.Entity ent = AppPrincipal.otrosJugadores.get(expulsado);
-                        if (ent != null) {
-                            color = ent.getComponent(AnimacionJugador.class).getColor();
-                            eraImpostor = ent.hasComponent(ImpostorComponent.class);
+                for (Entity otro : AppPrincipal.otrosJugadores.values()) {
+                    if (otro.hasComponent(AnimacionJugador.class)) {
+                        if (!otro.getComponent(AnimacionJugador.class).estaMuerto) {
+                            vivos++;
                         }
                     }
                 }
-                controlador.iniciarCinematica(expulsado, color, eraImpostor);
+                controlador.iniciarCinematica(expulsado, color, eraImpostor, vivos);
+
             } catch (Exception e) {
                 System.err.println("Error al cargar la cinemática de expulsión:");
                 e.printStackTrace();
@@ -259,27 +282,42 @@ public class ReunionController {
         }, javafx.util.Duration.seconds(4.5));
     }
 
-    private void emitirVoto(String sospechoso, HBox carta, ImageView boton) {
+    private void emitirVoto(String sospechoso) {
         if (haVotado || AppPrincipal.estoyMuerto) return;
         haVotado = true;
 
-        if (carta != null && boton != null) {
-            carta.getChildren().remove(boton);
-            Label lblVotado = new Label("Votado");
-            lblVotado.setTextFill(Color.LIGHTGREEN);
-            lblVotado.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
-            carta.getChildren().add(lblVotado);
+        // 1. Barrer y desaparecer TODOS los botones de votar de la pantalla
+        for (ImageView btn : botonesVoto) {
+            if (btn.getParent() instanceof HBox) {
+                ((HBox) btn.getParent()).getChildren().remove(btn);
+            }
+        }
+        botonesVoto.clear();
+        HBox miCarta = cartasJugadores.get(MenuController.nombreUsuario);
+        if (miCarta != null) {
+            for (javafx.scene.Node nodo : miCarta.getChildren()) {
+                if (nodo instanceof Label) {
+                    Label lbl = (Label) nodo;
+                    if (lbl.getText().equals(MenuController.nombreUsuario)) {
+                        lbl.setTextFill(Color.LIGHTGREEN);
+                        break;
+                    }
+                }
+            }
         }
 
         VotoEmitido voto = new VotoEmitido();
         voto.votante = MenuController.nombreUsuario;
         voto.sospechoso = sospechoso;
-        AppPrincipal.miCliente.cliente.sendTCP(voto);
+
+        if (AppPrincipal.miCliente != null && AppPrincipal.miCliente.cliente != null && AppPrincipal.miCliente.cliente.isConnected()) {
+            AppPrincipal.miCliente.cliente.sendTCP(voto);
+        }
     }
 
     @FXML
     private void onSaltarVoto() {
         if (haVotado || AppPrincipal.estoyMuerto) return;
-        emitirVoto("SKIP", null, null);
+        emitirVoto("SKIP");
     }
 }
