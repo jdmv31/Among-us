@@ -4,7 +4,7 @@ public class NodoAlcantarilla {
     public double x;
     public double y;
     public int id;
-    int ventIzquierda, ventDerecha, ventArriba, ventAbajo;
+    public int ventIzquierda, ventDerecha, ventArriba, ventAbajo;
 
     public NodoAlcantarilla(int id, double x, double y, int ventIzq, int ventDer, int ventArriba, int ventAbajo) {
         this.x = x;

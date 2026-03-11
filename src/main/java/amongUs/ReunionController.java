@@ -25,13 +25,10 @@ public class ReunionController {
     @FXML private TextField campoMensaje;
     @FXML private Label lblTiempo;
     @FXML private Label lblMensajeSistema;
-
     private int tiempoRestante = 180;
     private TimerAction temporizador;
     private boolean haVotado = false;
     private Map<String, HBox> cartasJugadores = new java.util.HashMap<>();
-
-    // Lista para guardar y administrar todos los botones de votar
     private List<ImageView> botonesVoto = new ArrayList<>();
 
     @FXML
@@ -88,7 +85,7 @@ public class ReunionController {
 
     public void cerrarReunion() {
         instancia = null;
-        botonesVoto.clear(); // Limpiamos la lista de botones al cerrar
+        botonesVoto.clear();
 
         if (temporizador != null) {
             temporizador.expire();
