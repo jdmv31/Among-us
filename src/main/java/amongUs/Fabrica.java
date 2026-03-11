@@ -15,8 +15,23 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
+/**
+ * * @author Josue Medina
+ * Fábrica de entidades para el juego Among Us.
+ * Implementa {@link EntityFactory} para centralizar la creación de todos los elementos
+ * del mapa (techos, paredes, objetos) y los personajes. Utiliza anotaciones {@code @Spawns}
+ * para vincular nombres de entidades definidos en archivos de mapa (como TMX) con
+ * métodos de creación específicos.
+ */
 public class Fabrica implements EntityFactory {
 
+    /**
+     * Crea una entidad de tipo "techo".
+     * Se define como un cuerpo estático con colisiones. Al ser un techo,
+     * no suele requerir ajustes de Z-Index para oclusión de personajes.
+     * * @param data Datos de creación (posición, dimensiones).
+     * @return Una entidad de tipo {@link TipoEntidad#PARED}.
+     */
     @Spawns("techo")
     public Entity nuevoTecho(SpawnData data) {
         PhysicsComponent fisicasTecho = new PhysicsComponent();
@@ -29,6 +44,15 @@ public class Fabrica implements EntityFactory {
                 .with(fisicasTecho)
                 .build();
     }
+
+    /**
+     * Crea una entidad de tipo "pared".
+     * Similar al techo, pero incluye un cálculo de {@code zIndex} basado en su
+     * posición Y para permitir que los jugadores pasen por detrás o por delante
+     * (Efecto Top-Down).
+     * * @param data Datos de creación proporcionados por el motor.
+     * @return Entidad estática colisionable.
+     */
     @Spawns("pared")
     public Entity nuevaPared(SpawnData data) {
         PhysicsComponent fisicasPared = new PhysicsComponent();
@@ -43,6 +67,12 @@ public class Fabrica implements EntityFactory {
                 .build();
     }
 
+    /**
+     * Genera objetos decorativos o funcionales en el mapa.
+     * Al igual que las paredes, utiliza colisiones estáticas y profundidad dinámica (Z-Index).
+     * * @param data Contiene parámetros como ancho y alto del objeto.
+     * @return Entidad de tipo {@link TipoEntidad#OBJETO}.
+     */
     @Spawns("objeto")
     public Entity nuevoObjeto(SpawnData data) {
         PhysicsComponent fisicasObjeto = new PhysicsComponent();
@@ -57,6 +87,16 @@ public class Fabrica implements EntityFactory {
                 .build();
     }
 
+    /**
+     * Crea y configura la entidad del jugador, diferenciando entre el jugador local y remotos.
+     * Este método realiza las siguientes tareas:
+     * Recupera el color y el nombre desde el {@link MenuController}.
+     * Configura la etiqueta de nombre visual sobre el personaje.
+     * Si es el jugador local Añade componentes de física dinámica, visión e impostor.
+     * Si es un jugador remoto: Solo define una caja de colisión básica.
+     * * @param data Datos que pueden incluir el "nombre" del jugador.
+     * @return Entidad del jugador configurada para el entorno multijugador.
+     */
     @Spawns("jugador")
     public Entity nuevoJugador(SpawnData data) {
         String nombre = data.hasKey("nombre") ? data.get("nombre") : "Jugador";
@@ -64,6 +104,7 @@ public class Fabrica implements EntityFactory {
         String colorJugador = "negro";
         boolean esLocal = false;
 
+        // Búsqueda de datos del jugador en el estado global del lobby
         if (MenuController.estadoActual != null) {
             for (JugadorLobby j : MenuController.estadoActual.jugadores) {
                 if (j.nombre.equals(nombreJugador)) {
@@ -76,12 +117,14 @@ public class Fabrica implements EntityFactory {
             }
         }
 
+        // Configuración de la etiqueta de nombre visual
         Text nombreVisual = new Text(nombre);
         nombreVisual.setFill(Color.WHITE);
         nombreVisual.setFont(Font.font("Arial", 6));
         nombreVisual.setTranslateY(-1);
         nombreVisual.setTranslateX( (32 / 2.0) - (nombreVisual.getLayoutBounds().getWidth() / 2.0) );
 
+        // Configuración de escala y HitBox personalizada para los pies (colisión técnica)
         double escala = 1.6;
         double posX = (32 / escala) / 2.0 - (20 / escala) / 2.0;
         double posY = (32 / escala) - (15 / escala);
@@ -93,6 +136,7 @@ public class Fabrica implements EntityFactory {
                 .scale(escala, escala)
                 .view(nombreVisual);
 
+        // Componentes exclusivos para el control del usuario local
         if (esLocal) {
             PhysicsComponent fisicasJugador = new PhysicsComponent();
             fisicasJugador.setBodyType(BodyType.DYNAMIC);
@@ -103,6 +147,7 @@ public class Fabrica implements EntityFactory {
                     .with(new ImpostorComponent())
                     .with(fisicasJugador);
         } else {
+            // Hitbox genérica para jugadores externos
             builder.bbox(new HitBox("cuerpo", new Point2D(0, 0), BoundingShape.box(32, 32)));
         }
 

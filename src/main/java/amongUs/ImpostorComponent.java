@@ -10,45 +10,75 @@ import javafx.scene.text.Text;
 import javafx.util.Duration;
 import java.util.Map;
 
+/**
+ * Componente de lógica avanzada que define las capacidades especiales de un Impostor.
+ * Esta clase centraliza las tres mecánicas principales del antagonista:
+ * Asesinato: Detección de víctimas por proximidad y ejecución sincronizada por red.
+ * Sabotaje: Activación de eventos globales (como corte eléctrico) con tiempo de recarga.
+ * Ventilación: Sistema de desplazamiento rápido e invisibilidad a través de una red de nodos.
+ */
 public class ImpostorComponent extends Component {
+
+    // --- Atributos de Asesinato ---
     private boolean matarDisponible = false;
     private boolean cooldownActivo = false;
     private double tiempoCooldown = 0.0;
     private Texture botonMatar;
     private Text textoCooldown;
+    private String victimaCercana = "";
+
+    // --- Atributos de Alcantarillas (Vents) ---
     private boolean enAlcantarilla = false;
     private int alcantarillaActual = -1;
+    /** Entidades visuales (flechas) para la navegación entre rejillas. */
     private Entity ventflechaIzq, ventflechaAbajo, ventflechaArriba, ventflechaDer;
+
+    // --- Atributos de Sabotaje ---
     private Texture botonSabotaje;
     private Text textoCooldownSabotaje;
     private boolean sabotajeDisponible = true;
     private double tiempoCooldownSabotaje = 0.0;
-    private String victimaCercana = "";
 
-
+    /**
+     * Configura los elementos de la Interfaz de Usuario necesarios para la acción de asesinato.
+     * @param botonMatar Objeto {@link Texture} que representa el botón de "Kill".
+     * @param textoCooldown Objeto {@link Text} donde se renderiza la cuenta regresiva.
+     */
     public void setUIAsesinato(Texture botonMatar, Text textoCooldown) {
         this.botonMatar = botonMatar;
         this.textoCooldown = textoCooldown;
         iniciarCooldown(10.0);
     }
 
+    /**
+     * Configura los elementos de la Interfaz de Usuario para la acción de sabotaje.
+     * @param botonSabotaje Textura interactiva para sabotear.
+     * @param textoCooldownSabotaje Etiqueta de texto para el tiempo de recarga del sabotaje.
+     */
     public void setUISabotaje(Texture botonSabotaje, Text textoCooldownSabotaje) {
         this.botonSabotaje = botonSabotaje;
         this.textoCooldownSabotaje = textoCooldownSabotaje;
         this.sabotajeDisponible = true;
     }
 
+    /**
+     * Ciclo de actualización por frame del componente.
+     * Se encarga de:
+     * 1. Calcular la distancia euclidiana hacia todos los jugadores vivos para determinar una {@code victimaCercana}.
+     * 2. Decrementar los temporizadores de recarga (cooldowns) basados en el TPF.
+     * 3. Actualizar el estado visual de los botones (Habilitado/Deshabilitado) según la proximidad y el tiempo.
+     * @param tpf Time Per Frame proporcionado por el motor FXGL.
+     */
     @Override
     public void onUpdate(double tpf) {
         victimaCercana = "";
         double distanciaMinima = 30.0;
 
+        // Búsqueda proactiva de víctimas
         if (!enAlcantarilla) {
             for (Map.Entry<String, Entity> entry : AppPrincipal.otrosJugadores.entrySet()) {
                 Entity otroJugador = entry.getValue();
-
                 double distancia = entity.getPosition().distance(otroJugador.getPosition());
-
                 boolean estaVivo = !otroJugador.getComponent(AnimacionJugador.class).estaMuerto;
 
                 if (distancia < distanciaMinima && estaVivo) {
@@ -57,6 +87,8 @@ public class ImpostorComponent extends Component {
                 }
             }
         }
+
+        // Gestión lógica y visual del cooldown de asesinato
         if (cooldownActivo) {
             tiempoCooldown -= tpf;
             if (textoCooldown != null) {
@@ -70,6 +102,7 @@ public class ImpostorComponent extends Component {
             }
         }
 
+        // Actualización dinámica de texturas del botón Matar
         if (botonMatar != null) {
             if (!matarDisponible || victimaCercana.isEmpty()) {
                 botonMatar.setImage(FXGL.image("matarNegado.png"));
@@ -78,9 +111,9 @@ public class ImpostorComponent extends Component {
             }
         }
 
+        // Gestión del cooldown de sabotaje
         if (!sabotajeDisponible) {
             tiempoCooldownSabotaje -= tpf;
-
             if (textoCooldownSabotaje != null) {
                 textoCooldownSabotaje.setText(String.format("%.0f", tiempoCooldownSabotaje));
             }
@@ -93,6 +126,14 @@ public class ImpostorComponent extends Component {
         }
     }
 
+    /**
+     * Ejecuta la lógica de asesinato si todas las condiciones (cooldown y proximidad) se cumplen.
+     * Al matar:
+     * Se activa la animación de muerte en la víctima localmente.
+     * Se detiene el movimiento físico de la víctima.
+     * Se envía un paquete {@link Asesinato} vía TCP para sincronizar con el servidor.
+     * Se reinicia el cooldown global del impostor.
+     */
     public void intentarMatar() {
         if (matarDisponible && !cooldownActivo && !victimaCercana.isEmpty()) {
             System.out.println("¡Mataste a " + victimaCercana);
@@ -105,6 +146,8 @@ public class ImpostorComponent extends Component {
                     victima.getComponent(PhysicsComponent.class).setVelocityY(0);
                 }
             }
+
+            // Sincronización Multijugador
             Asesinato paquete = new Asesinato();
             paquete.asesino = MenuController.nombreUsuario;
             paquete.victima = victimaCercana;
@@ -117,12 +160,18 @@ public class ImpostorComponent extends Component {
         }
     }
 
+    /**
+     * Activa el sabotaje de luces si está disponible.
+     * Notifica a la aplicación principal para oscurecer el mapa y envía
+     * la petición de sabotaje al servidor para afectar a los tripulantes.
+     */
     public void intentarSabotaje() {
         if (sabotajeDisponible && !AppPrincipal.sabotajeActivo) {
             sabotajeDisponible = false;
             tiempoCooldownSabotaje = 60.0;
             if (botonSabotaje != null) botonSabotaje.setImage(FXGL.image("sabotajeNegado.png"));
             AppPrincipal.activarCorteElectrico();
+
             Sabotaje peticion = new Sabotaje();
             peticion.activar = true;
             if (AppPrincipal.miCliente != null && AppPrincipal.miCliente.cliente != null) {
@@ -131,6 +180,10 @@ public class ImpostorComponent extends Component {
         }
     }
 
+    /**
+     * Inicia el estado de espera (cooldown) para la acción de matar.
+     * @param tiempo Segundos que debe esperar el jugador.
+     */
     private void iniciarCooldown(double tiempo) {
         cooldownActivo = true;
         tiempoCooldown = tiempo;
@@ -138,6 +191,10 @@ public class ImpostorComponent extends Component {
         if (botonMatar != null) botonMatar.setImage(FXGL.image("matarNegado.png"));
     }
 
+    /**
+     * Gestiona la entrada o salida de la red de alcantarillas.
+     * Bloquea la acción si el sistema de cámaras está en uso.
+     */
     public void alternarAlcantarilla() {
         if (AppPrincipal.sistemaCamaras.isCamarasAbiertas()) return;
 
@@ -148,6 +205,12 @@ public class ImpostorComponent extends Component {
         }
     }
 
+    /**
+     * Busca la rejilla más cercana y oculta la entidad del jugador.
+     * Al entrar, se detiene la física, se teletransporta al nodo exacto,
+     * se reproduce la animación de entrada y se oculta la vista tras un breve retardo.
+     * También notifica vía red que el jugador ha entrado en la ventilación.
+     */
     private void entrarAlcantarilla() {
         NodoAlcantarilla nodoCercano = null;
         double distanciaMinima = 20.0;
@@ -183,6 +246,9 @@ public class ImpostorComponent extends Component {
         }
     }
 
+    /**
+     * Expulsa al impostor de la alcantarilla actual, restaurando su visibilidad y física.
+     */
     private void salirAlcantarilla() {
         alcantarillaActual = -1;
         ocultarFlechasVents();
@@ -198,6 +264,10 @@ public class ImpostorComponent extends Component {
         FXGL.getGameTimer().runOnceAfter(() -> enAlcantarilla = false, Duration.seconds(0.5));
     }
 
+    /**
+     * Realiza el desplazamiento instantáneo entre nodos de alcantarilla conectados.
+     * @param direccion Cadena que define el sentido del viaje ("IZQ", "DER", "ARRIBA", "ABAJO").
+     */
     public void viajarAlcantarilla(String direccion) {
         if (enAlcantarilla && alcantarillaActual != -1) {
             int destino = -1;
@@ -211,15 +281,17 @@ public class ImpostorComponent extends Component {
             if (destino != -1) {
                 alcantarillaActual = destino;
                 NodoAlcantarilla nuevoNodo = AppPrincipal.redAlcantarillas.get(destino);
-
                 entity.getComponent(PhysicsComponent.class).overwritePosition(new Point2D(nuevoNodo.x, nuevoNodo.y));
                 entity.getViewComponent().setVisible(false);
-
                 mostrarFlechasVents();
             }
         }
     }
 
+    /**
+     * Crea entidades visuales (flechas rojas) en el HUD para indicar caminos disponibles
+     * en la red de ventilación desde el nodo actual.
+     */
     private void mostrarFlechasVents() {
         ocultarFlechasVents();
         if (alcantarillaActual == -1) return;
@@ -249,6 +321,9 @@ public class ImpostorComponent extends Component {
         }
     }
 
+    /**
+     * Remueve todas las flechas de navegación del mundo de juego.
+     */
     private void ocultarFlechasVents() {
         if (ventflechaIzq != null) { ventflechaIzq.removeFromWorld(); ventflechaIzq = null; }
         if (ventflechaDer != null) { ventflechaDer.removeFromWorld(); ventflechaDer = null; }
@@ -256,6 +331,10 @@ public class ImpostorComponent extends Component {
         if (ventflechaAbajo != null) { ventflechaAbajo.removeFromWorld(); ventflechaAbajo = null; }
     }
 
+    /**
+     * Consulta el estado de ocultamiento del impostor.
+     * @return {@code true} si está oculto en la alcantarilla.
+     */
     public boolean estaEnAlcantarilla() {
         return enAlcantarilla;
     }
