@@ -9,8 +9,18 @@ import javafx.util.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * * @author Nicole Flores
+ * define la configuración específica del mapa "Cancha", incluyendo tareas, alcantarillas y cámaras
+ * implementa la interfaz {@link ConfiguracionMapa} para ser cargada por el controlador principal
+ * */
 public class MapaCancha implements ConfiguracionMapa{
 
+    /**
+     * genera y configura el listado de tareas disponibles en este mapa
+     * cada {@link Tarea} incluye su animación, posición en el mapa y área de interacción
+     * @return un arreglo de objetos Tarea con toda la información de interacción
+     * */
     public Tarea[] obtenerTareas() {
         Tarea[] tareas = new Tarea[6];
         AnimationChannel animacionFuego = new AnimationChannel(
@@ -138,21 +148,38 @@ public class MapaCancha implements ConfiguracionMapa{
         return tareas;
     }
 
+    /**
+     * retorna el nombre del archivo de tileset del mapa
+     * @return String con la ruta o nombre del archivo .tmx
+     * */
     @Override
     public String getArchivoTMX() {
         return "mapa2.tmx";
     }
 
+    /**
+     * define los bordes de desplazamiento para la cámara del juego
+     * @return double[] con los valores x, y, ancho y alto de los límites
+     * */
     @Override
     public double[] getLimitesCamara() {
         return new double[] { 0, 0, 992, 960 };
     }
 
+    /**
+     * establece el punto exacto donde los jugadores aparecen al iniciar la partida
+     * @return Point2D con las coordenadas centrales de spawn
+     * */
     @Override
     public Point2D getPuntoAparicionCentral() {
         return new Point2D(457, 478);
     }
 
+    /**
+     * configura las conexiones entre las alcantarillas del mapa para el impostor
+     * utiliza la clase {@link NodoAlcantarilla} para gestionar los saltos entre coordenadas
+     * @return List con todos los nodos de la red de transporte
+     * */
     @Override
     public List<NodoAlcantarilla> getRedAlcantarillas() {
         List<NodoAlcantarilla> red = new ArrayList<>();
@@ -164,8 +191,12 @@ public class MapaCancha implements ConfiguracionMapa{
 
         return red;
     }
+
+    /**
+     * especifica las posiciones en el mapa donde están ubicadas las cámaras de seguridad
+     * @return Point2D[] con las coordenadas de visión de cada cámara
+     * */
     @Override
-    // nicole: esto representa las coordenadas de las camaras en el mapa
     public Point2D[] getCoordenadasCamaras() {
         return new Point2D[] {
                 new Point2D(216, 713),  // camara del pasillo de abajo
@@ -175,11 +206,19 @@ public class MapaCancha implements ConfiguracionMapa{
         };
     }
 
+    /**
+     * retorna la ubicación de la mesa desde la cual se pueden visualizar las cámaras
+     * @return Point2D coordenadas de la entidad mesa de seguridad
+     * */
     @Override
     public Point2D getPosicionMesaCamaras() {
         return new Point2D(110, 750);
     }
 
+    /**
+     * establece la posición del botón para convocar reuniones de emergencia
+     * @return Point2D coordenadas del botón en el mapa
+     * */
     @Override
     public Point2D getPosicionBotonEmergencia() {
         return new Point2D(457, 397);

@@ -21,6 +21,11 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.util.Enumeration;
 
+/**
+ * @author Nicole Flores
+ * gestiona la lógica de los menús, la creación de salas y el lobby multijugador
+ * funciona como el puente entre la interfaz gráfica y la comunicación de red vía {@link Servidor} y {@link Cliente}
+ * */
 public class MenuController implements UIController {
     @FXML private Pane ventanaModal;
     @FXML private Pane ventanaModal1;
@@ -68,6 +73,10 @@ public class MenuController implements UIController {
         instancia = this;
     }
 
+    /**
+     * configura los componentes de la UI al cargar la vista
+     * organiza los slots de jugadores en arreglos para facilitar su actualización
+     * */
     @FXML
     public void initialize() {
         instancia = this;
@@ -80,7 +89,10 @@ public class MenuController implements UIController {
             if (slot != null) slot.setVisible(false);
         }
     }
-
+    /**
+     * actualiza la lista de jugadores en el lobby en tiempo real
+     * @param estado objeto {@link EstadoLobby} que contiene la información de los jugadores conectados
+     * */
     public void actualizarLobby(EstadoLobby estado) {
         estadoActual = estado;
         labelContador.setText("Jugadores: " + estado.jugadores.length + "/10");
@@ -117,7 +129,10 @@ public class MenuController implements UIController {
         // cambiar aca para hacer pruebas
         start.setDisable(estado.jugadores.length < 1);
     }
-
+    /**
+     * intenta obtener la dirección IP local, priorizando interfaces virtuales como Hamachi
+     * @return String con la dirección IP para mostrar en el lobby
+     * */
     private String obtenerIp() {
         try {
             Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
@@ -169,7 +184,10 @@ public class MenuController implements UIController {
 
         imgGuia.setImage(FXGL.getAssetLoader().loadImage(nombreImagen));
     }
-
+    /**
+     * gestiona la navegación entre diferentes vistas del menú (.fxml)
+     * @param rutaFXML dirección del archivo de interfaz a cargar
+     * */
     private void cambiarEscena(String rutaFXML) {
         try {
             FXGL.getGameScene().clearUINodes();
@@ -226,7 +244,10 @@ public class MenuController implements UIController {
         ventanaModal1.setVisible(false);
         ventanaModal.setVisible(true);
     }
-
+    /**
+     * intenta establecer conexión con un servidor remoto usando la IP proporcionada
+     * gestiona excepciones de red mediante {@link IpInexistenteException}
+     * */
     @FXML
     private void unirseSala() {
         if (txtIp == null || txtIp.getText().trim().isEmpty()) return;
@@ -278,7 +299,9 @@ public class MenuController implements UIController {
         ventanaModal.setVisible(false);
         ventanaModal1.setVisible(true);
     }
-
+    /**
+     * inicializa el servidor local y el cliente para el host de la partida
+     * */
     @FXML
     private void crearSala() {
         botonPresionado();
@@ -313,7 +336,10 @@ public class MenuController implements UIController {
         botonPresionado();
         cambiarEscena("/ui/jugar.fxml");
     }
-
+    /**
+     * envía la señal de inicio de juego al servidor con el mapa seleccionado
+     * solo el Host puede activar este método a través de la interfaz
+     * */
     @FXML
     private void onIniciarJuego() {
         if (cliente != null && cliente.cliente.isConnected()) {
@@ -322,7 +348,11 @@ public class MenuController implements UIController {
             cliente.cliente.sendTCP(mapa);
         }
     }
-
+    /**
+     * despliega un menú contextual para que el jugador elija su color
+     * bloquea los colores que ya están siendo utilizados por otros jugadores
+     * @param event evento de clic que dispara el menú
+     * */
     @FXML
     private void abrirMenuColores(javafx.event.ActionEvent event) {
         Button botonClickeado = (Button) event.getSource();
