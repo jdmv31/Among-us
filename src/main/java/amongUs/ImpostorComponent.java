@@ -11,6 +11,7 @@ import javafx.util.Duration;
 import java.util.Map;
 
 /**
+ * * @author Josue Medina
  * Componente de lógica avanzada que define las capacidades especiales de un Impostor.
  * Esta clase centraliza las tres mecánicas principales del antagonista:
  * Asesinato: Detección de víctimas por proximidad y ejecución sincronizada por red.
