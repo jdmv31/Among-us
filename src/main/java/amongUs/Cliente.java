@@ -5,10 +5,27 @@ import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import java.io.IOException;
 
-public class Cliente {
-    public Client cliente;
-    public String username;
 
+/**
+ * @author Josue Medina
+ * gestiona la conexion del jugador a el servidor utilizando la libreria KryoNet
+ * se encarga de conectarse al servidor y registrar los diversos paquetes que viajaran por la red
+ * y reaccionar a ellas
+ */
+
+public class Cliente {
+    /** instancia del cliente KryoNet que manejara las conexiones */
+    public Client cliente;
+    /** username del jugador local*/
+    public String username;
+    /**
+     *
+     * constructor con parametros para inicializar al cliente, registra los paquetes a enviar y configura
+     * los eventos para actualizar el juego en tiempo real
+     * @param ip es la direccion IP del servidor a conectarse
+     * @param username es el nombre del jugador que entrara a la sala
+     * @throws IpInexistenteException excepcion personalizada creada en caso de que la IP sea incorrecta o no se pueda conectar al servidor
+     */
     public Cliente(String ip, String username) throws IpInexistenteException{
         this.username = username;
         cliente = new Client();

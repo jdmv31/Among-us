@@ -17,12 +17,23 @@ import java.util.List;
 import java.util.Map;
 import com.almasb.fxgl.texture.Texture;
 
+/**
+ * @author Josue Medina
+ * clase principal del juego que hereda de {@link GameApplication} del motor FXGL
+ * es el nucleo del juego, se encarga de administrar el ciclo de vida del juego, renderiza los graficos,gestiona las
+ * entradas por teclado, controla las colisiones y coordina los eventos de la partida
+ */
+
 public class AppPrincipal extends GameApplication {
+    /** representa al jugador local*/
     public static Entity jugador;
+    /** representa la conexion de red del jugador local con el servidor */
     public static Cliente miCliente;
+    /** almacena al resto de jugadores en la partida, se vincula su nombre con su entidad visual*/
     public static Map<String, Entity> otrosJugadores = new HashMap<>();
     public static Texture botonAccion;
     public static boolean accionDisponible = false;
+    /** indica si el jugador tiene el rol de impostor*/
     public static boolean esImpostor = false;
     public static javafx.scene.shape.Rectangle oscuridad;
     public static Texture botonMatar;
@@ -43,6 +54,11 @@ public class AppPrincipal extends GameApplication {
     public static Texture panelMinijuegoActual;
     public static boolean cercaDeBotonEmergencia = false;
 
+    /**
+     * configura los controles del teclado y sus respectivas cciones
+     * define las teclas de movimiento (W, A, S, D) y diversas interacciones como abrir camaras (C)
+     * usar alcantarillas (Espacio) matar(Q) o reportar (R)
+     */
     @Override
     protected void initInput() {
         int velocidadFisica = 150;
@@ -223,6 +239,10 @@ public class AppPrincipal extends GameApplication {
 
     }
 
+    /**
+     * obtiene las coordenadas del personaje en tiempo real y las actualiza mediante un paquete al servidor, de esta forma
+     * todos pueden visualizar el movimiento de los demas jugadores
+     */
     private void enviarCoordenadas() {
         if (miCliente != null && miCliente.cliente != null && miCliente.cliente.isConnected()) {
             Movimiento mov = new Movimiento();
@@ -235,6 +255,10 @@ public class AppPrincipal extends GameApplication {
             System.out.println("Error: Cliente desconectado");
         }
     }
+
+    /**
+     * inicializa las fisicas en el juego de parte del jugador para que no atraviese paredes u objetos
+     */
     @Override
     protected void initPhysics(){
         FXGL.getPhysicsWorld().setGravity(0,0);
@@ -242,6 +266,10 @@ public class AppPrincipal extends GameApplication {
         FXGL.getPhysicsWorld().addCollisionHandler(new CollisionHandler(TipoEntidad.JUGADOR, TipoEntidad.OBJETO) {});
     }
 
+    /**
+     * establece los parametros basicos para la ventana del juego, siendo la resolucion, el titulo y el icono del juego
+     * ademas que deshabilita el redimensionamiento de la ventana
+     */
     @Override
     protected void initSettings(GameSettings settings) {
         settings.setWidth(800);
@@ -251,6 +279,9 @@ public class AppPrincipal extends GameApplication {
         settings.setManualResizeEnabled(false);
     }
 
+    /**
+     * inicaliza la interfaz de usuario al ejecutar el juego, carga el menu principal y sus respectivos controladores
+     */
     @Override
     protected void initUI() {
         try {
@@ -267,6 +298,10 @@ public class AppPrincipal extends GameApplication {
         }
     }
 
+    /**
+     * inicializa los elementos principales del juego antes de empezar la partida, como cargar la musica del menu
+     * y la fabrica de entidades en {@link Fabrica}
+     */
     @Override
     protected void initGame(){
         FXGL.getGameWorld().addEntityFactory(new Fabrica());
@@ -279,7 +314,9 @@ public class AppPrincipal extends GameApplication {
         }
     }
 
-
+    /**
+     * reduce drasticamente el rango de vision al activarse un saboteo por parte de los impostores
+     */
     public static void activarCorteElectrico() {
         sabotajeActivo = true;
         tiempoSabotaje = 15.0;
@@ -330,6 +367,14 @@ public class AppPrincipal extends GameApplication {
         }
     }
 
+    /**
+     * aca se encuentra la logica central, se ejecuta continuamente en cada fotograma del juego
+     * gestiona en tiempo real verificaciones como el temporizador de sabotajes y el de asesinato,
+     * la actualizacion de capas de renderizado y evalua si el jugador esta cerca de tareas, cuerpos o botones para
+     * realizar diversas acciones
+     *
+     * * @param tpf es el tiempo transcurrido en segundos desde la ultima actualizacion
+     */
     @Override
     protected void onUpdate(double tpf) {
         if (peticionSabotaje) {
@@ -447,6 +492,11 @@ public class AppPrincipal extends GameApplication {
         }
     }
 
+    /**
+     * inicaliza la partida una vez que todos los jugadores esten en la lobby, carga el mapa seleccionado y distribuye
+     * a los jugadores en el spawn, configura la vision y carga las interfaces de usuario dependiendo el rol del jugador
+     * @param nombreMapa es el nombre del archivo TMX que se utilizara
+     */
     public static void empezarPartida(String nombreMapa) {
         if (nombreMapa.equals("mapa2.tmx")){
             mapaActual = new MapaCancha();
@@ -640,6 +690,11 @@ public class AppPrincipal extends GameApplication {
         }
     }
 
+    /**
+     * carga en la interfaz de usuario el png respectivo tras solicitar una reunion de emergencia, es activada mediante el boton rojo
+     * del centro del mapa
+     * @param solicitante representa el username de la persona que uso el boton
+     */
     public static void iniciarCinematicaEmergencia(String solicitante) {
         if (jugador != null && jugador.hasComponent(com.almasb.fxgl.physics.PhysicsComponent.class)) {
             jugador.getComponent(com.almasb.fxgl.physics.PhysicsComponent.class).setVelocityX(0);
@@ -659,6 +714,12 @@ public class AppPrincipal extends GameApplication {
         }, javafx.util.Duration.seconds(3.5));
     }
 
+    /**
+     * carga en la interfaz de usuario el png respectivo tras encontrar un cuerpo dentro del mapa, puede activarse en cualquier punto del mapa
+     * @param reportador contiene el username de la persona que encontro al cuerpo
+     * @param cadaver contiene el username del jugador encontrado tieso
+     */
+
     public static void iniciarCinematicaReporte(String reportador, String cadaver) {
         if (jugador != null && jugador.hasComponent(com.almasb.fxgl.physics.PhysicsComponent.class)) {
             jugador.getComponent(com.almasb.fxgl.physics.PhysicsComponent.class).setVelocityX(0);
@@ -675,11 +736,14 @@ public class AppPrincipal extends GameApplication {
 
         FXGL.getGameTimer().runOnceAfter(() -> {
             FXGL.removeUINode(grupoCinematica);
-            System.out.println("Iniciando fase de votación...");
             cargarInterfazVotacion();
         }, javafx.util.Duration.seconds(3.5));
     }
 
+    /**
+     * cuando se cumple alguna condicion de victoria procede a cargarse una pantalla indicando los ganadores
+     * @param ganador contiene el username de la persona que gano la partida
+     */
     public static void mostrarPantallaFin(String ganador) {
         FXGL.getInput().setRegisterInput(false);
 
@@ -709,6 +773,10 @@ public class AppPrincipal extends GameApplication {
         }
     }
 
+    /**
+     * carga el archivo fxml dedicado exclusivamente a una reunion de emergencia bien sea por reporte de un cuerpo o por
+     * presionar el boton rojo
+     */
     public static void cargarInterfazVotacion() {
         try {
             javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(
@@ -729,6 +797,12 @@ public class AppPrincipal extends GameApplication {
         }
     }
 
+    /**
+     * analiza el conteo de votos emitidos en una reunion de emergencia y efectua las consecuencias pertinentes
+     * como expulsar a un jugador o dejarlo en empate
+     * a su vez verifica si dicha expulsion representa una condicion de victoria
+     * @param res es el objeto que contiene los datos finales tras la votacion
+     */
     public static void procesarExpulsion(ResultadoVotacion res) {
         var cadaveres = FXGL.getGameWorld().getEntitiesByType(TipoEntidad.CADAVER);
         for (com.almasb.fxgl.entity.Entity cadaver : cadaveres) {
@@ -739,7 +813,7 @@ public class AppPrincipal extends GameApplication {
             return;
         }
 
-        System.out.println("El jugador " + res.expulsado + " fue expulsado.");
+        System.out.println("El jugador " + res.expulsado + " fue expulsado");
         if (res.expulsado.equals(MenuController.nombreUsuario)) {
             estoyMuerto = true;
             if (jugador != null) {
@@ -806,6 +880,9 @@ public class AppPrincipal extends GameApplication {
         }
     }
 
+    /**
+     * muestra por pantalla el rol correspondiente segun lo que le toque a cada persona dentro de la partida
+     */
     private static void mostrarPantallaRol() {
         String imagenRol = esImpostor ? "pantalla_impostor.png" : "pantalla_tripulante.png";
         String miColor = jugador.getComponent(AnimacionJugador.class).getColor();
@@ -837,6 +914,10 @@ public class AppPrincipal extends GameApplication {
         }
     }
 
+    /**
+     * elimina el cuerpo de un jugador del mapa
+     * @param nombreUsuario representa el username del jugador a remover del mapa
+     */
     public static void removerJugador(String nombreUsuario) {
         if (otrosJugadores.containsKey(nombreUsuario)) {
             com.almasb.fxgl.entity.Entity jugadorARemover = otrosJugadores.get(nombreUsuario);
@@ -846,7 +927,9 @@ public class AppPrincipal extends GameApplication {
             otrosJugadores.remove(nombreUsuario);
         }
     }
-
+    /**
+     * elimina a todas las entidades del mapa tras salir de una pantalla de votacion, los devuelve a su spawn inicial
+     */
     public static void limpiarTodosLosJugadores() {
         for (com.almasb.fxgl.entity.Entity otro : otrosJugadores.values()) {
             if (otro != null) {
@@ -858,9 +941,11 @@ public class AppPrincipal extends GameApplication {
             jugador.removeFromWorld();
         }
     }
-
+    /**
+     * reestablece todas las variables estaticas y limpia la pantalla para devolver al jugador
+     * al menu principal del juego, a su vez cortando todas las conexiones al servidor
+     */
     public static void volverAlMenuPrincipal() {
-        System.out.println("Regresando al menú principal...");
 
         if (miCliente != null && miCliente.cliente != null && miCliente.cliente.isConnected()) {
             miCliente.cliente.close();
@@ -899,6 +984,11 @@ public class AppPrincipal extends GameApplication {
             e.printStackTrace();
         }
     }
+
+    /**
+     * metodo principal que se encargara de ejecutar el proyecto
+     * @param args argumentos necesarios para realizar la ejecucion
+     */
     public static void main(String[] args) {
         launch(args);
     }
