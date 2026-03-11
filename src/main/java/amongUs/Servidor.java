@@ -7,19 +7,37 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * Clase principal del servidor basada en KryoNet
+ * Se encarga de gestionar las conexiones, mantener el estado de la partida y retransmitir
+ * los eventos (movimientos, asesinatos, votos) a todos los clientes
+ * * @author Angelo Martini
+ * */
 public class Servidor {
     Server server;
+    /**
+     * Lista que mantiene a todos los jugadores que estan actualmente en el lobby
+     * Trabaja en conjunto con {@link JugadorLobby}.
+     * */
     List<JugadorLobby> jugadoresLobby = new ArrayList<>();
     private java.util.Map<String, Integer> conteoVotos = new java.util.HashMap<>();
     private java.util.Set<String> jugadoresQueYaVotaron = new java.util.HashSet<>();
     private java.util.List<String> jugadoresMuertos = new java.util.ArrayList<>();
     private java.util.List<String> nombresImpostores = new java.util.ArrayList<>();
 
+    /**
+     * Arreglo con todos los colores posibles que pueden elegir los jugadores
+     * */
     private final String[] COLORES_TOTALES = {
             "blanco", "negro", "marron", "azul", "rojo",
             "rosa", "verde", "amarillo", "morado", "naranja"
     };
 
+    /**
+     * Constructor del servidor
+     * Registra todas las clases que se van a enviar por la red para que KryoNet sepa como serializarlas
+     * Tambien levanta el servidor en los puertos 54555 y 54556 y configura los eventos de conexion
+     * */
     public Servidor() throws Exception {
         server = new Server();
         server.getKryo().register(Movimiento.class);
@@ -44,6 +62,11 @@ public class Servidor {
         server.bind(54555, 54556);
 
         server.addListener(new Listener() {
+            /**
+             * Se dispara cuando un jugador cierra el juego o pierde conexion
+             * Limpia al jugador del lobby y, si era el host, le pasa el host a otro
+             * @param connection contiene los datos de red del jugador que acaba de desconectarse
+             * */
             @Override
             public void disconnected(Connection connection) {
                 String nombreDesconectado = null;
@@ -56,7 +79,7 @@ public class Servidor {
 
                 jugadoresLobby.removeIf(j -> j.conexionId == connection.getID());
                 if(!jugadoresLobby.isEmpty() && jugadoresLobby.stream().noneMatch(j -> j.host)) {
-                    jugadoresLobby.get(0).host = true;
+                    jugadoresLobby.get(0).host = true; // Migracion de host si el que se fue era el lider
                 }
                 enviarEstadoLobby();
 
@@ -66,6 +89,8 @@ public class Servidor {
                     server.sendToAllTCP(desc);
                 }
 
+                // Verificamos si la partida se quedo colgada en una votacion por la desconexion
+
                 if (!jugadoresQueYaVotaron.isEmpty()) {
                     int vivosEsperados = jugadoresLobby.size() - jugadoresMuertos.size();
                     if (vivosEsperados > 0 && jugadoresQueYaVotaron.size() >= vivosEsperados) {
@@ -74,6 +99,11 @@ public class Servidor {
                 }
             }
 
+            /**
+             * El nucleo del servidor. Recibe cualquier paquete de datos y decide que hacer segun la clase del objeto
+             * @param connection quien nos envia el paquete
+             * @param object el paquete en si (puede ser un movimiento, un voto, un chat, etc)
+             * */
             @Override
             public void received(Connection connection, Object object) {
                 if (object instanceof PeticionUnirse) {
@@ -103,6 +133,9 @@ public class Servidor {
                     }
                 }
                 else if (object instanceof MapaElegido) {
+
+                    // Aqui se inicia la partida, elegimos un impostor al azar y le avisamos a todos.
+
                     Connection[] conexiones = server.getConnections();
 
                     if (conexiones.length > 0) {
@@ -164,6 +197,11 @@ public class Servidor {
         });
     }
 
+    /**
+     * Procesa los votos almacenados una vez que todos los jugadores vivos terminan de votar
+     * Identifica si hay un jugador mas votado, si hubo empate o si se skipeo
+     * Al final, envia el paquete de {@link ResultadoVotacion} a todos
+     * */
     private void calcularResultadoVotacion() {
         String masVotado = "SKIP";
         int maxVotos = 0;
@@ -198,6 +236,11 @@ public class Servidor {
         verificarVictoria(true);
     }
 
+    /**
+     * Revisa si algun bando ya cumplio las condiciones para ganar la partida
+     * @param fuePorVotacion booleano que nos indica si estamos verificando justo despues de expulsar a alguien
+     * Sirve para mostrar la pantalla final con delay si hubo votacion
+     * */
     private void verificarVictoria(boolean fuePorVotacion) {
         int tripulantesVivos = 0;
         int impostoresVivos = 0;
@@ -249,7 +292,7 @@ public class Servidor {
             final FinPartida paqueteFinal = fin;
             if (fuePorVotacion) {
                 new Thread(() -> {
-                    try { Thread.sleep(9400); } catch (InterruptedException e) {}
+                    try { Thread.sleep(9400); } catch (InterruptedException e) {} // Le damos tiempo a la animacion de eyeccion
                     server.sendToAllTCP(paqueteFinal);
                 }).start();
             } else {
@@ -258,6 +301,10 @@ public class Servidor {
         }
     }
 
+    /**
+     * Busca el primer color que no este siendo usado por nadie en el lobby
+     * @return un String con el nombre del color libre. Retorna "blanco" por defecto si hay un fallo.
+     * */
     private String obtenerColorDisponible() {
         for (String color : COLORES_TOTALES) {
             boolean enUso = jugadoresLobby.stream().anyMatch(j -> j.color.equals(color));
@@ -266,12 +313,20 @@ public class Servidor {
         return "blanco";
     }
 
+    /**
+     * Construye un objeto con la lista actual de jugadores y la envia a todos los clientes
+     * Se usa cada vez que alguien entra, sale o cambia de color
+     * */
     private void enviarEstadoLobby() {
         EstadoLobby estado = new EstadoLobby();
         estado.jugadores = jugadoresLobby.toArray(new JugadorLobby[0]);
         server.sendToAllTCP(estado);
     }
 
+    /**
+     * Metodo de arranque principal.
+     * @param args argumentos de linea de comandos
+     * */
     public static void main(String[] args) {
         try {
             new Servidor();

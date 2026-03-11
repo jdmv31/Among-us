@@ -5,3 +5,4 @@ public class Iniciador {
         AppPrincipal.main(args);
     }
 }
+

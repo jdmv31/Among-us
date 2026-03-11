@@ -8,16 +8,16 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" exported="" name="lib" level="project" />
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="file://$MODULE_DIR$/../../kryonet-2.21/jars/production" />
+          <root url="file://$USER_HOME$/OneDrive/Escritorio/kryonet-2.21/jars/production" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
-        <jarDirectory url="file://$MODULE_DIR$/../../kryonet-2.21/jars/production" recursive="false" />
+        <jarDirectory url="file://$USER_HOME$/OneDrive/Escritorio/kryonet-2.21/jars/production" recursive="false" />
       </library>
     </orderEntry>
-    <orderEntry type="library" exported="" name="lib" level="project" />
   </component>
 </module>
