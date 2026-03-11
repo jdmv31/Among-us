@@ -12,7 +12,7 @@ import javafx.scene.text.TextAlignment;
 import javafx.geometry.Pos;
 
 /**
- *  @author Josue Medina
+ *  @author Angel Aguilera
  * Controlador encargado de gestionar la lógica visual y las animaciones de la
  * pantalla de expulsión (ejection) tras una votación en el juego.
  * Esta clase maneja la presentación de texto dinámico y la transición de regreso

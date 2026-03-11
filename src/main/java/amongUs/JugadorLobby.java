@@ -1,7 +1,7 @@
 package main.java.amongUs;
 
 /**
- * * @author Josue Medina
+ * @author Angel Aguilera
  * Clase de modelo que representa a un usuario dentro de la sala de espera (Lobby).
  * Se utiliza para almacenar y transmitir los atributos básicos de cada participante
  * antes de que la partida comience. Es fundamental para la sincronización de la

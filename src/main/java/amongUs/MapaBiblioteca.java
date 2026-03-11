@@ -9,7 +9,7 @@ import javafx.geometry.Rectangle2D;
 import javafx.util.Duration;
 
 /**
- * * @author Josue Medina
+ * * @author Angel Aguilera
  * Configuración específica del nivel "Biblioteca".
  * Esta clase define todos los elementos espaciales y lógicos del mapa, incluyendo:
  * Definición y ubicación de tareas (Escribir código, basura, reactor, etc.).

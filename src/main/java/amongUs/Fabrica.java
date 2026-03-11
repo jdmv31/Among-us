@@ -16,7 +16,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
 /**
- * * @author Josue Medina
+ * @author Angel Aguilera
  * Fábrica de entidades para el juego Among Us.
  * Implementa {@link EntityFactory} para centralizar la creación de todos los elementos
  * del mapa (techos, paredes, objetos) y los personajes. Utiliza anotaciones {@code @Spawns}

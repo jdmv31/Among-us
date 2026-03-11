@@ -1,7 +1,7 @@
 package main.java.amongUs;
 
 /**
- * * @author Josue Medina
+ * * @author Angel Aguilera
  * Clase de modelo que representa el estado final de una partida.
  * Se utiliza para transportar la información necesaria desde la lógica del juego
  * hasta la interfaz de usuario de "Fin de Partida", permitiendo mostrar quién ganó
