@@ -11,7 +11,7 @@ import java.util.Random;
  * Clase principal del servidor basada en KryoNet
  * Se encarga de gestionar las conexiones, mantener el estado de la partida y retransmitir
  * los eventos (movimientos, asesinatos, votos) a todos los clientes
- * * @author Angelo Martini
+ * @author Angelo Martini
  * */
 public class Servidor {
     Server server;

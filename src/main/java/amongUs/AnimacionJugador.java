@@ -8,10 +8,9 @@ import javafx.util.Duration;
 
 
 /**
-*
-* @author Josue Medina
 * los datos a obtener para reproducir la animacion de cada personaje se obtiene de las siguientes clases
 * {@link Fabrica} la cual obtiene la informacion proveniente de {@link MenuController}
+ *  @author Josue Medina
 * */
 
 public class AnimacionJugador extends Component {

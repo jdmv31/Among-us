@@ -4,10 +4,11 @@ import javafx.geometry.Point2D;
 import java.util.List;
 
 /**
- * @author Josue Medina
  * interfaz empleada para definir la estructura que debe de emplear los diversos mapas del juego
  * se asegura de cada mapa posea los datos basicos para que el motor FXGL pueda renderizarlos
  * e interactuar con ellos correctamente, tales como los archivos TMX que contienen los mapas
+ *
+ * @author Josue Medina
  */
 
 public interface ConfiguracionMapa {

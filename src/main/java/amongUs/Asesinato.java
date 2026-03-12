@@ -1,9 +1,10 @@
 package main.java.amongUs;
 
 /**
- * @author Josue Medina
+ *
  * esta clase representa un paquete de red que se envia a traves de kryonet
  * notifica al servidor y a los demas jugadores que un impostor ha asesinado a alguien
+ * @author Josue Medina
  */
 public class Asesinato {
     /** username del impostor que ha asesinado a otro jugador*/

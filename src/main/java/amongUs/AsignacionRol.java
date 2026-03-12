@@ -1,9 +1,9 @@
 package main.java.amongUs;
 
 /**
- * @author Josue Medina
  * paquete de datos empleado al iniciar cada partida
  * se le envia a cada jugador de forma individual para determinar si sera impostor o tripulante
+ * @author Josue Medina
  */
 public class AsignacionRol {
     /** indica el rol del jugador

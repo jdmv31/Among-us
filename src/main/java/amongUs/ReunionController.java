@@ -22,7 +22,7 @@ import javafx.scene.control.TextField;
  * Controlador de la interfaz gráfica (UI) para la fase de Reunión/Votación.
  * Gestiona el chat en vivo, el temporizador, la visualización de los jugadores vivos/muertos
  * y el envío/recepción de los votos al servidor.
- * * @author Sebastián Arismendi
+ * @author Sebastián Arismendi
  */
 public class ReunionController {
     /** Patrón Singleton (simplificado) para acceder a la reunión activa desde otras clases de red. */

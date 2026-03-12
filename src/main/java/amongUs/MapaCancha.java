@@ -10,9 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * * @author Nicole Flores
  * define la configuración específica del mapa "Cancha", incluyendo tareas, alcantarillas y cámaras
  * implementa la interfaz {@link ConfiguracionMapa} para ser cargada por el controlador principal
+ * @author Nicole Flores
  * */
 public class MapaCancha implements ConfiguracionMapa{
 

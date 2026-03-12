@@ -9,13 +9,13 @@ import javafx.geometry.Rectangle2D;
 import javafx.util.Duration;
 
 /**
- * * @author Angel Aguilera
  * Configuración específica del nivel "Biblioteca".
  * Esta clase define todos los elementos espaciales y lógicos del mapa, incluyendo:
  * Definición y ubicación de tareas (Escribir código, basura, reactor, etc.).
  * Configuración de la red de alcantarillas y sus conexiones.
  * Ubicación de elementos interactivos como cámaras y botón de emergencia.
  * Límites de cámara y puntos de aparición (spawn).
+ * @author Angel Aguilera
  */
 public class MapaBiblioteca implements ConfiguracionMapa {
 

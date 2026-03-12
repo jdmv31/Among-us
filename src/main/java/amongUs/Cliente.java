@@ -7,10 +7,11 @@ import java.io.IOException;
 
 
 /**
- * @author Josue Medina
  * gestiona la conexion del jugador a el servidor utilizando la libreria KryoNet
  * se encarga de conectarse al servidor y registrar los diversos paquetes que viajaran por la red
  * y reaccionar a ellas
+ *
+ * @author Josue Medina
  */
 
 public class Cliente {

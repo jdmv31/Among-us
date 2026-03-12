@@ -22,9 +22,9 @@ import java.net.NetworkInterface;
 import java.util.Enumeration;
 
 /**
- * @author Nicole Flores
  * gestiona la lógica de los menús, la creación de salas y el lobby multijugador
  * funciona como el puente entre la interfaz gráfica y la comunicación de red vía {@link Servidor} y {@link Cliente}
+ * @author Nicole Flores
  * */
 public class MenuController implements UIController {
     @FXML private Pane ventanaModal;

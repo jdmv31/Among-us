@@ -18,10 +18,10 @@ import java.util.Map;
 import com.almasb.fxgl.texture.Texture;
 
 /**
- * @author Josue Medina
  * clase principal del juego que hereda de {@link GameApplication} del motor FXGL
  * es el nucleo del juego, se encarga de administrar el ciclo de vida del juego, renderiza los graficos,gestiona las
  * entradas por teclado, controla las colisiones y coordina los eventos de la partida
+ * @author Josue Medina
  */
 
 public class AppPrincipal extends GameApplication {
