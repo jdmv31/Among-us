@@ -103,8 +103,6 @@ public class ImpostorComponent extends Component {
                 if (textoCooldown != null) textoCooldown.setText("");
             }
         }
-
-        // Actualización dinámica de texturas del botón Matar
         if (botonMatar != null) {
             if (!matarDisponible || victimaCercana.isEmpty()) {
                 botonMatar.setImage(FXGL.image("matarNegado.png"));
@@ -112,8 +110,6 @@ public class ImpostorComponent extends Component {
                 botonMatar.setImage(FXGL.image("matar.png"));
             }
         }
-
-        // Gestión del cooldown de sabotaje
         if (!sabotajeDisponible) {
             tiempoCooldownSabotaje -= tpf;
             if (textoCooldownSabotaje != null) {

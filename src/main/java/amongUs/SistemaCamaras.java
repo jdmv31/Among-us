@@ -52,7 +52,6 @@ public class SistemaCamaras {
         if (!esImpostor && jugador != null) {
             double distancia = jugador.getPosition().distance(ubicacionMesaCamaras);
 
-            // Permitimos abrir si esta a menos de 50 pixeles, o cerrar si ya las tenia abiertas
             if (distancia < 50 || camarasAbiertas) {
                 alternarCamaras(jugador);
             } else {

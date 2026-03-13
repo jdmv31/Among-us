@@ -28,7 +28,6 @@ public class MapaBiblioteca implements ConfiguracionMapa {
     public Tarea[] obtenerTareas() {
         Tarea[] tareas = new Tarea[5];
 
-        // --- Tarea 0: Escribir Código ---
         AnimationChannel animacionCodigo = new AnimationChannel(
                 FXGL.image("animacion_codigo.png"), 10, 350, 300, Duration.seconds(1), 0, 9
         );
@@ -38,7 +37,6 @@ public class MapaBiblioteca implements ConfiguracionMapa {
         tareaCodigo.setTexturaFinal("codigo_final.png");
         tareas[0] = tareaCodigo;
 
-        // --- Tarea 1: Transferir Datos ---
         AnimationChannel animacionDatos = new AnimationChannel(
                 FXGL.image("animacion_datos.png"), 8, 615, 400, Duration.seconds(1), 0, 8
         );
@@ -48,7 +46,6 @@ public class MapaBiblioteca implements ConfiguracionMapa {
         tareaDatos.setTexturaFinal("datos_terminado.png");
         tareas[1] = tareaDatos;
 
-        // --- Tarea 2: Regular Temperatura ---
         AnimationChannel animacionTemperatura = new AnimationChannel(
                 FXGL.image("animacion_temperatura.png"), 7, 700, 391, Duration.seconds(1), 0, 6
         );
@@ -58,7 +55,6 @@ public class MapaBiblioteca implements ConfiguracionMapa {
         tareaTemperatura.setTexturaFinal("temperatura_final.png");
         tareas[2] = tareaTemperatura;
 
-        // --- Tarea 3: Desechar Basura ---
         AnimationChannel animacionBasura = new AnimationChannel(
                 FXGL.image("animacion_basura.png"), 6, 400, 500, Duration.seconds(1), 0, 5
         );
@@ -68,7 +64,6 @@ public class MapaBiblioteca implements ConfiguracionMapa {
         tareaBasura.setTexturaFinal("basura_final.png");
         tareas[3] = tareaBasura;
 
-        // --- Tarea 4: Introducir Código (Reactor) ---
         AnimationChannel animacionReactor = new AnimationChannel(
                 FXGL.image("animacion_reactor.png"), 6, 1, 1, Duration.seconds(1), 0, 5
         );
@@ -116,7 +111,6 @@ public class MapaBiblioteca implements ConfiguracionMapa {
     @Override
     public List<NodoAlcantarilla> getRedAlcantarillas() {
         List<NodoAlcantarilla> red = new ArrayList<>();
-        // Estructura: (id, x, y, izq, der, arriba, abajo)
         red.add(new NodoAlcantarilla(0, 744, 175, 1, -1, -1, 3));
         red.add(new NodoAlcantarilla(1, 292, 354, -1, 0, -1, 2));
         red.add(new NodoAlcantarilla(2, 37, 605, -1, 3, 1, -1));

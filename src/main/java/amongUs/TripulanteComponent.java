@@ -31,7 +31,7 @@ public class TripulanteComponent extends Component {
     private boolean enMinijuego = false;
     private Texture panelMinijuegoActual;
     private com.almasb.fxgl.texture.AnimatedTexture botonAnimadoActual;
-
+    private boolean estabaVivo = true;
     private TimerAction timerAnimacion;
     private TimerAction timerFinalizacion;
     private TimerAction timerCierre;
@@ -46,18 +46,12 @@ public class TripulanteComponent extends Component {
     public void asignarTareas(Tarea[] tareas) {
         this.tareasAsignadas = tareas;
         this.tareasCompletadas = 0;
-
-        // Crear la barra de progreso visual (arranca vacia)
-
         barraTareasUI = FXGL.texture("barra_0.png");
         barraTareasUI.setFitWidth(250);
         barraTareasUI.setPreserveRatio(true);
         barraTareasUI.setTranslateX(10);
         barraTareasUI.setTranslateY(10);
         FXGL.addUINode(barraTareasUI);
-
-        // Contenedor vertical para apilar los nombres de las tareas
-
         listaTareasUI = new javafx.scene.layout.VBox(5);
 
         for (Tarea t : tareas) {
@@ -66,15 +60,11 @@ public class TripulanteComponent extends Component {
             textoTarea.setFont(javafx.scene.text.Font.font("Arial", javafx.scene.text.FontWeight.BOLD, 13));
             listaTareasUI.getChildren().add(textoTarea);
         }
-
-        // Crear el recuadro negro semitransparente que va de fondo a las letras
         double altoFondo = Math.max(30, tareas.length * 20 + 10);
         Rectangle fondoTareas = new Rectangle(210, altoFondo);
         fondoTareas.setFill(Color.rgb(100, 100, 100, 0.5));
         fondoTareas.setArcWidth(10);
         fondoTareas.setArcHeight(10);
-
-        // Agrupar el fondo oscuro y la lista de textos para moverlos como un solo bloque
         contenedorTareas = new javafx.scene.layout.StackPane(fondoTareas, listaTareasUI);
         contenedorTareas.setTranslateX(18);
         contenedorTareas.setTranslateY(120);
@@ -100,15 +90,11 @@ public class TripulanteComponent extends Component {
      * */
     @Override
     public void onUpdate(double tpf) {
-
-        // Un fantasma no puede hacer minijuegos, asi que los cerramos de golpe si lo matan mientras hacia uno
-
-        if (AppPrincipal.estoyMuerto) {
+        if (AppPrincipal.estoyMuerto && estabaVivo) {
+            estabaVivo = false;
             if (enMinijuego) {
                 cerrarMinijuego();
             }
-            indiceTareaCercana = -1;
-            return;
         }
 
         if (enMinijuego) {
@@ -116,10 +102,7 @@ public class TripulanteComponent extends Component {
         }
 
         if (tareasAsignadas == null) return;
-
         indiceTareaCercana = -1;
-
-        // Buscamos la primera tarea que no este lista y que este a menos de 30 pixeles
 
         for (int i = 0; i < tareasAsignadas.length; i++) {
             if (!tareasAsignadas[i].tareaCompletada() && entity.getPosition().distance(tareasAsignadas[i].getUbicacion()) < 30) {
@@ -134,8 +117,6 @@ public class TripulanteComponent extends Component {
      * Verifica que el jugador este vivo y cerca de un panel antes de abrir la interfaz
      * */
     public void intentarUsarTarea() {
-        if (AppPrincipal.estoyMuerto) return;
-
         if (indiceTareaCercana != -1 && !enMinijuego) {
             abrirMinijuego(indiceTareaCercana);
         }
@@ -150,9 +131,6 @@ public class TripulanteComponent extends Component {
         enMinijuego = true;
         Tarea tarea = tareasAsignadas[indice];
         contenedorMinijuego = new Pane();
-
-        // Le quitamos el impulso fisico para que no resbale mientras hace la tarea
-
         if (entity.hasComponent(PhysicsComponent.class)) {
             entity.getComponent(PhysicsComponent.class).setVelocityX(0);
             entity.getComponent(PhysicsComponent.class).setVelocityY(0);
@@ -160,9 +138,6 @@ public class TripulanteComponent extends Component {
 
         try {
             Texture fondo = FXGL.texture(tarea.getTexturaFondo());
-
-            // Boton de salida manual en caso de emergencia
-
             javafx.scene.text.Text btnCerrar = new javafx.scene.text.Text("X");
             btnCerrar.setFill(Color.RED);
             btnCerrar.setFont(javafx.scene.text.Font.font("Arial", javafx.scene.text.FontWeight.BOLD, 40));
@@ -171,14 +146,12 @@ public class TripulanteComponent extends Component {
             btnCerrar.setOnMouseClicked(e -> cerrarMinijuego());
             btnCerrar.setStyle("-fx-cursor: hand;");
 
-            // Logica especial si la tarea es del tipo teclado (Reactor)
-
             if (tarea instanceof TareaReactor) {
                 TareaReactor tareaReactor = (TareaReactor) tarea;
                 fondo.setOnMouseClicked(e -> {
                     int resultado = tareaReactor.intentarPulsarTecla(e.getX(), e.getY());
 
-                    if (resultado == 1) { // Gano el minijuego
+                    if (resultado == 1) {
 
                         fondo.setImage(FXGL.image(tareaReactor.getTexturaFinal()));
                         timerCierre = FXGL.getGameTimer().runOnceAfter(() -> {
@@ -186,7 +159,7 @@ public class TripulanteComponent extends Component {
                             cerrarMinijuego();
                         }, Duration.seconds(1));
 
-                    } else if (resultado == -1) { // Le erro al numero
+                    } else if (resultado == -1) {
                         fondo.setImage(FXGL.image(tareaReactor.getTexturaError()));
                         FXGL.getGameTimer().runOnceAfter(() -> {
                             if (enMinijuego) {
@@ -199,8 +172,6 @@ public class TripulanteComponent extends Component {
                 contenedorMinijuego.getChildren().addAll(fondo, btnCerrar);
 
             }
-            // Logica para las tareas normales (animacion por tiempo)
-
             else {
                 com.almasb.fxgl.texture.AnimationChannel channel = tarea.getCanalAnimacion();
                 double frameW = channel.getFrameWidth(0);
@@ -216,8 +187,6 @@ public class TripulanteComponent extends Component {
                 hitboxUI.setTranslateX(limites.getMinX());
                 hitboxUI.setTranslateY(limites.getMinY());
                 hitboxUI.setStyle("-fx-background-color: transparent; -fx-cursor: hand;");
-
-                // Al presionar el boton de la UI, arranca la secuencia de imagenes
 
                 hitboxUI.setOnAction(e -> {
                     hitboxUI.setDisable(true);
@@ -253,8 +222,6 @@ public class TripulanteComponent extends Component {
                 contenedorMinijuego.getChildren().addAll(fondo, animacionUI, hitboxUI, btnCerrar);
             }
 
-            // Centramos el panel gigante en medio de la pantalla del juego
-
             contenedorMinijuego.setTranslateX((FXGL.getAppWidth() / 2.0) - (fondo.getWidth() / 2.0));
             contenedorMinijuego.setTranslateY((FXGL.getAppHeight() / 2.0) - (fondo.getHeight() / 2.0));
             FXGL.addUINode(contenedorMinijuego);
@@ -262,7 +229,7 @@ public class TripulanteComponent extends Component {
         } catch (Exception e) {
             System.err.println("Error al cargar la tarea: " + e.getMessage());
             e.printStackTrace();
-            enMinijuego = false; // Prevencion por si crashea, no dejar al jugador bloqueado
+            enMinijuego = false;
         }
     }
 
@@ -280,12 +247,15 @@ public class TripulanteComponent extends Component {
                 barraTareasUI.setImage(FXGL.image("barra_" + tareasCompletadas + ".png"));
             }
 
-            // Cambiamos el estilo de la letra a verde y le pasamos una linea por encima
-
             if (listaTareasUI != null && indice < listaTareasUI.getChildren().size()) {
                 javafx.scene.text.Text texto = (javafx.scene.text.Text) listaTareasUI.getChildren().get(indice);
                 texto.setFill(Color.LIMEGREEN);
                 texto.setStrikethrough(true);
+            }
+            if (AppPrincipal.miCliente != null && AppPrincipal.miCliente.cliente != null && AppPrincipal.miCliente.cliente.isConnected()) {
+                ProgresoTarea progreso = new ProgresoTarea();
+                progreso.nombreUsuario = MenuController.nombreUsuario;
+                AppPrincipal.miCliente.cliente.sendTCP(progreso);
             }
         }
     }

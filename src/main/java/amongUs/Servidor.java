@@ -24,6 +24,8 @@ public class Servidor {
     private java.util.Set<String> jugadoresQueYaVotaron = new java.util.HashSet<>();
     private java.util.List<String> jugadoresMuertos = new java.util.ArrayList<>();
     private java.util.List<String> nombresImpostores = new java.util.ArrayList<>();
+    private int tareasCompletadasGlobal = 0;
+    private int tareasNecesarias = 0;
 
     /**
      * Arreglo con todos los colores posibles que pueden elegir los jugadores
@@ -58,6 +60,8 @@ public class Servidor {
         server.getKryo().register(VotoEmitido.class);
         server.getKryo().register(ResultadoVotacion.class);
         server.getKryo().register(java.util.HashMap.class);
+        server.getKryo().register(String[].class);
+        server.getKryo().register(ProgresoTarea.class);
         server.start();
         server.bind(54555, 54556);
 
@@ -79,7 +83,7 @@ public class Servidor {
 
                 jugadoresLobby.removeIf(j -> j.conexionId == connection.getID());
                 if(!jugadoresLobby.isEmpty() && jugadoresLobby.stream().noneMatch(j -> j.host)) {
-                    jugadoresLobby.get(0).host = true; // Migracion de host si el que se fue era el lider
+                    jugadoresLobby.get(0).host = true;
                 }
                 enviarEstadoLobby();
 
@@ -88,14 +92,15 @@ public class Servidor {
                     desc.nombreUsuario = nombreDesconectado;
                     server.sendToAllTCP(desc);
                 }
-
-                // Verificamos si la partida se quedo colgada en una votacion por la desconexion
-
                 if (!jugadoresQueYaVotaron.isEmpty()) {
                     int vivosEsperados = jugadoresLobby.size() - jugadoresMuertos.size();
                     if (vivosEsperados > 0 && jugadoresQueYaVotaron.size() >= vivosEsperados) {
                         calcularResultadoVotacion();
                     }
+                }
+                if (nombreDesconectado != null && !nombresImpostores.contains(nombreDesconectado)) {
+                    tareasNecesarias = Math.max(0, tareasNecesarias - 4);
+                    verificarVictoriaPorTareas();
                 }
             }
 
@@ -168,6 +173,13 @@ public class Servidor {
                         }
                     }
                     server.sendToAllTCP(object);
+                    tareasCompletadasGlobal = 0;
+                    int cantidadTripulantes = conexiones.length - nombresImpostores.size();
+                    tareasNecesarias = cantidadTripulantes * 4;
+                }
+                if (object instanceof ProgresoTarea) {
+                    tareasCompletadasGlobal++;
+                    verificarVictoriaPorTareas();
                 }
                 if (object instanceof Movimiento) {
                     server.sendToAllExceptUDP(connection.getID(), object);
@@ -205,7 +217,25 @@ public class Servidor {
             }
         });
     }
+    private void verificarVictoriaPorTareas() {
+        if (tareasNecesarias > 0 && tareasCompletadasGlobal >= tareasNecesarias) {
+            FinPartida fin = new FinPartida();
+            fin.ganador = "TRIPULANTES";
 
+            StringBuilder nombres = new StringBuilder();
+            StringBuilder colores = new StringBuilder();
+            for (JugadorLobby j : jugadoresLobby) {
+                if (!nombresImpostores.contains(j.nombre)) {
+                    nombres.append(j.nombre).append(",");
+                    colores.append(j.color).append(",");
+                }
+            }
+            fin.nombresCSV = nombres.toString();
+            fin.coloresCSV = colores.toString();
+
+            server.sendToAllTCP(fin);
+        }
+    }
     /**
      * Procesa los votos almacenados una vez que todos los jugadores vivos terminan de votar
      * Identifica si hay un jugador mas votado, si hubo empate o si se skipeo
@@ -271,7 +301,6 @@ public class Servidor {
                 fin = new FinPartida();
                 fin.ganador = "IMPOSTORES";
             }
-            // Si expulsaron a todos los impostores
             else if (impostoresVivos == 0) {
                 fin = new FinPartida();
                 fin.ganador = "TRIPULANTES";
@@ -301,7 +330,7 @@ public class Servidor {
             final FinPartida paqueteFinal = fin;
             if (fuePorVotacion) {
                 new Thread(() -> {
-                    try { Thread.sleep(9400); } catch (InterruptedException e) {} // Le damos tiempo a la animacion de eyeccion
+                    try { Thread.sleep(9400); } catch (InterruptedException e) {}
                     server.sendToAllTCP(paqueteFinal);
                 }).start();
             } else {

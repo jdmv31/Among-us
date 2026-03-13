@@ -49,6 +49,8 @@ public class Cliente {
         cliente.getKryo().register(VotoEmitido.class);
         cliente.getKryo().register(ResultadoVotacion.class);
         cliente.getKryo().register(java.util.HashMap.class);
+        cliente.getKryo().register(String[].class);
+        cliente.getKryo().register(ProgresoTarea.class);
         cliente.start();
 
         cliente.addListener(new Listener() {
@@ -116,6 +118,18 @@ public class Cliente {
                                 AppPrincipal.jugador.getComponent(AnimacionJugador.class).convertirFantasma();
                                 AppPrincipal.jugador.getViewComponent().setOpacity(0.5);
                             }
+                            AppPrincipal.jugador.getComponent(AnimacionJugador.class).convertirFantasma();
+                            AppPrincipal.jugador.getViewComponent().setOpacity(0.5);
+                            for (com.almasb.fxgl.entity.Entity otro : AppPrincipal.otrosJugadores.values()) {
+                                if (otro.hasComponent(AnimacionJugador.class)) {
+                                    AnimacionJugador animOtro = otro.getComponent(AnimacionJugador.class);
+                                    if (animOtro.esFantasma) {
+                                        otro.getViewComponent().setOpacity(0.5);
+                                        otro.getViewComponent().setVisible(true);
+                                    }
+                                }
+                            }
+
                         } else {
                             com.almasb.fxgl.entity.Entity victima = AppPrincipal.otrosJugadores.get(paquete.victima);
                             if (victima != null) {

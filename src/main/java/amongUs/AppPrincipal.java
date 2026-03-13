@@ -782,8 +782,7 @@ public class AppPrincipal extends GameApplication {
         FXGL.addUINode(grupoCinematica);
 
         FXGL.getGameTimer().runOnceAfter(() -> {
-            FXGL.removeUINode(grupoCinematica);
-            cargarInterfazVotacion();
+            cargarInterfazVotacion(grupoCinematica);
         }, javafx.util.Duration.seconds(3.5));
     }
 
@@ -808,8 +807,7 @@ public class AppPrincipal extends GameApplication {
         FXGL.addUINode(grupoCinematica);
 
         FXGL.getGameTimer().runOnceAfter(() -> {
-            FXGL.removeUINode(grupoCinematica);
-            cargarInterfazVotacion();
+            cargarInterfazVotacion(grupoCinematica);
         }, javafx.util.Duration.seconds(3.5));
     }
 
@@ -884,24 +882,29 @@ public class AppPrincipal extends GameApplication {
      * carga el archivo fxml dedicado exclusivamente a una reunion de emergencia bien sea por reporte de un cuerpo o por
      * presionar el boton rojo
      */
-    public static void cargarInterfazVotacion() {
-        try {
-            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(
-                    AppPrincipal.class.getResource("/ui/reunion.fxml")
-            );
-            javafx.scene.Parent root = loader.load();
-            root.setTranslateX((FXGL.getAppWidth() - 800) / 2.0);
-            root.setTranslateY((FXGL.getAppHeight() - 600) / 2.0);
+    public static void cargarInterfazVotacion(javafx.scene.Group cinematica) {
+        javafx.application.Platform.runLater(() -> {
+            try {
+                javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(
+                        AppPrincipal.class.getResource("/ui/reunion.fxml")
+                );
+                javafx.scene.Parent root = loader.load();
+                root.setTranslateX((FXGL.getAppWidth() - 800) / 2.0);
+                root.setTranslateY((FXGL.getAppHeight() - 600) / 2.0);
+                FXGL.addUINode(root);
+                if (cinematica != null) {
+                    FXGL.removeUINode(cinematica);
+                }
 
-            FXGL.addUINode(root);
-            if (botonAccion != null) botonAccion.setVisible(false);
-            if (botonMatar != null) botonMatar.setVisible(false);
-            if (botonReportar != null) botonReportar.setVisible(false);
+                if (botonAccion != null) botonAccion.setVisible(false);
+                if (botonMatar != null) botonMatar.setVisible(false);
+                if (botonReportar != null) botonReportar.setVisible(false);
 
-        } catch (Exception e) {
-            System.err.println("Error al cargar FXML de la reunión: ");
-            e.printStackTrace();
-        }
+            } catch (Exception e) {
+                System.err.println("Error al cargar FXML de la reunión: ");
+                e.printStackTrace();
+            }
+        });
     }
 
     /**
@@ -958,7 +961,7 @@ public class AppPrincipal extends GameApplication {
             for (com.almasb.fxgl.entity.Entity otro : otrosJugadores.values()) {
                 if (otro.hasComponent(AnimacionJugador.class)) {
                     AnimacionJugador animOtro = otro.getComponent(AnimacionJugador.class);
-                    if (animOtro.estaMuerto) {
+                    if (animOtro.estaMuerto || animOtro.esFantasma) {
                         otro.getViewComponent().setVisible(true);
                         otro.getViewComponent().setOpacity(0.5);
                     }

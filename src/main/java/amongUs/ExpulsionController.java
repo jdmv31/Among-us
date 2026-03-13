@@ -43,8 +43,6 @@ public class ExpulsionController {
         lblExpulsion.setText("");
 
         String textoMostrar;
-
-        // Lógica de decisión de mensaje
         if (nombreExpulsado == null || nombreExpulsado.equals("Nadie") || nombreExpulsado.equals("SKIP")) {
             textoMostrar = "Nadie fue expulsado.\n(" + jugadoresRestantes + " jugadores restantes)";
         } else {
@@ -53,8 +51,6 @@ public class ExpulsionController {
         }
 
         escribirTexto(textoMostrar);
-
-        // Temporizador para cerrar la pantalla automáticamente
         Timeline cierreTimer = new Timeline(new KeyFrame(Duration.seconds(5), e -> finalizarCinematica()));
         cierreTimer.play();
     }
@@ -69,7 +65,6 @@ public class ExpulsionController {
         Timeline timeline = new Timeline();
         for (int i = 0; i < texto.length(); i++) {
             final String sub = texto.substring(0, i + 1);
-            // Se calcula el tiempo de aparición para cada subcadena
             KeyFrame kf = new KeyFrame(Duration.millis(45 * i), e -> lblExpulsion.setText(sub));
             timeline.getKeyFrames().add(kf);
         }

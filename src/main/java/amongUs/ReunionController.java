@@ -82,7 +82,6 @@ public class ReunionController {
                     lblTiempo.setTextFill(Color.RED);
                 }
             }
-// Expiración del tiempo
             if (tiempoRestante <= 0) {
                 temporizador.expire();
                 if (!haVotado && !AppPrincipal.estoyMuerto) {
@@ -126,7 +125,6 @@ public class ReunionController {
         if (temporizador != null) {
             temporizador.expire();
         }
-// Elimina el nodo raíz de la UI de la pantalla de FXGL
         if (contenedorVotos != null) {
             javafx.scene.Node raiz = contenedorVotos;
             while (raiz.getParent() != null && !(raiz.getParent() instanceof javafx.scene.Group)) {
@@ -134,7 +132,6 @@ public class ReunionController {
             }
             FXGL.removeUINode(raiz);
         }
-// Restaura los controles del jugador y los botones de acción del HUD
         FXGL.getInput().setRegisterInput(true);
         if (AppPrincipal.botonAccion != null) AppPrincipal.botonAccion.setVisible(true);
 
@@ -144,10 +141,8 @@ public class ReunionController {
         if (AppPrincipal.botonReportar != null) {
             AppPrincipal.botonReportar.setVisible(!AppPrincipal.estoyMuerto);
         }
-// Teletransporte de todos los jugadores al centro de la mesa (Spawn)
         if (AppPrincipal.mapaActual != null) {
             javafx.geometry.Point2D spawn = AppPrincipal.mapaActual.getPuntoAparicionCentral();
-            // Reubica al jugador local
             if (AppPrincipal.jugador != null) {
 
                 if (AppPrincipal.jugador.hasComponent(com.almasb.fxgl.physics.PhysicsComponent.class)) {
@@ -156,7 +151,6 @@ public class ReunionController {
                     AppPrincipal.jugador.setPosition(spawn);
                 }
             }
-            // Reubica a las entidades de los otros jugadores
             for (com.almasb.fxgl.entity.Entity otro : AppPrincipal.otrosJugadores.values()) {
                 if (otro.hasComponent(com.almasb.fxgl.physics.PhysicsComponent.class)) {
                     otro.getComponent(com.almasb.fxgl.physics.PhysicsComponent.class).overwritePosition(spawn);
@@ -174,12 +168,10 @@ public class ReunionController {
     private void cargarJugadores() {
         int columna = 0;
         int fila = 0;
-        int maxColumnas = 2; // Define el ancho de la rejilla de cartas
-// Añadir primero al jugador que controla esta computadora
+        int maxColumnas = 2;
         agregarCartaJugador(MenuController.nombreUsuario, AppPrincipal.jugador, columna, fila);
         columna++;
 
-// Recorrer el mapa de jugadores remotos para añadirlos a la interfaz
         for (Map.Entry<String, Entity> entry : AppPrincipal.otrosJugadores.entrySet()) {
             if (columna >= maxColumnas) {
                 columna = 0;
@@ -201,22 +193,23 @@ public class ReunionController {
     private void agregarCartaJugador(String nombre, Entity entidad, int col, int row) {
         String color = "rojo";
         boolean estaMuerto = false;
-// Extraer datos reales del componente de animación del jugador
-        if (entidad.hasComponent(AnimacionJugador.class)) {
+        if (nombre.equals(MenuController.nombreUsuario)) {
+            if (AppPrincipal.jugador.hasComponent(AnimacionJugador.class)) {
+                color = AppPrincipal.jugador.getComponent(AnimacionJugador.class).getColor();
+            }
+            estaMuerto = AppPrincipal.estoyMuerto;
+        }
+        else if (entidad != null && entidad.hasComponent(AnimacionJugador.class)) {
             AnimacionJugador anim = entidad.getComponent(AnimacionJugador.class);
             color = anim.getColor();
-            estaMuerto = anim.estaMuerto;
-        } else if (AppPrincipal.estoyMuerto && nombre.equals(MenuController.nombreUsuario)) {
-            estaMuerto = true;
+            estaMuerto = anim.estaMuerto || anim.esFantasma;
         }
-// --- Configuración estética del contenedor (La "Carta") ---
+
         HBox carta = new HBox(15);
         carta.setAlignment(Pos.CENTER_LEFT);
-        // Estilo CSS para dar aspecto de interfaz de Among Us (fondo oscuro, bordes grises)
         carta.setStyle("-fx-background-color: #2b2b2b; -fx-padding: 10; -fx-background-radius: 10; -fx-border-color: #555555; -fx-border-radius: 10;");
         carta.setPrefWidth(230);
         carta.setMinHeight(40);
-// Selección de imagen: Si está muerto, muestra el hueso/cadáver del color correspondiente
         String rutaImagen = estaMuerto ? color + "_muerto.png" : "tripulante_" + color + ".png";
         ImageView icono;
         try {
@@ -241,21 +234,17 @@ public class ReunionController {
             carta.getChildren().add(lblMuerto);
         }
         else if (!AppPrincipal.estoyMuerto && !nombre.equals(MenuController.nombreUsuario) && !estaMuerto) {
-            // Si yo estoy vivo y el jugador de la carta también (y no soy yo mismo), añadir botón de voto
             ImageView btnVotar = new ImageView(FXGL.image("botonVotar.png"));
             btnVotar.setFitWidth(35);
             btnVotar.setFitHeight(35);
             btnVotar.setStyle("-fx-cursor: hand;");
-            // Efectos visuales de Hover
             btnVotar.setOnMouseEntered(e -> btnVotar.setOpacity(0.7));
             btnVotar.setOnMouseExited(e -> btnVotar.setOpacity(1.0));
-            // Acción de votar
             btnVotar.setOnMouseClicked(e -> emitirVoto(nombre));
             carta.getChildren().add(btnVotar);
 
-            botonesVoto.add(btnVotar);// Guardar referencia para ocultarlos todos tras votar
+            botonesVoto.add(btnVotar);
         }
-// Guardar la carta en el mapa y añadirla al contenedor visual principal
         cartasJugadores.put(nombre, carta);
         contenedorVotos.add(carta, col, row);
     }
@@ -290,16 +279,13 @@ public class ReunionController {
             lblTiempo.setText("Votación finalizada");
             lblTiempo.setTextFill(Color.DARKRED);
         }
-// --- Renderizado visual de los votos ---
         if (res.votosPorJugador != null) {
             for (Map.Entry<String, Integer> entry : res.votosPorJugador.entrySet()) {
                 String sospechoso = entry.getKey();
                 int cantidadVotos = entry.getValue();
-
-                // Agrega una etiqueta (Label) naranja con la cantidad de votos junto al nombre del jugador
                 if (!sospechoso.equals("SKIP") && cartasJugadores.containsKey(sospechoso)) {
                     HBox carta = cartasJugadores.get(sospechoso);
-                    // (Lógica de reemplazo de texto omitida por brevedad en comentarios)
+
                     for (javafx.scene.Node nodo : carta.getChildren()) {
                         if (nodo instanceof Label && ((Label)nodo).getText().equals(sospechoso)) {
                             ((Label)nodo).setText("");
@@ -312,7 +298,6 @@ public class ReunionController {
                     carta.getChildren().add(lblVotos);
                 }
             }
-            // Muestra en el chat cuántas personas decidieron saltar el voto
             int skips = res.votosPorJugador.getOrDefault("SKIP", 0);
             if (skips > 0) {
                 String plural = (skips == 1) ? "persona ha" : "personas han";
@@ -322,31 +307,27 @@ public class ReunionController {
                 lblMensajeSistema.setText("");
             }
         }
-        // --- Transición a la cinemática de Expulsión ---
-        // Espera 4.5 segundos antes de cerrar la UI de votos y mostrar la animación de expulsión
         FXGL.getGameTimer().runOnceAfter(() -> {
             AppPrincipal.procesarExpulsion(res);
             cerrarReunion();
             FXGL.getInput().setRegisterInput(false);
 
             try {
-                // Carga la nueva UI de la cinemática
                 javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(getClass().getResource("/ui/expulsion.fxml"));
                 javafx.scene.layout.AnchorPane expulsionUI = loader.load();
                 ExpulsionController controlador = loader.getController();
 
                 FXGL.addUINode(expulsionUI);
-// Prepara datos para la animación (quién sale, su color, si era impostor)
                 String expulsado = res.expulsado;
                 String color = "rojo";
                 boolean eraImpostor = res.expulsadoEraImpostor;
-                // Cuenta cuántos jugadores siguen vivos para el texto "Quedan N impostores"
                 int vivos = 0;
                 if (!AppPrincipal.estoyMuerto) vivos++;
 
                 for (Entity otro : AppPrincipal.otrosJugadores.values()) {
                     if (otro.hasComponent(AnimacionJugador.class)) {
-                        if (!otro.getComponent(AnimacionJugador.class).estaMuerto) {
+                        AnimacionJugador anim = otro.getComponent(AnimacionJugador.class);
+                        if (!anim.estaMuerto && !anim.esFantasma) {
                             vivos++;
                         }
                     }
@@ -369,15 +350,12 @@ public class ReunionController {
     private void emitirVoto(String sospechoso) {
         if (haVotado || AppPrincipal.estoyMuerto) return;
         haVotado = true;
-
-        // Limpieza visual: Elimina todos los botones de votar de la pantalla
         for (ImageView btn : botonesVoto) {
             if (btn.getParent() instanceof HBox) {
                 ((HBox) btn.getParent()).getChildren().remove(btn);
             }
         }
         botonesVoto.clear();
-        // Feedback visual: Pinta el nombre del jugador local de verde para indicar que ya votó
         HBox miCarta = cartasJugadores.get(MenuController.nombreUsuario);
         if (miCarta != null) {
             for (javafx.scene.Node nodo : miCarta.getChildren()) {
@@ -390,7 +368,6 @@ public class ReunionController {
                 }
             }
         }
-        // Creación y envío del paquete
         VotoEmitido voto = new VotoEmitido();
         voto.votante = MenuController.nombreUsuario;
         voto.sospechoso = sospechoso;
@@ -399,12 +376,11 @@ public class ReunionController {
             AppPrincipal.miCliente.cliente.sendTCP(voto);
         }
     }
-    @FXML
-
 
     /**
      * Acción del botón de interfaz "Skip Vote" (Saltar Voto).
      */
+    @FXML
     private void onSaltarVoto() {
         if (haVotado || AppPrincipal.estoyMuerto) return;
         emitirVoto("SKIP");

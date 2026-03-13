@@ -104,7 +104,6 @@ public class Fabrica implements EntityFactory {
         String colorJugador = "negro";
         boolean esLocal = false;
 
-        // Búsqueda de datos del jugador en el estado global del lobby
         if (MenuController.estadoActual != null) {
             for (JugadorLobby j : MenuController.estadoActual.jugadores) {
                 if (j.nombre.equals(nombreJugador)) {
@@ -117,14 +116,12 @@ public class Fabrica implements EntityFactory {
             }
         }
 
-        // Configuración de la etiqueta de nombre visual
         Text nombreVisual = new Text(nombre);
         nombreVisual.setFill(Color.WHITE);
         nombreVisual.setFont(Font.font("Arial", 6));
         nombreVisual.setTranslateY(-1);
         nombreVisual.setTranslateX( (32 / 2.0) - (nombreVisual.getLayoutBounds().getWidth() / 2.0) );
 
-        // Configuración de escala y HitBox personalizada para los pies (colisión técnica)
         double escala = 1.6;
         double posX = (32 / escala) / 2.0 - (20 / escala) / 2.0;
         double posY = (32 / escala) - (15 / escala);
@@ -136,7 +133,6 @@ public class Fabrica implements EntityFactory {
                 .scale(escala, escala)
                 .view(nombreVisual);
 
-        // Componentes exclusivos para el control del usuario local
         if (esLocal) {
             PhysicsComponent fisicasJugador = new PhysicsComponent();
             fisicasJugador.setBodyType(BodyType.DYNAMIC);
@@ -147,7 +143,6 @@ public class Fabrica implements EntityFactory {
                     .with(new ImpostorComponent())
                     .with(fisicasJugador);
         } else {
-            // Hitbox genérica para jugadores externos
             builder.bbox(new HitBox("cuerpo", new Point2D(0, 0), BoundingShape.box(32, 32)));
         }
 
