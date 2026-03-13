@@ -133,18 +133,24 @@ public class Servidor {
                     }
                 }
                 else if (object instanceof MapaElegido) {
-
-                    // Aqui se inicia la partida, elegimos un impostor al azar y le avisamos a todos.
-
                     Connection[] conexiones = server.getConnections();
 
                     if (conexiones.length > 0) {
                         nombresImpostores.clear();
                         Random rand = new Random();
-                        int indiceImpostor = rand.nextInt(conexiones.length);
+                        int indiceImpostor1 = rand.nextInt(conexiones.length);
+                        int indiceImpostor2 = 0;
+                        if (conexiones.length > 1) {
+                            do {
+                                indiceImpostor2 = rand.nextInt(conexiones.length);
+                            } while (indiceImpostor1 == indiceImpostor2);
+                        } else {
+                            indiceImpostor2 = -1;
+                        }
+
                         for (int i = 0; i < conexiones.length; i++) {
                             AsignacionRol rol = new AsignacionRol();
-                            rol.esImpostor = (i == indiceImpostor);
+                            rol.esImpostor = (i == indiceImpostor1 || i == indiceImpostor2);
 
                             if (rol.esImpostor) {
                                 int idConexion = conexiones[i].getID();
@@ -155,7 +161,6 @@ public class Servidor {
                                     }
                                 }
                             }
-
                             server.sendToTCP(conexiones[i].getID(), rol);
                         }
                     }

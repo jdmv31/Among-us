@@ -4,6 +4,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -96,8 +97,11 @@
                </font>
             </Label>
             <Button fx:id="botonCrear" layoutX="116.0" layoutY="149.0" mnemonicParsing="false" onMouseClicked="#crearSala" text="Confirmar" />
-            <RadioButton fx:id="botonBiblioteca" layoutX="108.0" layoutY="106.0" mnemonicParsing="false" onMouseClicked="#bibliotecaSeleccionada" />
-            <RadioButton fx:id="botonCancha" layoutX="230.0" layoutY="106.0" mnemonicParsing="false" onMouseClicked="#canchaSeleccionada" />
+            <RadioButton fx:id="botonBiblioteca" layoutX="108.0" layoutY="106.0" mnemonicParsing="false" onMouseClicked="#bibliotecaSeleccionada" selected="true">
+               <toggleGroup>
+                  <ToggleGroup fx:id="grupoMapas" />
+               </toggleGroup></RadioButton>
+            <RadioButton fx:id="botonCancha" layoutX="230.0" layoutY="106.0" mnemonicParsing="false" onMouseClicked="#canchaSeleccionada" toggleGroup="$grupoMapas" />
             <ImageView fitHeight="81.0" fitWidth="78.0" layoutX="26.0" layoutY="77.0" pickOnBounds="true" preserveRatio="true">
                <image>
                   <Image url="@../images/mapaBiblioteca.png" />

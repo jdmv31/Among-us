@@ -287,10 +287,6 @@ public class TripulanteComponent extends Component {
                 texto.setFill(Color.LIMEGREEN);
                 texto.setStrikethrough(true);
             }
-
-            if (tareasCompletadas >= tareasAsignadas.length) {
-                System.out.println("¡Todas las tareas listas! Enviar aviso al servidor.");
-            }
         }
     }
 

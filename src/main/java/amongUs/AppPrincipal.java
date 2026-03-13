@@ -46,6 +46,8 @@ public class AppPrincipal extends GameApplication {
     public static ConfiguracionMapa mapaActual;
     public static List<NodoAlcantarilla> redAlcantarillas = new java.util.ArrayList<>();
     public static SistemaCamaras sistemaCamaras = new SistemaCamaras();
+    public static boolean mapaAbierto = false;
+    public static javafx.scene.Group grupoMapaUI;
     public static Tarea[] tareasAsignadas;
     public static int tareasCompletadas = 0;
     public static Texture barraTareasUI;
@@ -61,7 +63,7 @@ public class AppPrincipal extends GameApplication {
      */
     @Override
     protected void initInput() {
-        int velocidadFisica = 150;
+        int velocidadFisica = 120;
 
         FXGL.getInput().addAction(new UserAction("Mover Arriba") {
             @Override
@@ -236,7 +238,76 @@ public class AppPrincipal extends GameApplication {
                 }
             }
         }, KeyCode.R);
+        FXGL.getInput().addAction(new UserAction("Abrir/Cerrar Mapa") {
+            @Override
+            protected void onActionBegin() {
+                if (jugador == null) return;
 
+                boolean enAlcantarilla = esImpostor && jugador.hasComponent(ImpostorComponent.class) &&
+                        jugador.getComponent(ImpostorComponent.class).estaEnAlcantarilla();
+
+                if (sistemaCamaras.isCamarasAbiertas() || enAlcantarilla) return;
+
+                if (mapaAbierto) {
+                    if (grupoMapaUI != null) {
+                        FXGL.removeUINode(grupoMapaUI);
+                        grupoMapaUI = null;
+                    }
+                    mapaAbierto = false;
+                } else {
+                    String nombreImagenMapa = "";
+
+                    double[] limites = mapaActual.getLimitesCamara();
+                    double anchoMapaOriginal = limites[2];
+                    double altoMapaOriginal = limites[3];
+
+                    if (mapaActual instanceof MapaBiblioteca) {
+                        nombreImagenMapa = "mapaBiblioteca.png";
+                    } else if (mapaActual instanceof MapaCancha) {
+                        nombreImagenMapa = "mapaCancha.png";
+                    }
+
+                    if (!nombreImagenMapa.isEmpty()) {
+                        grupoMapaUI = new javafx.scene.Group();
+
+                        com.almasb.fxgl.texture.Texture imgMapa = FXGL.texture(nombreImagenMapa);
+                        grupoMapaUI.getChildren().add(imgMapa);
+
+                        if (!esImpostor && tareasAsignadas != null) {
+                            for (Tarea tarea : tareasAsignadas) {
+                                if (!tarea.tareaCompletada()) {
+
+                                    javafx.scene.shape.Circle indicador = new javafx.scene.shape.Circle(12, javafx.scene.paint.Color.YELLOW);
+                                    indicador.setStroke(javafx.scene.paint.Color.BLACK);
+                                    indicador.setStrokeWidth(3);
+                                    double posX = (tarea.getUbicacion().getX() / anchoMapaOriginal) * imgMapa.getWidth();
+                                    double posY = (tarea.getUbicacion().getY() / altoMapaOriginal) * imgMapa.getHeight();
+                                    if (mapaActual instanceof MapaBiblioteca) {
+                                        double offsetX = 60;
+                                        double offsetY = 80;
+                                        double escalaX = 1.0;
+                                        double escalaY = 1.0;
+                                        posX = (posX * escalaX) + offsetX;
+                                        posY = (posY * escalaY) + offsetY;
+                                    }
+
+                                    indicador.setTranslateX(posX);
+                                    indicador.setTranslateY(posY);
+
+                                    grupoMapaUI.getChildren().add(indicador);
+                                }
+                            }
+                        }
+
+                        grupoMapaUI.setTranslateX((FXGL.getAppWidth() / 2.0) - (imgMapa.getWidth() / 2.0));
+                        grupoMapaUI.setTranslateY((FXGL.getAppHeight() / 2.0) - (imgMapa.getHeight() / 2.0));
+
+                        FXGL.addUINode(grupoMapaUI);
+                        mapaAbierto = true;
+                    }
+                }
+            }
+        }, javafx.scene.input.KeyCode.M);
     }
 
     /**
@@ -635,6 +706,7 @@ public class AppPrincipal extends GameApplication {
                 tareasSeleccionadas[i] = listaTareas.get(i);
             }
             jugador.getComponent(TripulanteComponent.class).asignarTareas(tareasSeleccionadas);
+            tareasAsignadas = tareasSeleccionadas;
             tareasCompletadas = 0;
 
             FXGL.addUINode(botonAccion);
@@ -643,7 +715,6 @@ public class AppPrincipal extends GameApplication {
             botonAccion.setOnMouseClicked(e -> {
                 if (accionDisponible) {
                     if (cercaDeBotonEmergencia && !sabotajeActivo && !estoyMuerto) {
-                        System.out.println("Solicitando Reunión de Emergencia");
                         PeticionReunion peticion = new PeticionReunion();
 
                         if (miCliente != null && miCliente.cliente != null && miCliente.cliente.isConnected()) {
@@ -843,7 +914,7 @@ public class AppPrincipal extends GameApplication {
             cadaver.removeFromWorld();
         }
         if (res.expulsado == null || res.expulsado.equals("Nadie") || res.expulsado.equals("SKIP")) {
-            System.out.println("Nadie fue expulsado. Empate o Skip.");
+            System.out.println("Nadie fue expulsado. Empate o Skip");
             return;
         }
 
@@ -997,6 +1068,7 @@ public class AppPrincipal extends GameApplication {
             System.err.println("Error al recargar la interfaz del menú principal");
             e.printStackTrace();
         }
+        mapaAbierto = false;
     }
 
     /**

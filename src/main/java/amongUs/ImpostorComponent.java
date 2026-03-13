@@ -137,7 +137,6 @@ public class ImpostorComponent extends Component {
      */
     public void intentarMatar() {
         if (matarDisponible && !cooldownActivo && !victimaCercana.isEmpty()) {
-            System.out.println("¡Mataste a " + victimaCercana);
             Entity victima = AppPrincipal.otrosJugadores.get(victimaCercana);
 
             if (victima != null) {

@@ -39,7 +39,7 @@ public class MenuController implements UIController {
     @FXML private Label labelIp;
     public static Servidor servidor;
     public static Cliente cliente;
-    public static String mapaSeleccionado = "mapa2.tmx";
+    public static String mapaSeleccionado = "mapa1.tmx";
     public static String nombreUsuario = "Tripulante";
     public static String ipSala = "";
     @FXML private HBox slot1, slot2, slot3, slot4, slot5, slot6, slot7, slot8, slot9, slot10;
@@ -111,7 +111,7 @@ public class MenuController implements UIController {
                     Image sprite = FXGL.getAssetLoader().loadImage("tripulante_" + j.color + ".png");
                     imagenes[i].setImage(sprite);
                 } catch (Exception e) {
-                    System.out.println("No se encontró el sprite para el color: " + j.color);
+                    System.out.println("No se encontro el sprite para el color: " + j.color);
                 }
 
                 boolean esMiSlot = j.nombre.equals(MenuController.nombreUsuario);
@@ -127,7 +127,7 @@ public class MenuController implements UIController {
         }
         start.setVisible(host);
         // cambiar aca para hacer pruebas
-        start.setDisable(estado.jugadores.length < 1);
+        start.setDisable(estado.jugadores.length < 5);
     }
     /**
      * intenta obtener la dirección IP local, priorizando interfaces virtuales como Hamachi
@@ -258,8 +258,8 @@ public class MenuController implements UIController {
             String nombreTemp = txtNombre2.getText().trim();
             nombreUsuario = nombreTemp.length() > 10 ? nombreTemp.substring(0, 10) : nombreTemp;
         } else {
-            int numeroID = (int) (Math.random() * 999) + 1;
-            nombreUsuario = "Tripulante " + numeroID;
+            int numeroID = (int) (Math.random() * 9999) + 1;
+            nombreUsuario = "Player" + numeroID;
         }
 
         try {
