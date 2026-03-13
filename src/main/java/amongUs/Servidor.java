@@ -137,22 +137,19 @@ public class Servidor {
 
                     if (conexiones.length > 0) {
                         nombresImpostores.clear();
-                        Random rand = new Random();
+                        java.util.Random rand = new java.util.Random();
+
                         int indiceImpostor1 = rand.nextInt(conexiones.length);
-                        int indiceImpostor2 = 0;
+                        int indiceImpostor2 = -1;
+
                         if (conexiones.length > 1) {
                             do {
                                 indiceImpostor2 = rand.nextInt(conexiones.length);
                             } while (indiceImpostor1 == indiceImpostor2);
-                        } else {
-                            indiceImpostor2 = -1;
                         }
 
                         for (int i = 0; i < conexiones.length; i++) {
-                            AsignacionRol rol = new AsignacionRol();
-                            rol.esImpostor = (i == indiceImpostor1 || i == indiceImpostor2);
-
-                            if (rol.esImpostor) {
+                            if (i == indiceImpostor1 || i == indiceImpostor2) {
                                 int idConexion = conexiones[i].getID();
                                 for (JugadorLobby j : jugadoresLobby) {
                                     if (j.conexionId == idConexion) {
@@ -161,6 +158,12 @@ public class Servidor {
                                     }
                                 }
                             }
+                        }
+
+                        for (int i = 0; i < conexiones.length; i++) {
+                            AsignacionRol rol = new AsignacionRol();
+                            rol.esImpostor = (i == indiceImpostor1 || i == indiceImpostor2);
+                            rol.companeros = nombresImpostores.toArray(new String[0]);
                             server.sendToTCP(conexiones[i].getID(), rol);
                         }
                     }
@@ -193,6 +196,7 @@ public class Servidor {
                     VotoEmitido voto = (VotoEmitido) object;
                     jugadoresQueYaVotaron.add(voto.votante);
                     conteoVotos.put(voto.sospechoso, conteoVotos.getOrDefault(voto.sospechoso, 0) + 1);
+                    server.sendToAllTCP(object);
                     int vivosEsperados = jugadoresLobby.size() - jugadoresMuertos.size();
                     if (jugadoresQueYaVotaron.size() >= vivosEsperados) {
                         calcularResultadoVotacion();

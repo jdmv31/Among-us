@@ -51,6 +51,8 @@ public class AppPrincipal extends GameApplication {
     public static Tarea[] tareasAsignadas;
     public static int tareasCompletadas = 0;
     public static Texture barraTareasUI;
+    public static String[] listaImpostores;
+    public static java.util.List<String> companerosImpostores = new java.util.ArrayList<>();
     public static int indiceTareaCercana = -1;
     public static boolean enMinijuego = false;
     public static Texture panelMinijuegoActual;

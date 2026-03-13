@@ -11,4 +11,5 @@ public class AsignacionRol {
      * si es {@code false} el jugador sera un tripulante
      */
     public boolean esImpostor;
+    public String[] companeros;
 }

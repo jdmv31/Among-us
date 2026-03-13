@@ -89,6 +89,7 @@ public class Cliente {
                 if (object instanceof AsignacionRol) {
                     AsignacionRol rolAsignado = (AsignacionRol) object;
                     AppPrincipal.esImpostor = rolAsignado.esImpostor;
+                    AppPrincipal.listaImpostores = rolAsignado.companeros;
                     System.out.println("Impostor: " + AppPrincipal.esImpostor);
                 }
                 if (object instanceof Asesinato) {
@@ -205,6 +206,14 @@ public class Cliente {
                     javafx.application.Platform.runLater(() -> {
                         if (ReunionController.instancia != null) {
                             ReunionController.instancia.mostrarResultados(res);
+                        }
+                    });
+                }
+                else if (object instanceof main.java.amongUs.VotoEmitido) {
+                    main.java.amongUs.VotoEmitido voto = (main.java.amongUs.VotoEmitido) object;
+                    javafx.application.Platform.runLater(() -> {
+                        if (main.java.amongUs.ReunionController.instancia != null) {
+                            main.java.amongUs.ReunionController.instancia.marcarJugadorComoVotado(voto.votante);
                         }
                     });
                 }

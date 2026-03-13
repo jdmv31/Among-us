@@ -228,23 +228,19 @@ public class ReunionController {
 
         icono.setFitWidth(50);
         icono.setFitHeight(50);
-// Etiqueta de nombre (Roja si está muerto, blanca si está vivo)
         Label labelNombre = new Label(nombre);
         labelNombre.setTextFill(estaMuerto ? Color.RED : Color.WHITE);
         labelNombre.setStyle("-fx-font-weight: bold; -fx-font-size: 18px;");
-// Espaciador para empujar el botón de voto o la 'X' al extremo derecho
         Region espaciador = new Region();
         HBox.setHgrow(espaciador, Priority.ALWAYS);
         carta.getChildren().addAll(icono, labelNombre, espaciador);
-// --- Lógica de Interacción ---
         if (estaMuerto) {
-            // Si el jugador de la carta está muerto, mostrar una X roja grande
             Label lblMuerto = new Label("X");
             lblMuerto.setTextFill(Color.RED);
             lblMuerto.setStyle("-fx-font-weight: bold; -fx-font-size: 28px;");
             carta.getChildren().add(lblMuerto);
         }
-        else if (!AppPrincipal.estoyMuerto && !nombre.equals(MenuController.nombreUsuario)) {
+        else if (!AppPrincipal.estoyMuerto && !nombre.equals(MenuController.nombreUsuario) && !estaMuerto) {
             // Si yo estoy vivo y el jugador de la carta también (y no soy yo mismo), añadir botón de voto
             ImageView btnVotar = new ImageView(FXGL.image("botonVotar.png"));
             btnVotar.setFitWidth(35);
@@ -262,6 +258,23 @@ public class ReunionController {
 // Guardar la carta en el mapa y añadirla al contenedor visual principal
         cartasJugadores.put(nombre, carta);
         contenedorVotos.add(carta, col, row);
+    }
+    /**
+     * Pinta de verde el nombre de un jugador para indicar a todos que ya emitió su voto.
+     */
+    public void marcarJugadorComoVotado(String nombreJugador) {
+        HBox carta = cartasJugadores.get(nombreJugador);
+        if (carta != null) {
+            for (javafx.scene.Node nodo : carta.getChildren()) {
+                if (nodo instanceof Label) {
+                    Label lbl = (Label) nodo;
+                    if (lbl.getText().equals(nombreJugador)) {
+                        lbl.setTextFill(Color.LIGHTGREEN);
+                        break;
+                    }
+                }
+            }
+        }
     }
     /**
      * Procesa el paquete ResultadoVotacion enviado por el servidor.

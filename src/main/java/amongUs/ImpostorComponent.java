@@ -19,22 +19,16 @@ import java.util.Map;
  * @author Angel Aguilera
  */
 public class ImpostorComponent extends Component {
-
-    // --- Atributos de Asesinato ---
     private boolean matarDisponible = false;
     private boolean cooldownActivo = false;
     private double tiempoCooldown = 0.0;
     private Texture botonMatar;
     private Text textoCooldown;
     private String victimaCercana = "";
-
-    // --- Atributos de Alcantarillas (Vents) ---
     private boolean enAlcantarilla = false;
     private int alcantarillaActual = -1;
     /** Entidades visuales (flechas) para la navegación entre rejillas. */
     private Entity ventflechaIzq, ventflechaAbajo, ventflechaArriba, ventflechaDer;
-
-    // --- Atributos de Sabotaje ---
     private Texture botonSabotaje;
     private Text textoCooldownSabotaje;
     private boolean sabotajeDisponible = true;
@@ -75,21 +69,28 @@ public class ImpostorComponent extends Component {
         victimaCercana = "";
         double distanciaMinima = 30.0;
 
-        // Búsqueda proactiva de víctimas
         if (!enAlcantarilla) {
-            for (Map.Entry<String, Entity> entry : AppPrincipal.otrosJugadores.entrySet()) {
+            for (java.util.Map.Entry<String, Entity> entry : AppPrincipal.otrosJugadores.entrySet()) {
                 Entity otroJugador = entry.getValue();
                 double distancia = entity.getPosition().distance(otroJugador.getPosition());
                 boolean estaVivo = !otroJugador.getComponent(AnimacionJugador.class).estaMuerto;
+                boolean esCompanero = false;
+                if (AppPrincipal.listaImpostores != null) {
+                    for (String nombreCompanero : AppPrincipal.listaImpostores) {
+                        if (nombreCompanero.equals(entry.getKey())) {
+                            esCompanero = true;
+                            break;
+                        }
+                    }
+                }
 
-                if (distancia < distanciaMinima && estaVivo) {
+                if (distancia < distanciaMinima && estaVivo && !esCompanero) {
                     distanciaMinima = distancia;
                     victimaCercana = entry.getKey();
                 }
             }
         }
 
-        // Gestión lógica y visual del cooldown de asesinato
         if (cooldownActivo) {
             tiempoCooldown -= tpf;
             if (textoCooldown != null) {
@@ -146,8 +147,6 @@ public class ImpostorComponent extends Component {
                     victima.getComponent(PhysicsComponent.class).setVelocityY(0);
                 }
             }
-
-            // Sincronización Multijugador
             Asesinato paquete = new Asesinato();
             paquete.asesino = MenuController.nombreUsuario;
             paquete.victima = victimaCercana;
